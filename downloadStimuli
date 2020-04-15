@@ -1,0 +1,4 @@
+#!/bin/bash
+curl -L https://www.dropbox.com/sh/20hgit6xoqxsbt0/AABnGrj6XDH08zQ5ilICLARVa?dl=1 > stimuli.zip
+unzip -d ./stimuli stimuli.zip
+rm stimuli.zip
