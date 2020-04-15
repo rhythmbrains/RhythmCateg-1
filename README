@@ -1,0 +1,19 @@
+Requirements: 
+    - Matlab 
+    - Psychtoolbox
+
+To run: 
+    - First, download the stimuli by executing downloadStimuli bash script. 
+    - Run tapTrainer_PTB.m in Matlab. 
+    - This will launch the ptb session. 
+
+During the session, rhythms are presented with sounds marking the meter (one 
+sound for beat, the other playing the fastest metric level). 
+
+The task is to tap on SPACEBAR along with the beat. Good tapping performance
+will result in gradual decrease of meter-sounds volume. Eventually, the
+meter-sounds will disappear and the subject is required to keep synchronized
+to the beat. 
+
+Multiple rhythmic patterns with increasing difficulty can be used, as well as
+different beat periods. 
