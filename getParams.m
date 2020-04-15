@@ -6,7 +6,7 @@ cfg.patterns            = {[1 1 1 0 1 1 1 0 1 1 0 0 ],
                            [1 1 1 1 0 1 1 1 0 0 1 0 ]};        % rhythmic patterns (from simplest to most difficult)     
 cfg.max_pattern_level   = length(cfg.patterns);   % number of patterns
 cfg.period_metronome    = [4,4]; % each pattern needs a metronome period assigned (units: N-grid-ticks)
-cfg.snr_metronome       = [0, -10, -19, -Inf]; % SNRs between rhythm and metronome audio (to be used across levels)
+cfg.snr_metronome       = [0, -14, -25, -Inf]; % SNRs between rhythm and metronome audio (to be used across levels)
 cfg.max_snr_level       = length(cfg.snr_metronome); % number of SNR-levels
 
 cfg.n_cycles_per_step   = 4; % number of pattern cycles in each step

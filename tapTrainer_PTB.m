@@ -6,6 +6,7 @@
 %     - PTB latency test? (but audio capture device may be late anyway so no
 %       point in doing this...)
 %     - data logging 
+%     - test on Windows
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all
@@ -133,7 +134,7 @@ try
                 [~,secs,key_code] = KbCheck(-1);
                 if find(key_code)==keyquit
                     aborted = true;
-                    break
+                    error('Experiment terminated by user...'); 
                 end
                 if ~istap & any(key_code)
                     taps = [taps,secs-start_time];
