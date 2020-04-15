@@ -24,13 +24,13 @@ cfg = getParams();
 
 try
 
-    % PsychJavaTrouble;
+    PsychJavaTrouble;
     PsychDebugWindowConfiguration
     Screen('Preference', 'SkipSyncTests', 1);
     
     % Keyboard
     KbName('UnifyKeyNames');
-    keywait     = KbName({'ENTER','RETURN'}); % press space to start bloc
+    keywait     = KbName({'RETURN'}); % press space to start bloc
     keyquit     = KbName('DELETE'); % press ESCAPE at response time to quit
     keyrtap     = KbName('SPACE'); 
 
