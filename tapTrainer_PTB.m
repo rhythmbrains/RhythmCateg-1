@@ -9,9 +9,12 @@
 %     - test on Windows
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear all
+clear
+clc
+PsychPortAudio('Close');
 
 
+tic
 
 % paths
 addpath('lib')
@@ -36,7 +39,8 @@ try
 
     HideCursor;
     FlushEvents;
-    ListenChar(2);
+    ListenChar(2); % enable listening & additional keypress will be suppressed in command window
+    % use CTRL+C to reenable keyboard input when necessary
     
     % initiate screen
     screen              = [];
@@ -52,6 +56,22 @@ try
     Screen('TextSize',screen.h,round(screen.res.width/100));
        
     % initiate sound
+    % LETS CARRY THIS AFTER THE SOUNDS ARE GENERATED AND LOADED %%%%%%%
+    % because i would like to see everything is set first and then load/
+    % flip screen etc... It'd make the checking the code a lot easier. 
+    
+    % what is the importance of this part?
+    
+    % e.g. we are not changing frequency so no need to call it from a
+    % variable. It makes it difficult to read the script. 
+    
+    % we are not looking for different channels, right? So I'd suggest
+    % channel = 2; makes it easier to read
+    
+    % what is importance of audio.h and audio.i? Why don't we call
+    % sound//SoundData// audio1// ...
+    
+    
     InitializePsychSound(1);
     audio_dev       = PsychPortAudio('GetDevices');
     idx             = find([audio_dev.NrInputChannels] == 0 & [audio_dev.NrOutputChannels] == 2); 
@@ -61,6 +81,7 @@ try
     audio.h         = PsychPortAudio('Open',audio.i,1,1,cfg.fs,2);
     audio.pushsize  = cfg.fs*0.010; %! push N ms only
     
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % instructions   
     txt = ['Welcome!\n\n', ...
@@ -106,14 +127,32 @@ try
                          'snr_metronome', cfg.snr_metronome(curr_metronome_snr_level));
 
         % first, fill the buffer with 60s silence
+        
+        % %%%% CREATE silence before so it's easier to read %%%%%%%%%%%%
         PsychPortAudio('FillBuffer', audio.h, zeros(2, 60*cfg.fs)); 
         
+        
+        
+        
+        
         % start playback (note: set repetitions=0, otherwise it will not allow you to seamlessly push more data into the buffer once the sound is playing)  
-        start_time = PsychPortAudio('Start', audio.h, 0, [], 1); % startTime = PsychPortAudio('Start', pahandle [, repetitions=1] [, when=0] [, waitForStart=0] [, stopTime=inf] [, resume=0]);
+        start_time = PsychPortAudio('Start', audio.h, 0, [], 1); 
+        % startTime = PsychPortAudio('Start', pahandle [, repetitions=1] [, when=0] [, waitForStart=0] [, stopTime=inf] [, resume=0]);
 
+        % %%%%%%%%%%%% IF I understood right, we are working with 2
+        % channels with same sound. no need to separate the channels. No?
         % now, fill buffer with audio
         audio2push = [seq.s;seq.s]; 
+        
+        
+        
+        
+        % %%%%%% WHY do we have this? %%%%%%%
         requestoffsettime = 1; % offset 1 sec
+        
+        
+        
+        
         reqsampleoffset = requestoffsettime*cfg.fs; %
         [underflow] = PsychPortAudio('FillBuffer', audio.h, audio2push, 1, reqsampleoffset);
 
@@ -136,11 +175,11 @@ try
                     aborted = true;
                     error('Experiment terminated by user...'); 
                 end
-                if ~istap & any(key_code)
+                if ~istap && any(key_code)
                     taps = [taps,secs-start_time];
                     istap = true;
                 end
-                if istap & ~any(key_code)
+                if istap && ~any(key_code)
                     istap = false;
                 end
 
@@ -189,7 +228,7 @@ try
             tap_cv_asynch = std(tap_asynch)/curr_metronome_interval; 
 
             % update tpaping performance (wrt cvASY threshold and n-taps)
-            if (tap_cv_asynch < cfg.tap_cv_asynch_thr) & curr_n_taps>=tap_min_n_taps
+            if (tap_cv_asynch < cfg.tap_cv_asynch_thr) && curr_n_taps>=tap_min_n_taps
                 % good performance, one up!
                 tap_perform_status = max(0,tap_perform_status); % if negative make 0
                 tap_perform_status = tap_perform_status+1; 
@@ -270,6 +309,7 @@ try
         curr_pattern_level = curr_pattern_level+1; 
         
         
+        % %%%%%%%%%%%% THIS CAN BE OUT OF THE LOOP %%%%%%%%%%%%%%%%%%%%%
         % instructions   
         if curr_pattern_level>cfg.max_pattern_level
             displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',screen,keywait);  
@@ -292,14 +332,14 @@ try
     
     
     
-catch e
+catch err
     
     PsychPortAudio('Stop',audio.h,1);
     PsychPortAudio('Close',audio.h)
     sca
     ListenChar(0); 
     
-    rethrow(e)
+    rethrow(err)
 end
     
 
@@ -308,5 +348,15 @@ sca
 ListenChar(0); 
 PsychPortAudio('Close',audio.h)
    
+%take the last time
+expTime = toc;
 
+%% print the duration of the exp
+% fprintf('\nTRAINING IS OVER!!\n');
+% fprintf('\n==================\n\n');
+
+% fprintf('\nyou have tested %d trials for STATIC and %d trials for MOTION conditions\n\n', ...
+%     (numEvents-numTargets)/2, (numEvents-numTargets)/2);
+
+fprintf('\nexp. duration was %f minutes\n\n', expTime/60);
 
