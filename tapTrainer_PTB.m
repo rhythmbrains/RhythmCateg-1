@@ -30,7 +30,7 @@ try
     
     % Keyboard
     KbName('UnifyKeyNames');
-    keywait     = KbName({'RETURN'}); % press space to start bloc
+    keywait     = KbName({'RETURN'}); % press enter to start bloc
     keyquit     = KbName('DELETE'); % press ESCAPE at response time to quit
     keyrtap     = KbName('SPACE'); 
 
