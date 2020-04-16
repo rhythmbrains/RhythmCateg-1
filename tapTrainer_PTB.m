@@ -129,6 +129,8 @@ try
         % first, fill the buffer with 60s silence
         
         % %%%% CREATE silence before so it's easier to read %%%%%%%%%%%%
+        % actually, why fill it with 60s silence instead of starting 60s
+        % later? 
         PsychPortAudio('FillBuffer', audio.h, zeros(2, 60*cfg.fs)); 
         
         
@@ -148,12 +150,19 @@ try
         
         
         % %%%%%% WHY do we have this? %%%%%%%
+        % %%%%% also why this is in the loop? Maybe it could be outside? 
+        % whatever does not change in due to looping, should go outside of
+        % the loop
         requestoffsettime = 1; % offset 1 sec
         
         
         
         
         reqsampleoffset = requestoffsettime*cfg.fs; %
+        
+        
+        
+        % if you dont use underflo afterwards, let's delete it %%%%%%%%
         [underflow] = PsychPortAudio('FillBuffer', audio.h, audio2push, 1, reqsampleoffset);
 
         % and update start time (by offset)
@@ -172,7 +181,12 @@ try
                 % collect tapping 
                 [~,secs,key_code] = KbCheck(-1);
                 if find(key_code)==keyquit
+                    
+                    % %%%%% ABORTED SEEMS NOT USED AFTERWARDS? %%%%%%
                     aborted = true;
+                    
+                    
+                    
                     error('Experiment terminated by user...'); 
                 end
                 if ~istap && any(key_code)
