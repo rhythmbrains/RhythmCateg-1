@@ -7,11 +7,77 @@
 %       point in doing this...)
 %     - data logging 
 %     - test on Windows
+
+% notes from Cer's trials
+% 0. it's a very neat sets of codes and it goes super smoothly. 
+
+% 0.1. The screen info does not go away after the first stage 
+% (where it says "congratulations") is done 
+% also maybe it's either good to inform people to read the screen or insert
+% a beep tone indiating it's ended.
+
+% 1. when people are stuck in level 3, theres should be an escape button which
+% will close everything. Atm, I need to press CTL + C, then sca, and then
+% close psycoportaduio
+
+% 2. considering people like me, a.k.a. negative controls (Gil did it in 
+% 4min, I couldn't finish, maybe it's better to divide it into blocks
+% intead of looping through infinite times. Hence, I'd use for loop instead
+% of while loop
+
+% 3. What I meant by creating a word doc is to write down how the code
+% calcualtes the error // what's the timing parameter // "what the computer
+% does"
+
+% 4. what is the error rate? Participants wondered (n=2).
+
+% 5. Let?s make more functions to reduce the complexity:
+% https://blogs.mathworks.com/community/2008/09/08/let-m-lint-help-simplify-your-code/
+
+
+
+
+%% low importance stuff:
+% Can we use PascalCase instead? Which is also common in PTB ? 
+% I?d be consisted across the code- including the variables)
+
+% Notes from Remi on how to code better:
+
+% Also try to actually not have code that goes beyond the 80 characters 
+% limit of the editor (I don't care how wide your screen is!!! :-) )
+
+% Use sections (%%) to delimit logical entities in the flow of your scripts 
+% and functions.
+
+% Add comments. A lot. If you have less that 20% comment, then future you 
+% is in trouble.?
+% ?
+% Structure
+% Try to minimize the number of files you need to touch to change the 
+% behavior of your code.
+
+% Have a separate file where you set all your experiment / analysis 
+% parameters and load that.?
+
+% Have all the other function except the main script into a separate folder.?
+
+% Then there is the "refactoring" issue.?
+% Avoid copy-pasta or this might lead to?spaghetti code?
+% - if you are copy-pasting some code inside or across a function/script: STOP. 
+% Turn it into a function: it takes one more minute but it will save you 
+% hours in the long run. This should almost become a conditioned reflex.
+% - if you are copying a function between projects, seriously consider 
+% creating a library of functions that you can easily add to projects.
+
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear all
+clear
+clc
+PsychPortAudio('Close');
 
 
+tic
 
 % paths
 addpath('lib')
@@ -30,13 +96,14 @@ try
     
     % Keyboard
     KbName('UnifyKeyNames');
-    keywait     = KbName({'RETURN'}); % press space to start bloc
+    keywait     = KbName({'RETURN'}); % press enter to start bloc
     keyquit     = KbName('DELETE'); % press ESCAPE at response time to quit
     keyrtap     = KbName('SPACE'); 
 
     HideCursor;
     FlushEvents;
-    ListenChar(2);
+    ListenChar(2); % enable listening & additional keypress will be suppressed in command window
+    % use CTRL+C to reenable keyboard input when necessary
     
     % initiate screen
     screen              = [];
@@ -52,6 +119,22 @@ try
     Screen('TextSize',screen.h,round(screen.res.width/100));
        
     % initiate sound
+    % LETS CARRY THIS AFTER THE SOUNDS ARE GENERATED AND LOADED %%%%%%%
+    % because i would like to see everything is set first and then load/
+    % flip screen etc... It'd make the checking the code a lot easier. 
+    
+    % what is the importance of this part?
+    
+    % e.g. we are not changing frequency so no need to call it from a
+    % variable. It makes it difficult to read the script. 
+    
+    % we are not looking for different channels, right? So I'd suggest
+    % channel = 2; makes it easier to read
+    
+    % what is importance of audio.h and audio.i? Why don't we call
+    % sound//SoundData// audio1// ...
+    
+    
     InitializePsychSound(1);
     audio_dev       = PsychPortAudio('GetDevices');
     idx             = find([audio_dev.NrInputChannels] == 0 & [audio_dev.NrOutputChannels] == 2); 
@@ -61,6 +144,7 @@ try
     audio.h         = PsychPortAudio('Open',audio.i,1,1,cfg.fs,2);
     audio.pushsize  = cfg.fs*0.010; %! push N ms only
     
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % instructions   
     txt = ['Welcome!\n\n', ...
@@ -106,15 +190,42 @@ try
                          'snr_metronome', cfg.snr_metronome(curr_metronome_snr_level));
 
         % first, fill the buffer with 60s silence
+        
+        % %%%% CREATE silence before so it's easier to read %%%%%%%%%%%%
+        % actually, why fill it with 60s silence instead of starting 60s
+        % later? 
         PsychPortAudio('FillBuffer', audio.h, zeros(2, 60*cfg.fs)); 
         
+        
+        
+        
+        
         % start playback (note: set repetitions=0, otherwise it will not allow you to seamlessly push more data into the buffer once the sound is playing)  
-        start_time = PsychPortAudio('Start', audio.h, 0, [], 1); % startTime = PsychPortAudio('Start', pahandle [, repetitions=1] [, when=0] [, waitForStart=0] [, stopTime=inf] [, resume=0]);
+        start_time = PsychPortAudio('Start', audio.h, 0, [], 1); 
+        % startTime = PsychPortAudio('Start', pahandle [, repetitions=1] [, when=0] [, waitForStart=0] [, stopTime=inf] [, resume=0]);
 
+        % %%%%%%%%%%%% IF I understood right, we are working with 2
+        % channels with same sound. no need to separate the channels. No?
         % now, fill buffer with audio
         audio2push = [seq.s;seq.s]; 
+        
+        
+        
+        
+        % %%%%%% WHY do we have this? %%%%%%%
+        % %%%%% also why this is in the loop? Maybe it could be outside? 
+        % whatever does not change in due to looping, should go outside of
+        % the loop
         requestoffsettime = 1; % offset 1 sec
+        
+        
+        
+        
         reqsampleoffset = requestoffsettime*cfg.fs; %
+        
+        
+        
+        % if you dont use underflo afterwards, let's delete it %%%%%%%%
         [underflow] = PsychPortAudio('FillBuffer', audio.h, audio2push, 1, reqsampleoffset);
 
         % and update start time (by offset)
@@ -133,14 +244,19 @@ try
                 % collect tapping 
                 [~,secs,key_code] = KbCheck(-1);
                 if find(key_code)==keyquit
+                    
+                    % %%%%% ABORTED SEEMS NOT USED AFTERWARDS? %%%%%%
                     aborted = true;
+                    
+                    
+                    
                     error('Experiment terminated by user...'); 
                 end
-                if ~istap & any(key_code)
+                if ~istap && any(key_code)
                     taps = [taps,secs-start_time];
                     istap = true;
                 end
-                if istap & ~any(key_code)
+                if istap && ~any(key_code)
                     istap = false;
                 end
 
@@ -189,7 +305,7 @@ try
             tap_cv_asynch = std(tap_asynch)/curr_metronome_interval; 
 
             % update tpaping performance (wrt cvASY threshold and n-taps)
-            if (tap_cv_asynch < cfg.tap_cv_asynch_thr) & curr_n_taps>=tap_min_n_taps
+            if (tap_cv_asynch < cfg.tap_cv_asynch_thr) && curr_n_taps>=tap_min_n_taps
                 % good performance, one up!
                 tap_perform_status = max(0,tap_perform_status); % if negative make 0
                 tap_perform_status = tap_perform_status+1; 
@@ -270,6 +386,7 @@ try
         curr_pattern_level = curr_pattern_level+1; 
         
         
+        % %%%%%%%%%%%% THIS CAN BE OUT OF THE LOOP %%%%%%%%%%%%%%%%%%%%%
         % instructions   
         if curr_pattern_level>cfg.max_pattern_level
             displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',screen,keywait);  
@@ -292,14 +409,14 @@ try
     
     
     
-catch e
+catch err
     
     PsychPortAudio('Stop',audio.h,1);
     PsychPortAudio('Close',audio.h)
     sca
     ListenChar(0); 
     
-    rethrow(e)
+    rethrow(err)
 end
     
 
@@ -308,5 +425,15 @@ sca
 ListenChar(0); 
 PsychPortAudio('Close',audio.h)
    
+%take the last time
+expTime = toc;
 
+%% print the duration of the exp
+% fprintf('\nTRAINING IS OVER!!\n');
+% fprintf('\n==================\n\n');
+
+% fprintf('\nyou have tested %d trials for STATIC and %d trials for MOTION conditions\n\n', ...
+%     (numEvents-numTargets)/2, (numEvents-numTargets)/2);
+
+fprintf('\nexp. duration was %f minutes\n\n', expTime/60);
 

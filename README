@@ -3,11 +3,12 @@ Requirements:
     - Psychtoolbox
 
 To run: 
-    - First, download the stimuli by executing downloadStimuli bash script. 
+    - First, download the stimuli by executing downloadStimuli bash script.
+      Simply, type "sh downloadStimuli" in  Terminal. 
     - Run tapTrainer_PTB.m in Matlab. 
-    - This will launch the ptb session. 
+      This will launch the ptb session. 
 
-During the session, rhythms are presented with sounds marking the meter (one 
+During this training session, rhythms are presented with sounds marking the meter (one 
 sound for beat, the other playing the fastest metric level). 
 
 The task is to tap on SPACEBAR along with the beat. Good tapping performance
