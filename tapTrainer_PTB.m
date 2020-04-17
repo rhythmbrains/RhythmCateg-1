@@ -11,20 +11,25 @@
 % notes from Cer's trials
 % 0. it's a very neat sets of codes and it goes super smoothly. 
 
-% 0.1. The screen info does not go away after the first stage is done (the
-% transition screen between the second stage and when the aduio started)
+% 0.1. The screen info does not go away after the first stage 
+% (where it says "congratulations") is done 
+% also maybe it's either good to inform people to read the screen or insert
+% a beep tone indiating it's ended.
 
 % 1. when people are stuck in level 3, theres should be an escape button which
 % will close everything. Atm, I need to press CTL + C, then sca, and then
 % close psycoportaduio
 
-% 2. considering people like me, maybe it's better to divide it into blocks
+% 2. considering people like me, a.k.a. negative controls (Gil did it in 
+% 4min, I couldn't finish, maybe it's better to divide it into blocks
 % intead of looping through infinite times. Hence, I'd use for loop instead
 % of while loop
 
 % 3. What I meant by creating a word doc is to write down how the code
 % calcualtes the error // what's the timing parameter // "what the computer
 % does"
+
+% 4. what is the error rate? Participants wondered (n=2).
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
