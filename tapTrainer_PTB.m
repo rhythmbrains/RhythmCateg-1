@@ -31,6 +31,45 @@
 
 % 4. what is the error rate? Participants wondered (n=2).
 
+% 5. Let?s make more functions to reduce the complexity:
+% https://blogs.mathworks.com/community/2008/09/08/let-m-lint-help-simplify-your-code/
+
+
+
+
+%% low importance stuff:
+% Can we use PascalCase instead? Which is also common in PTB ? 
+% I?d be consisted across the code- including the variables)
+
+% Notes from Remi on how to code better:
+
+% Also try to actually not have code that goes beyond the 80 characters 
+% limit of the editor (I don't care how wide your screen is!!! :-) )
+
+% Use sections (%%) to delimit logical entities in the flow of your scripts 
+% and functions.
+
+% Add comments. A lot. If you have less that 20% comment, then future you 
+% is in trouble.?
+% ?
+% Structure
+% Try to minimize the number of files you need to touch to change the 
+% behavior of your code.
+
+% Have a separate file where you set all your experiment / analysis 
+% parameters and load that.?
+
+% Have all the other function except the main script into a separate folder.?
+
+% Then there is the "refactoring" issue.?
+% Avoid copy-pasta or this might lead to?spaghetti code?
+% - if you are copy-pasting some code inside or across a function/script: STOP. 
+% Turn it into a function: it takes one more minute but it will save you 
+% hours in the long run. This should almost become a conditioned reflex.
+% - if you are copying a function between projects, seriously consider 
+% creating a library of functions that you can easily add to projects.
+
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
