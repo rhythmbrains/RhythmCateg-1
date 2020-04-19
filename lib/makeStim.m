@@ -36,7 +36,7 @@ sound_metronome = sound_metronome/rms_metr * max_allowed_rms;
 sound_grid      = sound_grid/rms_grid * max_allowed_rms; 
 
 
-% set metronome and grid level based on requested SNR (pattern/metronome, dB)
+% set metronome/cue and grid level based on requested SNR/dB (pattern/metronome, dB)
 if any(strcmp(varargin,'snr_metronome'))
     seq.snr_metronome = varargin{find(strcmp(varargin,'snr_metronome'))+1};     
 else
