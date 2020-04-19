@@ -1,6 +1,7 @@
 % 
 % TO DO: 
 %     - make feedback nicer on the screen
+%     - set PTB Volume before starting the experiment (maybe even throughout?)
 %     - PTB latency test? (but audio capture device may be late anyway so no
 %       point in doing this...)
 %     - data logging 
@@ -84,7 +85,9 @@ try
     PsychDebugWindowConfiguration
     Screen('Preference', 'SkipSyncTests', 1);
     
-    % Keyboard
+    
+    %% init eyboard
+    
     KbName('UnifyKeyNames');
     keywait     = KbName({'RETURN'}); % press enter to start bloc
     keyquit     = KbName('DELETE'); % press ESCAPE at response time to quit 
@@ -96,8 +99,8 @@ try
     % use CTRL+C to reenable keyboard input when necessary
     
     
+    %% init screen
     % could be made a function 
-    % initiate screen
     screen              = [];
     screen.i            = max(Screen('Screens'));
     screen.res          = Screen('Resolution',screen.i);    
@@ -113,6 +116,8 @@ try
     
 
     
+    
+    %% init sound
     %could be made a function? not maybe.
     % at this tage it's slightly confusing to read. //audio.h //audio.i//
     % channel = 2; makes it easier to read
@@ -120,8 +125,7 @@ try
     % consider below:
     % dev_n_channels = 2;
     % pahandle = PsychPortAudio('Open', [], [], 3, freq, dev_n_channels);
-    
-    % initiate sound
+
     InitializePsychSound(1);
     audio_dev       = PsychPortAudio('GetDevices');
     idx             = find([audio_dev.NrInputChannels] == 0 & [audio_dev.NrOutputChannels] == 2); 
@@ -135,11 +139,17 @@ try
     requestoffsettime = 1; % offset 1 sec
     reqsampleoffset = requestoffsettime*cfg.fs; %
     
-
     
-    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % instructions   
+    %% setup volume 
+    
+        
+    
+    
+    
+    
+    %%  instructions   
+    
     % what to press to quit
     % bigger font - be careful with the screensize
     % etc..
@@ -155,44 +165,40 @@ try
            'Good luck!\n\n']; 
     displayInstr(txt,screen,keywait);     
     
-    
-    
-    
-    
-    %%%============ TRAINING LOOP ============%%%
+       
     displayInstr('TAP',screen);   
     
     % simultenaous feedback 
-    % fbk_on_screen               = false; 
+    % fbk_on_screen = false; 
     
-    curr_pattern_level          = 1; 
+    curr_pattern_level = 1; 
    
     % pattern has 12 events
     % metromnome interval is 4 event
     
     
-    % loop over patterns (atm, n pattern = 2)
+    %% loop over patterns (atm, n pattern = 2)
     while 1
         
         % once the pattern is repeated 4 times, the script looks back in
         % this time window, and in the next "step" ...
-        curr_step                   = 1; 
+        curr_step = 1; 
         
         % dB changes in the loop - tapping cue (decreases over time if the
         % error rate is low(er))
         % which dB sound will be played choose the index in the list
-        curr_cue_dB_level    = 1; 
+        curr_cue_dB_level = 1; 
         
         %number of grip points between two tapping cue sounds
         %convert the grip interval to target inter-tap-interval in seconds.
         % every 800ms there'll be a cue sound to tap along
-        curr_metronome_interval     = cfg.period_metronome(curr_pattern_level)*cfg.grid_interval;
+        curr_metronome_interval = cfg.period_metronome(curr_pattern_level)*cfg.grid_interval;
         
         % atm, total duration of the pattern window (4 x pattern)
-        curr_step_dur               = cfg.n_cycles_per_step * length(cfg.patterns{curr_pattern_level}) * cfg.grid_interval; 
+        curr_step_dur = cfg.n_cycles_per_step * length(cfg.patterns{curr_pattern_level}) * cfg.grid_interval; 
         
         % to calculate the max #taps
-        curr_taketap_dur            = curr_step_dur - 0.200; 
+        curr_taketap_dur = curr_step_dur - 0.200; 
         
         %to be used later on to calculate the min number that participant
         %has to tap - 
@@ -203,14 +209,12 @@ try
         
         % counters for calculating the tapping accuracy later on
         tap_perform_status = 0; % if good +1, if bad -1
-        tap_maxlevel_c = 1; % how many consecutive steps have I been in maxlevel? 
         taps = []; 
         istap = false;
 
         
         % get audio for the first step/window (4 x pattern)
-        [seq] = makeStim(cfg, curr_pattern_level, ...
-                         'snr_metronome', cfg.snr_metronome(curr_cue_dB_level));
+        [seq] = makeStim(cfg, curr_pattern_level, curr_cue_dB_level);  
 
         % first, fill the buffer with 60s silence
         
@@ -221,9 +225,6 @@ try
         % if case some stays too long in the while loop, we will need this
         % buffer to allocate
         PsychPortAudio('FillBuffer', audio.h, zeros(2, 60*cfg.fs)); 
-        
-        
-        
         
         
         % start playback (note: set repetitions=0, otherwise it will not allow you to seamlessly push more data into the buffer once the sound is playing)  
@@ -244,28 +245,31 @@ try
         % start time = actual time of audio seq presented
         start_time = start_time+requestoffsettime; 
         curr_step_start_time = start_time; 
-       % audio2push = []; 
         nsamples_audio2push = 0; 
         idx2push = 1; 
 
         
-        % loop over pattern windows in which we change the dB levels atm
+        
+        
+        %% loop over pattern windows (in which we may change dB levels atm)
         while 1
             
-            % tapping while loop
+            
+            
+            
+            %% tapping while loop
             while GetSecs < (curr_step_start_time+curr_taketap_dur)
 
                 % collect tapping 
                 [~,secs,key_code] = KbCheck(-1);
+                
+                % terminate if quit-button pressed
                 if find(key_code)==keyquit
-                    
-                    error('Experiment terminated by user...'); 
-                    
+                    error('Experiment terminated by user...');                     
                 end
                 
                 % if they did not press delete, it looks or any response
-                % button and saves the time 
-                
+                % button and saves the time                 
                 if ~istap && any(key_code)
                     taps = [taps,secs-start_time];
                     istap = true;
@@ -302,8 +306,10 @@ try
             end      
 
 
+            %% 
+            
             % Update current time! 
-            % All wait-times in the loop are based on this!
+            % This will be used as the start time of the following window
             curr_step_start_time = curr_step_start_time + curr_step_dur; 
 
             %let's look at the last window to analyse the tapping
@@ -341,8 +347,10 @@ try
             
             
 
-            % update tapping performance (wrt cvASY threshold and n-taps)
+            %% update tapping performance
+            % (wrt cvASY threshold and n-taps)
             % tap_perform_status = -1, 0, 1, 2, 3, ...(correctness)
+            
             if (tap_cv_asynch < cfg.tap_cv_asynch_thr) && curr_n_taps>=tap_min_n_taps
                 % good performance, one up!
                 tap_perform_status = max(0,tap_perform_status); % if negative make 0
@@ -355,70 +363,82 @@ try
 
             
             
-            % ---- update next step parameters ----
+            %% update next window parameters
             % staircase here to adapt
             
-            % if last N steps were good (N == n_steps_up) -> increase level
-            if tap_perform_status >= cfg.n_steps_up 
-                % update counters
+            
+            % if this window was the last dB level, and the last-dB-level
+            % counter is equal to the goal number
+            if (curr_cue_dB_level==cfg.max_snr_level) & (tap_perform_status==cfg.n_steps_up_lastLevel)
+                
+                % stop the audio
+                PsychPortAudio('Stop',audio.h,1);
+                
+                % end the loop over pattern windows (we will continue with
+                % the following pattern after participant has a break)
+                break 
+            
+                
+                
+            % if we are not yet in the last level, and we have enough good
+            % successive windows, we need to move one db-level up
+            elseif (curr_cue_dB_level~=cfg.max_snr_level) & (tap_perform_status==cfg.n_steps_up) 
+                
+                % reset the performance counter to start next level from 0
                 tap_perform_status = 0; 
-                curr_cue_dB_level = min(curr_cue_dB_level+1,cfg.max_snr_level); 
                 
+                % increase the dB level one step up
+                curr_cue_dB_level = curr_cue_dB_level+1; 
                 
-                % If this will be the the last level, add to the last-level
-                % counter (n_max_levels; this can be different to regular
-                % n_steps_up parameter)
-                if curr_cue_dB_level==cfg.max_snr_level
-                    tap_maxlevel_c = tap_maxlevel_c+1;
-                    
-                    if tap_maxlevel_c>=cfg.n_max_levels
-                        PsychPortAudio('Stop',audio.h,1);
-                        break 
-                    end
-                    txt = [sprintf('Your error was = %.3f\n\n',tap_cv_asynch), ...
-                           sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
-                           'This is the last level! \n\nI believe in you!']; 
-                    displayInstr(txt,screen);
-                % Otherwise, give positive feedback above the level-up. 
-                else                
-                    txt = [sprintf('your error was = %.3f\n\n',tap_cv_asynch), ...
-                           sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
-                           'Well done, level up! \n\nKeep going!']; 
-                    displayInstr(txt,screen);
-                end
-                
-            % if last N steps were bad (N == n_steps_down) -> decrease level
-            elseif tap_perform_status <= -cfg.n_steps_down
-                % update counters
-                tap_perform_status = 0; 
-                tap_maxlevel_c = 1; 
-                curr_cue_dB_level = max(curr_cue_dB_level-1, 1); 
-                % give feedback
-                txt = [sprintf('your error was = %.3f\n\n',tap_cv_asynch), ...
+                % Give positive feedback. 
+                txt = [sprintf('Your error was = %.3f\n\n',tap_cv_asynch), ...
                        sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
-                       'Sorry, that was not good enough.\n Maybe let''s try one level below again? \n\nYou can do it!']; 
+                       'Well done, level up! \n\nKeep going!']; 
                 displayInstr(txt,screen);
+            
+                
+                
+            % disregarding which level you are in, if the last N successive steps    
+            % were bad (N == n_steps_down) -> decrease level
+            elseif tap_perform_status <= -cfg.n_steps_down
+                
+                % reset the performance counter to start the next (decreased) level from 0
+                tap_perform_status = 0; 
+                
+                % decrease the dB level one step down (don't change if it
+                % is already at the lowest possible level)
+                curr_cue_dB_level = max(curr_cue_dB_level-1, 1); 
+                
+                % Give negative feedback. 
+                txt = [sprintf('Your error was = %.3f\n\n',tap_cv_asynch), ...
+                       sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
+                       'Sorry, that was not good enough.\n Maybe let''s train one level below again? \n\nYou can do it!']; 
+                displayInstr(txt,screen);
+                
+                
                 
             % otherwise just give feedback and continue...
             else
                 txt = [sprintf('Your error was = %.3f\n\n',tap_cv_asynch), ...
-                       sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level)]; 
+                       sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
+                       sprintf('\n\n\n')]; 
                 displayInstr(txt,screen);
             end
             
+            
             fprintf('current metronome-SNR level = %d\n',curr_cue_dB_level); 
-
+            % ---- end of next window parameters update ----
             
             
-            % create audio with the new dB level for the next step/window
-        [seq] = makeStim(cfg, curr_pattern_level, ...
-                         'snr_metronome', cfg.snr_metronome(curr_cue_dB_level));
 
-            audio2push = [seq.s;seq.s];   
+            
+            %% create audio with the new dB level for the next step/window
+            [seq] = makeStim(cfg, curr_pattern_level, curr_cue_dB_level); 
+           
             %update the push variable
+            audio2push = [seq.s;seq.s];   
             nsamples_audio2push = size(audio2push,2); 
             idx2push = 1; 
-
 
             % update step counter
             curr_step = curr_step+1; 
@@ -426,10 +446,13 @@ try
         end
 
         
+        % we will move on to the next pattern in the following loop iteration 
         curr_pattern_level = curr_pattern_level+1; 
         
         
         % %%%%%%%%%%%% THIS CAN BE OUT OF THE LOOP %%%%%%%%%%%%%%%%%%%%%
+        % really? 
+        
         % instructions   
         if curr_pattern_level>cfg.max_pattern_level
             displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',screen,keywait);  
