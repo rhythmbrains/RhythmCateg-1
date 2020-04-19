@@ -1,7 +1,5 @@
 % 
-% 
 % TO DO: 
-%     - pattern: pure tone, beat: bass, fast-grid: hihat? 
 %     - make feedback nicer on the screen
 %     - PTB latency test? (but audio capture device may be late anyway so no
 %       point in doing this...)
