@@ -1,14 +1,15 @@
-function [seq] = makeStim(cfg,curr_pattern_level,varargin)
+function [seq] = makeStim(cfg,curr_pattern_level,curr_cue_dB_level)
 
 
 % add parameters to output structure 
-seq             = []; 
-seq.fs          = cfg.fs; 
-seq.pattern     = cfg.patterns{curr_pattern_level}; 
-seq.metronome   = repmat([1,zeros(1,cfg.period_metronome(curr_pattern_level)-1)],1,floor(length(seq.pattern)/4)); 
-seq.n_cycles    = cfg.n_cycles_per_step; 
-seq.dur         = length(seq.pattern)*seq.n_cycles*cfg.grid_interval; 
-seq.n_samples   = round(seq.dur*seq.fs); 
+seq                 = []; 
+seq.fs              = cfg.fs; 
+seq.pattern         = cfg.patterns{curr_pattern_level}; 
+seq.snr_metronome   = cfg.snr_metronome(curr_cue_dB_level); 
+seq.metronome       = repmat([1,zeros(1,cfg.period_metronome(curr_pattern_level)-1)],1,floor(length(seq.pattern)/4)); 
+seq.n_cycles        = cfg.n_cycles_per_step; 
+seq.dur             = length(seq.pattern)*seq.n_cycles*cfg.grid_interval; 
+seq.n_samples       = round(seq.dur*seq.fs); 
 
 
 % load audio samples
@@ -35,13 +36,12 @@ sound_pattern   = sound_pattern/rms_pat * max_allowed_rms;
 sound_metronome = sound_metronome/rms_metr * max_allowed_rms; 
 sound_grid      = sound_grid/rms_grid * max_allowed_rms; 
 
-
-% set metronome and grid level based on requested SNR (pattern/metronome, dB)
-if any(strcmp(varargin,'snr_metronome'))
-    seq.snr_metronome = varargin{find(strcmp(varargin,'snr_metronome'))+1};     
-else
-    seq.snr_metronome = -Inf; 
-end
+% % set metronome/cue and grid level based on requested SNR/dB (pattern/metronome, dB)
+% if any(strcmp(varargin,'snr_metronome'))
+%     seq.snr_metronome = varargin{find(strcmp(varargin,'snr_metronome'))+1};     
+% else
+%     seq.snr_metronome = -Inf; 
+% end
 
 rms_metr = rms(sound_metronome);
 sound_metronome = sound_metronome/rms_metr * rms_metr*10^(seq.snr_metronome/20); 
