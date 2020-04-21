@@ -48,7 +48,7 @@ cfg.n_steps_down        = 1;
 % this is the final window count to be correct in order to finish
 % this is the last level (level 4)
 % number of consecuitve windows in order to finish the level 4
-cfg.n_max_levels        = 3; 
+cfg.n_steps_up_lastLevel = 3; 
 
 % not sured atm - 
 %if the feedback wil be given after each window of pattern
