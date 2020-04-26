@@ -1,12 +1,29 @@
-function cfg=getParams()
+function [cfg,expParameters] = getParams()
 
-cfg = []; 
-cfg.fs                  = 44100; % sampling rate
+% Initialize the parameters variables
+% Initialize the general configuration variables
+cfg = struct; 
+expParameters = struct;
+
+% % % THINK using this function tapping + main exp
+expParameters.task = 'tapTraining';
+% % %
+
+
+%% Debug mode settings
+cfg.debug               = true;  % To test the script out of the scanner, skip PTB sync
+
+%% other parameters
+% sampling rate
+cfg.fs                  = 44100; 
 
 % two pattersn to be played - will be tried from the first to the last
+% rhythmic patterns (from simplest to most difficult)
 cfg.patterns            = {[1 1 1 0 1 1 1 0 1 1 0 0 ],
-                           [1 1 1 1 0 1 1 1 0 0 1 0 ]};        % rhythmic patterns (from simplest to most difficult)     
-cfg.max_pattern_level   = length(cfg.patterns);   % number of patterns
+                           [1 1 1 1 0 1 1 1 0 0 1 0 ]}; 
+                       
+% number of patterns
+cfg.max_pattern_level   = length(cfg.patterns);   
 
 % tapping cue sounds (metronome)
 cfg.period_metronome    = [4,4]; % each pattern needs a metronome period assigned (units: N-grid-ticks)
@@ -53,3 +70,26 @@ cfg.n_steps_up_lastLevel = 3;
 % not sured atm - 
 %if the feedback wil be given after each window of pattern
 % cfg.fbk_on_sceen_maxtime = 2; 
+
+%% Task
+
+% add what to press to quit
+
+% training
+if strcmp(expParameters.task,'tapTraining')
+    
+    expParameters.taskInstruction = ['Welcome!\n\n', ...
+        'You will hear a repeated rhythm played by a "click sound".\n', ...
+        'There will also be a "bass sound", playing a regular pulse.\n\n', ...
+        'Tap in synchrony with the bass sound on SPACEBAR.\n', ...
+        'If your tapping is precise, the bass sound will get softer and softer.\n', ...
+        'Eventually (if you are tapping well), the bass sound will disappear.\n', ...
+        'Keep your internal pulse as the bass drum fades out.\n', ...
+        'Keep tapping at the positions where the bass drum was before...\n\n\n', ...
+        'Good luck!\n\n'];
+    
+% main experiment  
+else
+    expParameters.taskInstruction = ['Welcome to the main experiment!\n\n', ...
+        'Good luck!\n\n'];
+end
