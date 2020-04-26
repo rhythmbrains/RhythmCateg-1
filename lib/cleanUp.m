@@ -9,9 +9,13 @@ ShowCursor
 
 % Screen Close All
 sca
-PsychPortAudio('Stop',cfg.pahandle,1);
-PsychPortAudio('Close',cfg.pahandle)
 
+% if audioport was opened, close it
+if isfield(cfg,'pahandle')
+    PsychPortAudio('Stop', cfg.pahandle,1);
+    PsychPortAudio('Close',cfg.pahandle)
+end
+        
 
 if ~ismac
     % remove PsychDebugWindowConfiguration
