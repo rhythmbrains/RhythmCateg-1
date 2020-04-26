@@ -69,16 +69,6 @@ PsychPortAudio('Close');
 
 
 tic
-
-%% set the type of your computer
-
-answer = input('\nIs your OS  Mac? y/n? : ','s');
-if isempty(answer) || strcmp(answer,'n')
-    device='windows';
-else
-    device = 'mac';
-end
-
 %%
 % paths
 % make sure we got access to all the required functions and inputs
@@ -86,6 +76,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 
 % % % refactor this part to run training + exp within 1 go?
 % parameters
+
 [cfg,expParameters] = getParams(); 
 % % % 
 
@@ -93,7 +84,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 [subjectName, runNumber] = getSubjectID(cfg);
 
 try
-    [cfg] = initPTB(device,cfg);
+    [cfg] = initPTB(cfg);
     
    
     %  instructions   
@@ -408,18 +399,12 @@ catch
 end
     
 
-% 
-% PsychPortAudio('Close',cfg.pahandle)
    
 %take the last time
 expTime = toc;
 
 %% print the duration of the exp
-% fprintf('\nTRAINING IS OVER!!\n');
-% fprintf('\n==================\n\n');
 
-% fprintf('\nyou have tested %d trials for STATIC and %d trials for MOTION conditions\n\n', ...
-%     (numEvents-numTargets)/2, (numEvents-numTargets)/2);
 
-fprintf('\nexp. duration was %f minutes\n\n', expTime/60);
+%fprintf('\nexp. duration was %f minutes\n\n', expTime/60);
 

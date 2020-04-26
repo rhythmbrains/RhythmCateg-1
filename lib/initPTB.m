@@ -1,5 +1,5 @@
 
-function cfg = initPTB(device,cfg)
+function cfg = initPTB(cfg)
 
     PsychJavaTrouble;
     
@@ -61,7 +61,7 @@ function cfg = initPTB(device,cfg)
 
     InitializePsychSound(1);
     
-    if strcmp(device, 'mac')
+    if strcmp(cfg.device, 'mac')
         
         cfg.audio.channels = 2;
         
