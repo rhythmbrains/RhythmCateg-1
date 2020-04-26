@@ -10,13 +10,17 @@ if cfg.debug
     
 else
     
-    subjectName = input('Enter Subject Name: ','s');
+    subjectName = input('Enter Subject ID number: ','s');
     runNumber = input('Enter the run Number: ','s');
     
     
+    if ~isnumeric(subjectName)
+        subjectName = input('Please enter a numeric value for Subject ID : ','s');
+    end
     
-    % ADD A WAY TO CHECK INPUTS (e.g  make sure they are numbers)
-    
+    if ~isnumeric(runNumber)
+        runNumber = input('Please enter a numeric value for run number : ','s');
+    end    
     
     
 end
