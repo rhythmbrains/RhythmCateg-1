@@ -121,7 +121,7 @@ try
     curr_pattern_level = 1; 
    
     % pattern has 12 events
-    % metromnome interval is 4 event
+    % metronome interval is 4 event
     
     
     %% loop over patterns (atm, n pattern = 2)
@@ -173,14 +173,14 @@ try
         
         % if case some stays too long in the while loop, we will need this
         % buffer to allocate
-        PsychPortAudio('FillBuffer', cfg.audio.h, zeros(2, 60*cfg.fs)); 
+        PsychPortAudio('FillBuffer', cfg.pahandle, zeros(2, 60*cfg.fs)); 
         
         
         %% start playback
         % start playback (note: set repetitions=0, otherwise it will not allow you to seamlessly push more data into the buffer once the sound is playing)  
         % starts to play whats in the buffer and play on whatever is in on
         % a seamlessly in the loop
-        start_time = PsychPortAudio('Start', cfg.audio.h, 0, [], 1); 
+        start_time = PsychPortAudio('Start', cfg.pahandle, 0, [], 1); 
         % startTime = PsychPortAudio('Start', pahandle [, repetitions=1] [, when=0] [, waitForStart=0] [, stopTime=inf] [, resume=0]);
         
         % ceren can try with 1 sound input into two channels
@@ -189,7 +189,7 @@ try
         
         %silence is going, then we will upload to the buffer audio sequence after the
         % 1s of silent has started
-        [underflow] = PsychPortAudio('FillBuffer', cfg.audio.h, audio2push, 1, cfg.reqsampleoffset);
+        [underflow] = PsychPortAudio('FillBuffer', cfg.pahandle, audio2push, 1, cfg.reqsampleoffset);
 
         % and update start time (by offset)
         % start time = actual time of audio seq presented
