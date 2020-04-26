@@ -6,12 +6,13 @@ cfg = struct;
 expParameters = struct;
 
 % % % THINK using this function tapping + main exp
-expParameters.task = 'tapTraining'; % or 'tapMainExp' to run main experiment
+expParameters.task = 'tapMainExp'; % tapTraining or tapMainExp to run main experiment
 % % %
 
 
 %% Debug mode settings
-cfg.debug               = true;  % To test the script out of the scanner, skip PTB sync
+cfg.debug               = true;  % To test the script out of the scanner,
+% skip PTB sync -it IDs the participant number
 
 %% set the type of your computer
 
