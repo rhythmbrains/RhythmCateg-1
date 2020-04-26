@@ -72,47 +72,32 @@ tic
 
 %% set the type of your computer
 
-answer = input('\nIs your OS  different than mac? y/n? : ','s');
-if isempty(answer) || strcmp(answer,y)
+answer = input('\nIs your OS  Mac? y/n? : ','s');
+if isempty(answer) || strcmp(answer,'n')
     device='windows';
 else
     device = 'mac';
 end
 
 %%
-% % paths
-% addpath('lib')
+% paths
 % make sure we got access to all the required functions and inputs
 addpath(genpath(fullfile(pwd, 'lib')))
 
+% % % refactor this part to run training + exp within 1 go?
 % parameters
-cfg = getParams(); 
+[cfg,expParameters] = getParams(); 
+% % % 
 
-
-
+% set and load all the parameters to run the experiment
+[subjectName, runNumber] = getSubjectID(cfg);
 
 try
-    [cfg] = initPTB(cfg);
+    [cfg] = initPTB(device,cfg);
     
    
-    %%  instructions   
-    
-    % what to press to quit
-    % bigger font - be careful with the screensize
-    % etc..
-    
-    txt = ['Welcome!\n\n', ...
-           'You will hear a repeated rhythm played by a "click sound".\n', ...
-           'There will also be a "bass sound", playing a regular pulse.\n\n', ...
-           'Tap in synchrony with the bass sound on SPACEBAR.\n', ...
-           'If your tapping is precise, the bass sound will get softer and softer.\n', ...
-           'Eventually (if you are tapping well), the bass sound will disappear.\n', ...
-           'Keep your internal pulse as the bass drum fades out.\n', ... 
-           'Keep tapping at the positions where the bass drum was before...\n\n\n', ...
-           'Good luck!\n\n']; 
-    displayInstr(txt,cfg.screen,cfg.keywait);     
-    
-       
+    %  instructions   
+    displayInstr(expParameters.taskInstruction,cfg.screen,cfg.keywait);     
     displayInstr('TAP',cfg.screen);   
     
     % simultenaous feedback 
@@ -240,7 +225,7 @@ try
                         pushdata = audio2push(:,idx2push:idx2push + cfg.audio.pushsize-1);
                         idx2push = idx2push + cfg.audio.pushsize;
                     end
-                    [curunderflow, ~, ~] = PsychPortAudio('FillBuffer', cfg.audio.h, pushdata, 1);
+                    [curunderflow, ~, ~] = PsychPortAudio('FillBuffer', cfg.pahandle, pushdata, 1);
                 end
 
 %                 % if there is overdue feedback on the screen, remove it
@@ -322,7 +307,7 @@ try
             if (curr_cue_dB_level==cfg.max_snr_level) && (tap_perform_status==cfg.n_steps_up_lastLevel)
                 
                 % stop the audio
-                PsychPortAudio('Stop',cfg.audio.h,1);
+                PsychPortAudio('Stop',cfg.pahandle,1);
                 
                 % end the loop over pattern windows (we will continue with
                 % the following pattern after participant has a break)
@@ -412,32 +397,21 @@ try
         
     
     end
+    
+    cleanUp()
 
-
     
+catch 
     
-    
-    
-    
-    
-    
-    
-    
-catch err
-    
-    PsychPortAudio('Stop',cfg.audio.h,1);
-    PsychPortAudio('Close',cfg.audio.h)
-    sca
-    ListenChar(0); 
-    
-    rethrow(err)
+    cleanUp()
+    psychrethrow(psychlasterror);
 end
     
 
-
-sca
-ListenChar(0); 
-PsychPortAudio('Close',cfg.audio.h)
+% 
+% sca
+% ListenChar(0); 
+% PsychPortAudio('Close',cfg.pahandle)
    
 %take the last time
 expTime = toc;
