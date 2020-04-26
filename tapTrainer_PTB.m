@@ -398,19 +398,17 @@ try
     
     end
     
-    cleanUp()
+    cleanUp(cfg)
 
     
 catch 
     
-    cleanUp()
+    cleanUp(cfg)
     psychrethrow(psychlasterror);
 end
     
 
 % 
-% sca
-% ListenChar(0); 
 % PsychPortAudio('Close',cfg.pahandle)
    
 %take the last time
