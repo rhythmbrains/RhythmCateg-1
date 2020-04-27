@@ -34,17 +34,20 @@ try
     
     % start screen with tap
     displayInstr('TAP',cfg.screen);
-    
-    
-    
-    
-    
+ 
+    % play different cycle/windows or sequence
+    % for iWindow = 1:numWindows 
     
     %% make stimuli
+    % add makeStim script or insert into getMainExpParams 
+    % pattern info: grid interval
     audio2push = [cfg.seq';cfg.seq'];
     
     %% fill the buffer
     PsychPortAudio('FillBuffer', cfg.pahandle, audio2push);
+    % % %
+    % do we need cfg.reqsampleoffset here?
+    % % %
     
     %% start playing
     % sound repetition
@@ -64,6 +67,9 @@ try
     
     %save the time to cfg
     cfg.playTime = playTime;
+
+    currPlayTime = playTime; 
+
     
     %% check & record response/tapping
     
