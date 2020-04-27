@@ -14,6 +14,8 @@ expParameters.task = 'tapTraining'; % tapTraining or tapMainExp to run main expe
 cfg.debug               = true;  % To test the script
 cfg.testingTranspScreen = true;  % To test with trasparent full size screen 
 % not sure that's helpful now 
+% what I wanted : in debug mode, do not flip the monitor, no hide cursor,
+% no blocking keyboard - just play the sounds
 
 %% set the type of your computer
 
