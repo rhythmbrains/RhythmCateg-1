@@ -1,4 +1,4 @@
-function cfg = getTrainingParameters(cfg,expParameters)
+function [cfg,expParameters] = getTrainingParameters(cfg,expParameters)
 
 % % % 
 

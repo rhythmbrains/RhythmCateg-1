@@ -26,23 +26,48 @@ function cfg = initPTB(cfg)
     HideCursor;
     
     %% init Visual
-
-    PsychDebugWindowConfiguration
-    Screen('Preference', 'SkipSyncTests', 1);
     
+    %PsychDebugWindowConfiguration
+    %Screen('Preference', 'SkipSyncTests', 1);
     
     cfg.screen              = [];
     cfg.screen.i            = max(Screen('Screens'));
-    cfg.screen.res          = Screen('Resolution',cfg.screen.i);    
+    cfg.screen.res          = Screen('Resolution',cfg.screen.i);
     cfg.screen.graycol      = GrayIndex(cfg.screen.i);
     cfg.screen.whitecol     = WhiteIndex(cfg.screen.i);
-    cfg.screen.h            = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);    
+    
+    % init PTB with different options in concordance to the Debug Parameters
+    if cfg.debug
+        
+        %     % set to one because we don not care about time
+        %     Screen('Preference', 'SkipSyncTests', 2);
+        %     Screen('Preference', 'Verbosity', 0);
+        %     Screen('Preferences', 'SuppressAllWarnings', 2);
+
+        if cfg.testingTranspScreen
+            PsychDebugWindowConfiguration
+            Screen('Preference', 'SkipSyncTests', 1);
+            cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
+            
+        end
+        
+        
+    else
+        Screen('Preference', 'SkipSyncTests', 0);
+        cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
+        
+    end
+    
+    
+    
     [cfg.screen.x,cfg.screen.y] = Screen('WindowSize',cfg.screen.h);
     
     % Enable alpha-blending, set it to a blend equation useable for linear
     % superposition with alpha-weighted source.
     Screen('BlendFunction',cfg.screen.h,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     
+    
+   
     %% Timing 
     % Set priority for script execution to realtime priority:
     Priority(MaxPriority(cfg.screen.h));

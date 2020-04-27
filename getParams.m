@@ -6,13 +6,13 @@ cfg = struct;
 expParameters = struct;
 
 % % % THINK using this function tapping + main exp
-expParameters.task = 'tapMainExp'; % tapTraining or tapMainExp to run main experiment
+expParameters.task = 'tapTraining'; % tapTraining or tapMainExp to run main experiment
 % % %
 
 
 %% Debug mode settings
-cfg.debug               = true;  % To test the script out of the scanner,
-% skip PTB sync -it IDs the participant number
+cfg.debug               = true;  % To test the script
+cfg.testingTranspScreen = true;  % To test with trasparent full size screen 
 
 %% set the type of your computer
 
@@ -32,6 +32,7 @@ cfg.fs = 44100;
 if strcmp(expParameters.task,'tapTraining')
     % get tapping training parameters
     [cfg,expParameters] = getTrainingParameters(cfg,expParameters);
+
     
 elseif strcmp(expParameters.task,'tapMainExp')
     % get main experiment parameters
