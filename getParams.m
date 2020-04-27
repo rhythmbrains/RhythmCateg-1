@@ -13,6 +13,7 @@ expParameters.task = 'tapTraining'; % tapTraining or tapMainExp to run main expe
 %% Debug mode settings
 cfg.debug               = true;  % To test the script
 cfg.testingTranspScreen = true;  % To test with trasparent full size screen 
+% not sure that's helpful now 
 
 %% set the type of your computer
 
@@ -28,7 +29,6 @@ cfg.fs = 44100;
 
 
 %% more parameters to get according to thetype of experiment
-
 if strcmp(expParameters.task,'tapTraining')
     % get tapping training parameters
     [cfg,expParameters] = getTrainingParameters(cfg,expParameters);
@@ -41,3 +41,15 @@ elseif strcmp(expParameters.task,'tapMainExp')
 end
 
 
+%% differentiating response button (subject) from keyboard(experimenter)
+% cfg.responseBox would be the device used by the participant to give his/her response: 
+%   like the button box in the scanner or a separate keyboard for a behavioral experiment
+%
+% cfg.keyboard is the keyboard on which the experimenter will type or press the keys necessary 
+%   to start or abort the experiment.
+%   The two can be different or the same.
+
+% Using empty vectors should work for linux when to select the "main"
+%   keyboard. You might have to try some other values for MacOS or Windows
+cfg.keyboard = []; 
+cfg.responseBox = []; 
