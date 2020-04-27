@@ -88,8 +88,8 @@ try
     
    
     %  instructions   
-    displayInstr(expParameters.taskInstruction,cfg.screen,cfg.keywait);     
-    displayInstr('TAP',cfg.screen);   
+%    displayInstr(expParameters.taskInstruction,cfg.screen,cfg.keywait);     
+%    displayInstr('TAP',cfg.screen);   
     
     % simultenaous feedback 
     % fbk_on_screen = false; 

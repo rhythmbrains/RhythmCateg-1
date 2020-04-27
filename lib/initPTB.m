@@ -18,12 +18,16 @@ function cfg = initPTB(cfg)
     % Don't echo keypresses to Matlab window
     % enable listening & additional keypress will be suppressed in command window
     % use CTRL+C to reenable keyboard input when necessary
-    ListenChar(2); 
+    if cfg.debug
+        ListenChar(0);
+    else
+        ListenChar(2); 
+    end
     
     
     %% mouse
     % Hide the mouse cursor:
-    HideCursor;
+  %  HideCursor;
     
     %% init Visual
     
