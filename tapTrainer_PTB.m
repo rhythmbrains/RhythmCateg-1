@@ -69,104 +69,27 @@ PsychPortAudio('Close');
 
 
 tic
-
+%%
 % paths
-addpath('lib')
+% make sure we got access to all the required functions and inputs
+addpath(genpath(fullfile(pwd, 'lib')))
 
+% % % refactor this part to run training + exp within 1 go?
 % parameters
-cfg = getParams(); 
 
+[cfg,expParameters] = getParams(); 
+% % % 
 
-
+% set and load all the parameters to run the experiment
+[subjectName, runNumber] = getSubjectID(cfg);
 
 try
-
-    PsychJavaTrouble;
-    PsychDebugWindowConfiguration
-    Screen('Preference', 'SkipSyncTests', 1);
+    [cfg] = initPTB(cfg);
     
-    
-    %% init eyboard
-    
-    KbName('UnifyKeyNames');
-    keywait     = KbName({'RETURN'}); % press enter to start bloc
-    keyquit     = KbName('DELETE'); % press ESCAPE at response time to quit 
-    keytap     = KbName('SPACE'); 
-
-    HideCursor;
-    FlushEvents;
-    ListenChar(2); % enable listening & additional keypress will be suppressed in command window
-    % use CTRL+C to reenable keyboard input when necessary
-    
-    
-    %% init screen
-    % could be made a function 
-    screen              = [];
-    screen.i            = max(Screen('Screens'));
-    screen.res          = Screen('Resolution',screen.i);    
-    screen.graycol      = GrayIndex(screen.i);
-    screen.whitecol     = WhiteIndex(screen.i);
-    screen.h            = Screen('OpenWindow',screen.i,screen.graycol);    
-    [screen.x,screen.y] = Screen('WindowSize',screen.h);
-    Screen('BlendFunction',screen.h,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    Priority(MaxPriority(screen.h));
-    Screen('TextFont',screen.h,'Arial');
-    Screen('TextSize',screen.h,round(screen.res.width/100));
-       
-    
-
-    
-    
-    %% init sound
-    %could be made a function? not maybe.
-    % at this tage it's slightly confusing to read. //audio.h //audio.i//
-    % channel = 2; makes it easier to read
-    % also we are not changing frequency 
-    % consider below:
-    % dev_n_channels = 2;
-    % pahandle = PsychPortAudio('Open', [], [], 3, freq, dev_n_channels);
-
-    InitializePsychSound(1);
-    audio_dev       = PsychPortAudio('GetDevices');
-    idx             = find([audio_dev.NrInputChannels] == 0 & [audio_dev.NrOutputChannels] == 2); 
-    audio           = [];
-    audio.i         = audio_dev(idx).DeviceIndex;
-    cfg.fs          = audio_dev(idx).DefaultSampleRate;
-    audio.h         = PsychPortAudio('Open',audio.i,1,1,cfg.fs,2);
-    audio.pushsize  = cfg.fs*0.010; %! push N ms only
-    
-    
-    requestoffsettime = 1; % offset 1 sec
-    reqsampleoffset = requestoffsettime*cfg.fs; %
-    
-    
-    
-    %% setup volume 
-    
-        
-    
-    
-    
-    
-    %%  instructions   
-    
-    % what to press to quit
-    % bigger font - be careful with the screensize
-    % etc..
-    
-    txt = ['Welcome!\n\n', ...
-           'You will hear a repeated rhythm played by a "click sound".\n', ...
-           'There will also be a "bass sound", playing a regular pulse.\n\n', ...
-           'Tap in synchrony with the bass sound on SPACEBAR.\n', ...
-           'If your tapping is precise, the bass sound will get softer and softer.\n', ...
-           'Eventually (if you are tapping well), the bass sound will disappear.\n', ...
-           'Keep your internal pulse as the bass drum fades out.\n', ... 
-           'Keep tapping at the positions where the bass drum was before...\n\n\n', ...
-           'Good luck!\n\n']; 
-    displayInstr(txt,screen,keywait);     
-    
-       
-    displayInstr('TAP',screen);   
+   
+    %  instructions   
+   displayInstr(expParameters.taskInstruction,cfg.screen,cfg.keywait);     
+   displayInstr('TAP',cfg.screen);   
     
     % simultenaous feedback 
     % fbk_on_screen = false; 
@@ -174,7 +97,7 @@ try
     curr_pattern_level = 1; 
    
     % pattern has 12 events
-    % metromnome interval is 4 event
+    % metronome interval is 4 event
     
     
     %% loop over patterns (atm, n pattern = 2)
@@ -212,10 +135,12 @@ try
         taps = []; 
         istap = false;
 
-        
+        %% make stimuli
         % get audio for the first step/window (4 x pattern)
         [seq] = makeStim(cfg, curr_pattern_level, curr_cue_dB_level);  
 
+        
+        %% fill the buffer 
         % first, fill the buffer with 60s silence
         
 
@@ -224,13 +149,14 @@ try
         
         % if case some stays too long in the while loop, we will need this
         % buffer to allocate
-        PsychPortAudio('FillBuffer', audio.h, zeros(2, 60*cfg.fs)); 
+        PsychPortAudio('FillBuffer', cfg.pahandle, zeros(2, 60*cfg.fs)); 
         
         
+        %% start playback
         % start playback (note: set repetitions=0, otherwise it will not allow you to seamlessly push more data into the buffer once the sound is playing)  
         % starts to play whats in the buffer and play on whatever is in on
         % a seamlessly in the loop
-        start_time = PsychPortAudio('Start', audio.h, 0, [], 1); 
+        start_time = PsychPortAudio('Start', cfg.pahandle, 0, [], 1); 
         % startTime = PsychPortAudio('Start', pahandle [, repetitions=1] [, when=0] [, waitForStart=0] [, stopTime=inf] [, resume=0]);
         
         % ceren can try with 1 sound input into two channels
@@ -239,11 +165,11 @@ try
         
         %silence is going, then we will upload to the buffer audio sequence after the
         % 1s of silent has started
-        [underflow] = PsychPortAudio('FillBuffer', audio.h, audio2push, 1, reqsampleoffset);
+        [underflow] = PsychPortAudio('FillBuffer', cfg.pahandle, audio2push, 1, cfg.reqsampleoffset);
 
         % and update start time (by offset)
         % start time = actual time of audio seq presented
-        start_time = start_time+requestoffsettime; 
+        start_time = start_time+cfg.requestoffsettime; 
         curr_step_start_time = start_time; 
         nsamples_audio2push = 0; 
         idx2push = 1; 
@@ -264,7 +190,7 @@ try
                 [~,secs,key_code] = KbCheck(-1);
                 
                 % terminate if quit-button pressed
-                if find(key_code)==keyquit
+                if find(key_code)==cfg.keyquit
                     error('Experiment terminated by user...');                     
                 end
                 
@@ -283,14 +209,14 @@ try
 
                 % if there is any audio waiting to be pushed, push it to the buffer!
                 if nsamples_audio2push
-                    if idx2push+audio.pushsize > nsamples_audio2push
+                    if idx2push + cfg.audio.pushsize > nsamples_audio2push
                         pushdata = audio2push(:,idx2push:end);
                         nsamples_audio2push = 0; 
                     else
-                        pushdata = audio2push(:,idx2push:idx2push+audio.pushsize-1);
-                        idx2push = idx2push+audio.pushsize;
+                        pushdata = audio2push(:,idx2push:idx2push + cfg.audio.pushsize-1);
+                        idx2push = idx2push + cfg.audio.pushsize;
                     end
-                    [curunderflow, ~, ~] = PsychPortAudio('FillBuffer', audio.h, pushdata, 1);
+                    [curunderflow, ~, ~] = PsychPortAudio('FillBuffer', cfg.pahandle, pushdata, 1);
                 end
 
 %                 % if there is overdue feedback on the screen, remove it
@@ -369,10 +295,10 @@ try
             
             % if this window was the last dB level, and the last-dB-level
             % counter is equal to the goal number
-            if (curr_cue_dB_level==cfg.max_snr_level) & (tap_perform_status==cfg.n_steps_up_lastLevel)
+            if (curr_cue_dB_level==cfg.max_snr_level) && (tap_perform_status==cfg.n_steps_up_lastLevel)
                 
                 % stop the audio
-                PsychPortAudio('Stop',audio.h,1);
+                PsychPortAudio('Stop',cfg.pahandle,1);
                 
                 % end the loop over pattern windows (we will continue with
                 % the following pattern after participant has a break)
@@ -382,7 +308,7 @@ try
                 
             % if we are not yet in the last level, and we have enough good
             % successive windows, we need to move one db-level up
-            elseif (curr_cue_dB_level~=cfg.max_snr_level) & (tap_perform_status==cfg.n_steps_up) 
+            elseif (curr_cue_dB_level~=cfg.max_snr_level) && (tap_perform_status==cfg.n_steps_up) 
                 
                 % reset the performance counter to start next level from 0
                 tap_perform_status = 0; 
@@ -394,7 +320,7 @@ try
                 txt = [sprintf('Your error was = %.3f\n\n',tap_cv_asynch), ...
                        sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
                        'Well done, level up! \n\nKeep going!']; 
-                displayInstr(txt,screen);
+                displayInstr(txt,cfg.screen);
             
                 
                 
@@ -413,7 +339,7 @@ try
                 txt = [sprintf('Your error was = %.3f\n\n',tap_cv_asynch), ...
                        sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
                        'Sorry, that was not good enough.\n Maybe let''s train one level below again? \n\nYou can do it!']; 
-                displayInstr(txt,screen);
+                displayInstr(txt,cfg.screen);
                 
                 
                 
@@ -422,7 +348,7 @@ try
                 txt = [sprintf('Your error was = %.3f\n\n',tap_cv_asynch), ...
                        sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
                        sprintf('\n\n\n')]; 
-                displayInstr(txt,screen);
+                displayInstr(txt,cfg.screen);
             end
             
             
@@ -450,56 +376,35 @@ try
         curr_pattern_level = curr_pattern_level+1; 
         
         
-        % %%%%%%%%%%%% THIS CAN BE OUT OF THE LOOP %%%%%%%%%%%%%%%%%%%%%
-        % really? 
         
-        % instructions   
+        %% instructions   
         if curr_pattern_level>cfg.max_pattern_level
-            displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',screen,keywait);  
+            displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg.screen,cfg.keywait);  
             break
         else
             txt = sprintf('CONGRATULATIONS!\n\nYou finished this level.\n\nWhen ready to try something more difficult, press ENTER.\n\nThe new rhythm will start.\nSame instructions as before.\n\nGood luck, tapping ninja!\n\n'); 
-            displayInstr(txt,screen,keywait);     
+            displayInstr(txt,cfg.screen,cfg.keywait);     
         end        
         
     
     end
+    
+    cleanUp(cfg)
 
-
     
+catch 
     
-    
-    
-    
-    
-    
-    
-    
-catch err
-    
-    PsychPortAudio('Stop',audio.h,1);
-    PsychPortAudio('Close',audio.h)
-    sca
-    ListenChar(0); 
-    
-    rethrow(err)
+    cleanUp(cfg)
+    psychrethrow(psychlasterror);
 end
     
 
-
-sca
-ListenChar(0); 
-PsychPortAudio('Close',audio.h)
    
 %take the last time
 expTime = toc;
 
 %% print the duration of the exp
-% fprintf('\nTRAINING IS OVER!!\n');
-% fprintf('\n==================\n\n');
 
-% fprintf('\nyou have tested %d trials for STATIC and %d trials for MOTION conditions\n\n', ...
-%     (numEvents-numTargets)/2, (numEvents-numTargets)/2);
 
-fprintf('\nexp. duration was %f minutes\n\n', expTime/60);
+%fprintf('\nexp. duration was %f minutes\n\n', expTime/60);
 

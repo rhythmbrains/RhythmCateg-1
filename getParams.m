@@ -1,55 +1,57 @@
-function cfg=getParams()
+function [cfg,expParameters] = getParams()
 
-cfg = []; 
-cfg.fs                  = 44100; % sampling rate
+% Initialize the parameters variables
+% Initialize the general configuration variables
+cfg = struct; 
+expParameters = struct;
 
-% two pattersn to be played - will be tried from the first to the last
-cfg.patterns            = {[1 1 1 0 1 1 1 0 1 1 0 0 ],
-                           [1 1 1 1 0 1 1 1 0 0 1 0 ]};        % rhythmic patterns (from simplest to most difficult)     
-cfg.max_pattern_level   = length(cfg.patterns);   % number of patterns
+% % % THINK using this function tapping + main exp
+expParameters.task = 'tapTraining'; % tapTraining or tapMainExp to run main experiment
+% % %
 
-% tapping cue sounds (metronome)
-cfg.period_metronome    = [4,4]; % each pattern needs a metronome period assigned (units: N-grid-ticks)
 
-% decreasing the DB along with the high accuracy of tapping 
-cfg.snr_metronome       = [0, -14, -25, -Inf]; % SNRs between rhythm and metronome audio (to be used across levels)
+%% Debug mode settings
+cfg.debug               = true;  % To test the script
+cfg.testingTranspScreen = true;  % To test with trasparent full size screen 
+% not sure that's helpful now 
+% what I wanted : in debug mode, do not flip the monitor, no hide cursor,
+% no blocking keyboard - just play the sounds
 
-% to calculate how many levels there : the exp will have 4 
-% levels with different difficulty (a.k.a dB)
-cfg.max_snr_level       = length(cfg.snr_metronome); % number of SNR-levels
+%% set the type of your computer
+% tomas: use ismac here
+answer = input('\nIs your OS  Mac? y/n? : ','s');
+if isempty(answer) || strcmp(answer,'n')
+    cfg.device='windows';
+else
+    cfg.device = 'mac';
+end
+%% other parameters
+% sampling rate
+cfg.fs = 44100; 
 
-% number of pattern cycles in each step/window of pattern: how many cycles
-% of the pattern will be repeated
-cfg.n_cycles_per_step   = 4; 
 
-% time-interval of one grid-tick (IOI between events)
-% it's not the duration of the sound. 
-cfg.grid_interval       = 0.200; 
+%% more parameters to get according to thetype of experiment
+if strcmp(expParameters.task,'tapTraining')
+    % get tapping training parameters
+    [cfg,expParameters] = getTrainingParameters(cfg,expParameters);
 
-% threshold for coefficient of variation (cv) of tap-beat asynchronies (defines good/bad tapping performance in each step)
-% the taps to be registered as correct "it" should be below the threshold
-% within the 4 cycle of pattern representation the error is calculated and 
-% this is the shift of tapping variation should be in the range of 10%
-cfg.tap_cv_asynch_thr   = 0.1; 
+    
+elseif strcmp(expParameters.task,'tapMainExp')
+    % get main experiment parameters
+    [cfg,expParameters] = getMainExpParameters(cfg,expParameters);
+    
+end
 
-% minimum N taps for the step/cycle/window to be valid (units: proportion of max. possible N taps considering the beat period)
-% if they tapped less than 70% of the maximum possible number of taps
-% it would be a bad trial below this point (70%)
-cfg.min_n_taps_prop     = 0.7; 
 
-% how many trials/windows do you need to go through staircase procedure
-% N successive steps that need to be "good tapping" to move one SNR level up
-cfg.n_steps_up          = 2; 
+%% differentiating response button (subject) from keyboard(experimenter)
+% cfg.responseBox would be the device used by the participant to give his/her response: 
+%   like the button box in the scanner or a separate keyboard for a behavioral experiment
+%
+% cfg.keyboard is the keyboard on which the experimenter will type or press the keys necessary 
+%   to start or abort the experiment.
+%   The two can be different or the same.
 
-% N successive steps that need to be "bad tapping" to move one SNR level down
-cfg.n_steps_down        = 1;
-
-% N successive steps that need to be "good tapping" for the final level to finish
-% this is the final window count to be correct in order to finish
-% this is the last level (level 4)
-% number of consecuitve windows in order to finish the level 4
-cfg.n_steps_up_lastLevel = 3; 
-
-% not sured atm - 
-%if the feedback wil be given after each window of pattern
-% cfg.fbk_on_sceen_maxtime = 2; 
+% Using empty vectors should work for linux when to select the "main"
+%   keyboard. You might have to try some other values for MacOS or Windows
+cfg.keyboard = []; 
+cfg.responseBox = []; 
