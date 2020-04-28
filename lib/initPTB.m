@@ -6,7 +6,10 @@ function cfg = initPTB(cfg)
     
     
     %% init keyboard
-    
+    % % %
+    % set in getParams instead
+    % can be called from cfg structure to make actual names
+    % % %
     KbName('UnifyKeyNames');
     cfg.keywait     = KbName({'RETURN'}); % press enter to start bloc
     cfg.keyquit     = KbName('DELETE'); % press ESCAPE at response time to quit 

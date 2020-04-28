@@ -80,12 +80,9 @@ try
     %
     
     % the length of each pattern
-    cfg.nGripPoints = 12; % length(pat_complex(1).pattern)
+    cfg.nGridPoints = 12; % length(pat_complex(1).pattern)
     
-    %where is the pulse? every xxperiod
-    cfg.currPeriod = 4;
-    % grid event duration
-    cfg.gridInterval = 0.2;
+
     % window of number of cycles of pattern
     cfg.nCyclesPerWindow = 4;
 

@@ -12,7 +12,7 @@ function     [cfg,expParameters] = getMainExpParameters(cfg,expParameters)
 
 % equals to n_events in pattern
 % could vary according to the stimuli set
-cfg.nGripPoints = 12; % length(pat_complex(1).pattern)
+cfg.nGridPoints = 12; % length(pat_complex(1).pattern)
 cfg.gridInterval = 0.2; %0.190
 
 %sound event duration equal to gridInterval
@@ -21,15 +21,8 @@ cfg.soundDur = cfg.gridInterval;
 % window of number of cycles of pattern
 cfg.NcyclesPerWindow = 4;
 
-%this needs to vary according to the pattern
-cfg.currPeriod = 4;
 
-% proportion of min number of taps to be considered as tapping within the
-% window is accurate
-cfg.probMinNTaps     = 0.7;
 
-% threshold for coefficient of variation (cv) of tap-beat asynchronies (defines good/bad tapping performance in each step)
-cfg.tapAsynchThresh   = 0.1; 
 
 %% load patterns
 

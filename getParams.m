@@ -18,7 +18,7 @@ cfg.testingTranspScreen = true;  % To test with trasparent full size screen
 % no blocking keyboard - just play the sounds
 
 %% set the type of your computer
-
+% tomas: use ismac here
 answer = input('\nIs your OS  Mac? y/n? : ','s');
 if isempty(answer) || strcmp(answer,'n')
     cfg.device='windows';
