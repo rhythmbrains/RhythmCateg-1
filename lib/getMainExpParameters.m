@@ -3,14 +3,33 @@ function     [cfg,expParameters] = getMainExpParameters(cfg,expParameters)
 
 % to use in the tapping accuracy calculation, I need:
 % - load pattern
-% - n_event = 12 (gridPoints = 12)
 % - n_sounds (gridSounds = 5,6,7 ?)
-% - grid_interval = 0.190 
-% - cfg.soundDur = cfg.gridInterval ?
-% - cfg.Ncycles (per window) : how many cycles
-% of the pattern will be repeated
-% - cfg.min_n_taps_prop     = 0.7;
-% - cfg.tap_cv_asynch_thr   = 0.1; 
+
+% % %
+% some of the below is common with getTrainingParameters.m
+% can be moved to getParams.m
+% % %
+
+% equals to n_events in pattern
+% could vary according to the stimuli set
+cfg.nGripPoints = 12; % length(pat_complex(1).pattern)
+cfg.gridInterval = 0.2; %0.190
+
+%sound event duration equal to gridInterval
+cfg.soundDur = cfg.gridInterval;
+
+% window of number of cycles of pattern
+cfg.NcyclesPerWindow = 4;
+
+%this needs to vary according to the pattern
+cfg.currPeriod = 4;
+
+% proportion of min number of taps to be considered as tapping within the
+% window is accurate
+cfg.probMinNTaps     = 0.7;
+
+% threshold for coefficient of variation (cv) of tap-beat asynchronies (defines good/bad tapping performance in each step)
+cfg.tapAsynchThresh   = 0.1; 
 
 %% load patterns
 

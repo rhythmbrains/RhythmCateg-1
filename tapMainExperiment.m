@@ -66,15 +66,48 @@ try
     playTime = PsychPortAudio('Start', cfg.pahandle, repetitions, startCue, waitForDeviceStart);
     
     %save the time to cfg
-    cfg.playTime = playTime;
-
-    currPlayTime = playTime; 
+    cfg.currPlayTime = playTime;
 
     
     %% check & record response/tapping
     
+    %load the current pattern period : every 4/2/...
+    % maybe a check for every possible period within the window of 4
+    % cycles?
+    % or record into logfile, the possible period from PE or LHL
+    % Which parameters from pat_complex/pat_simple would bee useful for analysis?
+    % min.PE3 and min.PE4 maybe?
+    %
     
+    % the length of each pattern
+    cfg.nGripPoints = 12; % length(pat_complex(1).pattern)
     
+    %where is the pulse? every xxperiod
+    cfg.currPeriod = 4;
+    % grid event duration
+    cfg.gridInterval = 0.2;
+    % window of number of cycles of pattern
+    cfg.nCyclesPerWindow = 4;
+
+    %current target inter-tap-interval in seconds
+    currTappingInterval = cfg.currPeriod*cfg.gridInterval;
+    
+    % total duration of the window
+    currWindowDur = cfg.nCyclesPerWindow * cfg.nGripPoints * cfg.gridInterval;
+    
+    % to calculate the max #taps
+    % isn't it the last duration/moment to tap?
+    currLastTapTime = currWindowDur - cfg.gridInterval;
+    
+    %to be used later on to calculate the min number that participant
+    %has to tap -
+    % if subject was tapping regularly with currTappingInterval
+    % then below would be possible number of taps
+    tapMaxNTaps = floor(currLastTapTime/currTappingInterval);
+    % to calculate 70% of this max taps
+    tapMinNTaps = floor(tapMaxNTaps * cfg.probMinNTaps);
+
+
     %% log file
     
     
