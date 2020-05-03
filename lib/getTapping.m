@@ -1,5 +1,7 @@
-function getTapping(action, cfg, expParameters)
+function getTapping(action, cfg)
 % wrapper function to use KbQueue
+
+% getTapping(action, cfg, expParameters)
 
 
 responseBox = cfg.responseBox;
@@ -21,6 +23,13 @@ switch action
         KbQueueStart(responseBox);
         
     case 'collect'
+        
+%         while KbEventAvail(responseBox)
+%             
+%             event = KbEventGet(responseBox);
+%             
+%             responseEvents(end+1, :) = [event.Time event.Keycode event.Pressed];  %#ok<*AGROW>
+%         end
         
         
     case 'flush'
