@@ -75,11 +75,15 @@ cfg.maxF0 	= 900; % maximum possible F0
 cfg.nF0 	= 5; % number of unique F0-values between the limits
 cfg.F0s 	= logspace(log10(cfg.minF0),log10(cfg.maxF0),cfg.nF0); 
 
-% the pitch changes are controlled by the Boolean variables below
-cfg.changePitchCycle 	= 1;           % change pitch for each new pattern cycle
-cfg.changePitchSegm 	= 1;           % change pitch for each segment
-cfg.changePitchCategory = 1;    % change pitch for each pattern-type (every time A changes to B or the other way around)
-cfg.changePitchStep 	= 1;     % change pitch for each step
+%% the pitch changes are controlled by the Boolean variables below
+% change pitch for each new pattern cycle
+cfg.changePitchCycle 	= 1;
+% change pitch for each segment
+cfg.changePitchSegm 	= 1;           
+% change pitch for each pattern-type (every time A changes to B or the other way around)
+cfg.changePitchCategory = 1;    
+% change pitch for each step
+cfg.changePitchStep 	= 1;     
 
 
 %% generate sequence
@@ -119,27 +123,7 @@ SequenceDur = (durStep * cfg.nSteps)/60;
 fprintf('\n\ntrial duration is: %.1f minutes\n',SequenceDur);
 
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
- 
-
-
-
-% save
-out_name_full = fullfile(base_path,'out',[out_name,'_Grahn2007-SimpleVsComplex']); 
-mp3write(out.s_out, cfg.fs, [out_name_full,'.mp3']); 
-save([out_name_full,'.mat'], 'cfg', 'out')
-
-
-% play
-clear sound
-sound(out.s_out,cfg.fs)
-
-
-
-
-% Task Instructions
+%% Task Instructions
     expParameters.taskInstruction = ['Welcome to the main experiment!\n\n', ...
         'Good luck!\n\n'];
 
