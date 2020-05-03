@@ -10,13 +10,14 @@ function cfg = initPTB(cfg)
     % set in getParams instead
     % can be called from cfg structure to make actual names
     % % %
+    
     KbName('UnifyKeyNames');
     cfg.keywait     = KbName({'RETURN'}); % press enter to start bloc
     cfg.keyquit     = KbName('DELETE'); % press ESCAPE at response time to quit 
     cfg.keytap     = KbName('SPACE'); 
 
 
-    FlushEvents;
+    % FlushEvents;
     
     % Don't echo keypresses to Matlab window
     % enable listening & additional keypress will be suppressed in command window

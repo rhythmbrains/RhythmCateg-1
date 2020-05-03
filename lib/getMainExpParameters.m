@@ -16,6 +16,9 @@ function     [cfg,expParameters] = getMainExpParameters(cfg,expParameters)
 % consider not printing out the output "pattern 1 2 3"
 % % %
 
+% wait before running the exp
+expParameters.onsetDelay =0;
+
 %% construct pattern (smallest item in sequence)
 cfg.nGridPoints = 12; % length(pat_complex(1).pattern)
 
@@ -122,6 +125,10 @@ SequenceDur = (durStep * cfg.nSteps)/60;
 % seqOutputDur = length(cfg.seq)/(cfg.fs*60);
 fprintf('\n\ntrial duration is: %.1f minutes\n',SequenceDur);
 
+%% extract in 1 sequence below numbers for preallocation
+%     expParameters.numPatterns = 
+%     expParameters.numSounds =
+%     expParameters.numSequences =
 
 %% Task Instructions
     expParameters.taskInstruction = ['Welcome to the main experiment!\n\n', ...
