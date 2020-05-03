@@ -24,9 +24,19 @@ try
     [cfg] = initPTB(cfg);
     
     % Empty vectors and matrices for speed
-    % logFile.xx = [];
+    logFile.patternOnsets    = zeros(expParameters.numPatterns, 1);
+    logFile.patternEnds      = zeros(expParameters.numPatterns, 1);
+    logFile.patternDurations = zeros(expParameters.numPatterns, 1);
+    
+    %not sure every event/beep should be recorded
+    % %expParameters.numSounds
+    
+    logFile.sequenceOnsets    = zeros(expParameters.numPatterns, expParameters.numSequences);
+    logFile.sequenceEnds      = zeros(expParameters.numPatterns, expParameters.numSequences);
+    logFile.sequenceDurations = zeros(expParameters.numPatterns, expParameters.numSequences);
+    
     % Prepare for the output logfiles
-    % logFile = saveOutput(subjectName, logFile, ExpParameters, 'open');
+    logFile = saveOutput(subjectName, runNumber,logFile, cfg,'open');
     
     
     %  instructions
@@ -35,13 +45,27 @@ try
     % start screen with tap
     displayInstr('TAP',cfg.screen);
  
-    % play different cycle/windows or sequence
-    % for iWindow = 1:numWindows 
+    % if there's wait time,..wait
+    WaitSecs(expParameters.onsetDelay);
     
-    %% make stimuli
-    % add makeStim script or insert into getMainExpParams 
-    % pattern info: grid interval
-    audio2push = [cfg.seq';cfg.seq'];
+    
+    % get time point at the beginning of the experiment (machine time)
+    cfg.experimentStartTime = GetSecs();
+    
+    % play different sequence 
+    %% for iseq = 1:expParameters.numSequences
+    
+    % below for loop is only for recording time
+    % or it could be converted into looping through each gridpoint
+    % so all the 1s and 0s can be recorded as 1-line for each event (silent
+    % or sound)
+    % for ipattern = 1:expParameters.numPatterns
+    
+    
+    
+    % stimuli made in getMainExpParams.m 
+    % call it now
+    audio2push = [cfg.seq;cfg.seq];
     
     %% fill the buffer
     PsychPortAudio('FillBuffer', cfg.pahandle, audio2push);
@@ -59,9 +83,6 @@ try
     % Should we wait for the device to really start (1 = yes)
     waitForDeviceStart = 1;
     
-    % %extract pahandle from cfg
-    % pahandle = cfg.pahande;
-    
     % start the sound sequence
     playTime = PsychPortAudio('Start', cfg.pahandle, repetitions, startCue, waitForDeviceStart);
     
@@ -72,20 +93,34 @@ try
     %% check & record response/tapping
     
     
+    
+    % stimulus envelope for each trial 
+    % (it can be extracted by taking abs(hilbert(s)) 
+    % and downsampling to e.g. 256 Hz to save space
+    
+    
+    
+    
     %% log file
     % make a saveOutput script
-    
+    logFile = saveOutput(subjectName,runNumber,logFile, cfg,'save');
     
 % end
     
+
     
-    %.mat file
-    save(fullfile('logfiles',[subjectName,runNumber,'_all.mat']))  
+    %save everything into .mat file 
+    logFile = saveOutput(subjectName,runNumber,logFile, cfg, 'savemat');
     
     %%
     cleanUp()
     
 catch
+    
+    % % % would this work? 
+    %save everything into .mat file 
+    logFile = saveOutput(subjectName,runNumber,logFile, cfg, 'savemat');
+    % % % 
     
     cleanUp()
     psychrethrow(psychlasterror);

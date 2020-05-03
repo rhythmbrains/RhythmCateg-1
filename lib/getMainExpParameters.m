@@ -16,6 +16,9 @@ function     [cfg,expParameters] = getMainExpParameters(cfg,expParameters)
 % consider not printing out the output "pattern 1 2 3"
 % % %
 
+% wait before running the exp
+expParameters.onsetDelay =0;
+=======
 %% contruct individual sound events (that will make up each pattern)
 
 % define envelope shape of the individual sound event
@@ -125,6 +128,7 @@ cfg.changePitchCategory = 0;
 cfg.changePitchStep 	= 0;     
 
 
+=======
 %% create two sets of patterns
 
 % read from txt files
@@ -149,6 +153,10 @@ cfg.seq = out.sOut;
 
 
 
+%% extract in 1 sequence below numbers for preallocation
+%     expParameters.numPatterns = 
+%     expParameters.numSounds =
+%     expParameters.numSequences =
 
 %% Task Instructions
     expParameters.taskInstruction = ['Welcome to the main experiment!\n\n', ...
