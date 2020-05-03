@@ -2,6 +2,11 @@ function [s,env] = makeS(pattern, cfg, varargin)
 % pattern can be also a set of IOI ratios add "ioi_ratios" into varargin
 % in case you want non-integer ratios, add also "nonmeter" into varargin
 
+% documentation needed
+% 
+%
+% 
+%
 
 
 rampon_samples = round(cfg.rampon*cfg.fs); 
@@ -25,7 +30,7 @@ if any(strcmpi(varargin,'nonmeter'))
     env(idx+1:idx+length(env_event)) = env_event; 
     for cyclei=1:cfg.n_cycles
         for i=1:length(IOIs_cycle)
-            if cyclei==cfg.n_cycles & i==length(IOIs_cycle)
+            if cyclei==cfg.n_cycles && i==length(IOIs_cycle)
                 break
             end
             t_pos = t_pos + IOIs_cycle(i); 
@@ -48,7 +53,7 @@ elseif any(strcmpi(varargin,'ioi_ratios'))
     env(idx+1:idx+length(env_event)) = env_event; 
     for cyclei=1:cfg.n_cycles
         for i=1:length(IOIs_cycle)
-            if cyclei==cfg.n_cycles & i==length(IOIs_cycle)
+            if cyclei==cfg.n_cycles && i==length(IOIs_cycle)
                 break
             end
             t_pos = t_pos + IOIs_cycle(i); 
