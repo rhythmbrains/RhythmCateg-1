@@ -5,7 +5,11 @@ function patterns=getPatternInfo(allperms_clean, cfg, varargin)
 %     'save_label'      string that will be used as prefix for each audio filename
 %     'nonmeter'        bool flag, if present noninteger ratios will be used
 % 
-
+% documentation needed
+% 
+%
+% 
+%
 
 do_save = 0; 
 if any(strcmpi(varargin,'save_path'))
