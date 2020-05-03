@@ -6,7 +6,7 @@ cfg = struct;
 expParameters = struct;
 
 % % % THINK using this function tapping + main exp
-expParameters.task = 'tapTraining'; % tapTraining or tapMainExp to run main experiment
+expParameters.task = 'tapMainExp'; % tapTraining or tapMainExp to run main experiment
 % % %
 
 
