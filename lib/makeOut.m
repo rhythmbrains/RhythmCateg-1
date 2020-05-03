@@ -5,6 +5,12 @@ function out = makeOut(cfg,set_target,set_standard,varargin)
 % 
 % 
 
+% add last parameters
+% calculate the base frequency
+cfg.baseT = cfg.maxGridIOI * cfg.nGridPoints * cfg.nCycles; 
+cfg.baseFreq = 1/cfg.baseT;
+
+
 
 use_nonmeter_ratios = [0,0]; 
 if any(strcmpi(varargin,'nonmeter'))
@@ -15,7 +21,7 @@ cfg.rep_rate = cfg.n_target+cfg.n_standard;
 pat_type_out = [repmat(1,1,cfg.n_target),repmat(0,1,cfg.n_standard)]; 
 
 
-fprintf('\n\nminimum IOI = %.3f s\nmaximum IOI = %.3f s\n',cfg.min_IOI,cfg.max_IOI); 
+fprintf('\n\nminimum IOI = %.3f s\nmaximum IOI = %.3f s\n',cfg.minGridIOI,cfg.maxGridIOI); 
 
 
 
@@ -49,11 +55,11 @@ end
 out = struct(); 
 curr_f0_idx = 1; 
 out.pat_type_out = {}; 
-out.pat_out = nan(cfg.n_steps,length(set_standard(1).pattern{1})); 
-out.s_out = zeros(1, round((cfg.n_target+cfg.n_standard)*cfg.n_steps*cfg.base_T*cfg.fs)); 
-out.patID_out = nan(1,cfg.n_steps); 
-out.LHL22_out = nan(1,cfg.n_steps); 
-out.ChiuFFT_out = nan(1,cfg.n_steps); 
+out.pat_out = nan(cfg.nSteps,length(set_standard(1).pattern{1})); 
+out.sOut = zeros(1, round((cfg.n_target+cfg.n_standard)*cfg.nSteps*cfg.baseT*cfg.fs)); 
+out.patID_out = nan(1,cfg.nSteps); 
+out.LHL22_out = nan(1,cfg.nSteps); 
+out.ChiuFFT_out = nan(1,cfg.nSteps); 
 
 
 c_pat = 1; 
@@ -61,21 +67,21 @@ c_time_sec = 0;
 
 
 % choose random f0 to initialize
-available_f0_idx = [1:length(cfg.f0s)]; 
+available_f0_idx = [1:length(cfg.F0s)]; 
 available_f0_idx(available_f0_idx==curr_f0_idx) = []; 
 curr_f0_idx = randsample(available_f0_idx,1); 
-cfg.f0 = cfg.f0s(curr_f0_idx); 
+cfg.f0 = cfg.F0s(curr_f0_idx); 
 
 
 
-for stepi=1:cfg.n_steps
+for stepi=1:cfg.nSteps
     
     % choose random f0
     if pitch_change_type==1
-        available_f0_idx = [1:length(cfg.f0s)]; 
+        available_f0_idx = [1:length(cfg.F0s)]; 
         available_f0_idx(available_f0_idx==curr_f0_idx) = []; 
         curr_f0_idx = randsample(available_f0_idx,1); 
-        cfg.f0 = cfg.f0s(curr_f0_idx); 
+        cfg.f0 = cfg.F0s(curr_f0_idx); 
     end
     
     
@@ -85,16 +91,16 @@ for stepi=1:cfg.n_steps
         
         % choose random f0
         if pitch_change_type==3
-            available_f0_idx = [1:length(cfg.f0s)]; 
+            available_f0_idx = [1:length(cfg.F0s)]; 
             available_f0_idx(available_f0_idx==curr_f0_idx) = []; 
             curr_f0_idx = randsample(available_f0_idx,1); 
-            cfg.f0 = cfg.f0s(curr_f0_idx); 
+            cfg.f0 = cfg.F0s(curr_f0_idx); 
         end
 
 
     
         % choose IOI
-        cfg.IOI = cfg.IOIs(randsample(length(cfg.IOIs),1)); 
+        cfg.IOI = cfg.gridIOIs(randsample(length(cfg.gridIOIs),1)); 
         cfg.sound_dur = cfg.IOI; 
 
 
@@ -177,9 +183,9 @@ for stepi=1:cfg.n_steps
         end
 
 
-        % check if not longer than base_T
-        if length(s2add)/cfg.fs > cfg.base_T
-            warning(sprintf('trying to add %.3f sec step, but only %.3f s allowed',length(s2add)/cfg.fs, cfg.base_T))
+        % check if not longer than baseT
+        if length(s2add)/cfg.fs > cfg.baseT
+            warning(sprintf('trying to add %.3f sec step, but only %.3f s allowed',length(s2add)/cfg.fs, cfg.baseT))
         else
             fprintf('adding %.3f sec step\n',length(s2add)/cfg.fs); 
         end
@@ -188,17 +194,17 @@ for stepi=1:cfg.n_steps
         t_idx = round(c_time_sec*cfg.fs); 
 
         % add the sound
-        out.s_out(t_idx+1:t_idx+length(s2add)) = s2add; 
+        out.sOut(t_idx+1:t_idx+length(s2add)) = s2add; 
         
         
         % ========== update f0 ==========
                
         if pitch_change_type==2
-            if ((pat_type_out(typei)==1 & pat_type_out(typei+1)==0) | typei==length(pat_type_out))            
-                available_f0_idx = [1:length(cfg.f0s)]; 
+            if ((pat_type_out(typei)==1 && pat_type_out(typei+1)==0) || typei==length(pat_type_out))            
+                available_f0_idx = [1:length(cfg.F0s)]; 
                 available_f0_idx(available_f0_idx==curr_f0_idx) = []; 
                 curr_f0_idx = randsample(available_f0_idx,1); 
-                cfg.f0 = cfg.f0s(curr_f0_idx); 
+                cfg.f0 = cfg.F0s(curr_f0_idx); 
             end
         end
     
@@ -206,14 +212,14 @@ for stepi=1:cfg.n_steps
         
         % ========== update current time position ==========
         
-        c_time_sec = c_time_sec + cfg.base_T;         
+        c_time_sec = c_time_sec + cfg.baseT;         
 
         % if this is last target, and delay requested, add it to the time position 
-        if isfield(cfg,'delay_after_tar') & pat_type_out(typei)==1 & pat_type_out(typei+1)==0
+        if isfield(cfg,'delay_after_tar') && pat_type_out(typei)==1 && pat_type_out(typei+1)==0
             c_time_sec = c_time_sec + cfg.delay_after_tar;         
         end        
         % if this is last standard, and delay requested, add it to the time position 
-        if isfield(cfg,'delay_after_std') & typei==length(pat_type_out)
+        if isfield(cfg,'delay_after_std') && typei==length(pat_type_out)
             c_time_sec = c_time_sec + cfg.delay_after_std;         
         end
         
