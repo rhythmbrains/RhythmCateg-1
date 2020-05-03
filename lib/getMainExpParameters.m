@@ -85,13 +85,18 @@ cfg.changePitchStep 	= 1;     % change pitch for each step
 %% generate sequence
 
 % % % ASK TOMAS % % % 
+% some parameters are off according to previous cfg settings, no?
+
 % ramps within pattern? / segment? / sequence?
 cfg.rampon          = 0.010; 
 cfg.rampoff         = 0.050;
 cfg.IOI             = 0.190;
-cfg.sound_dur       = cfg.IOI; % cfg.minGridIOI ???
-cfg.n_cycles        = 3; % cfg.nPatternPerSegment ??? 
+cfg.soundDur       = cfg.IOI; % cfg.minGridIOI ???
+cfg.nCycles        = 3; % cfg.nPatternPerSegment ??? 
 cfg.f0              = 440;
+cfg.n_target = 4; % ??? 
+cfg.n_standard = 4; % ??? 
+cfg.phase_choose_method = 'original'; % ?????
 % % % % % % % % % % % %
 
 % read from txt files
@@ -102,24 +107,26 @@ grahn_pat_complex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.t
 pat_simple = getPatternInfo(grahn_pat_simple, cfg); 
 pat_complex = getPatternInfo(grahn_pat_complex, cfg); 
 
+% consider blocking the fprintf
 out = makeOut(cfg, pat_simple, pat_complex); 
 
+% save output sequence info cfg
+cfg.seq = out.sOut;
 
 %% calculate the exp duration
 SequenceDur = (durStep * cfg.nSteps)/60; 
+% seqOutputDur = length(cfg.seq)/(cfg.fs*60);
 fprintf('\n\ntrial duration is: %.1f minutes\n',SequenceDur);
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% set possible IOIs
-cfg.base_T = cfg.max_IOI*12*cfg.n_cycles; 
-cfg.base_freq = 1/cfg.base_T; 
+ 
+
 
 
 % save
-out_name = seqCfg2str(cfg); 
 out_name_full = fullfile(base_path,'out',[out_name,'_Grahn2007-SimpleVsComplex']); 
 mp3write(out.s_out, cfg.fs, [out_name_full,'.mp3']); 
 save([out_name_full,'.mat'], 'cfg', 'out')
