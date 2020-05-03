@@ -1,54 +1,51 @@
-function res = syncopationLHL(pattern, meter, events_in_cycle, varargin)
+function syncopationScore = syncopationLHL(pattern, meter, eventsInCycle, varargin)
 
-
-% 
-% in this new version put gruping hiearchy instead of meter. E.g. '23' is
-% grouping by 2 elements and then by 3 hierarchically
-% 
-% 
-% 
-
-% 
 % "If N is a note that precedes a rest, R, and R has a metric weight greater than or equal to N, 
 % then the pair (N, R) is said to constitute a monophonic syncopation."
 % 
 % If N < R
 % Syncopation = R - N
 
+% metric template (pulse periods) is specified by a string: 
+%     '2_4'
+%     x . . . .
+%     x . x . x 
+% 
+%     '2_6'
+%     x . . . . . 
+%     x . x . x . 
+% 
+%     '3_6'
+%     x . . . . . 
+%     x . . x . . 
+% 
+% by default, the function will return syncopation score summed across the
+% whole input pattern (even when longer than eventsInCycle)
+% 
+% with "perbar" option (varargin), the function will sum syncopation score 
+% separately over each cycle in the input
 
 
 
-
-
-
-if strcmpi(meter,'22')
+if strcmpi(meter,'2_4')
     salience = [0,-2,-1,-2]; 
     weightgrid = repmat(salience, 1, ceil(size(pattern,2)/length(salience))); 
-elseif strcmpi(meter,'23')
+elseif strcmpi(meter,'2_6')
     salience = [0,-2,-1,-2,-1,-2]; 
     weightgrid = repmat(salience, 1, ceil(size(pattern,2)/length(salience))); 
-elseif strcmpi(meter,'32')
+elseif strcmpi(meter,'3_6')
     salience = [0,-2,-2,-1,-2,-2]; 
     weightgrid = repmat(salience, 1, ceil(size(pattern,2)/length(salience))); 
-elseif strcmpi(meter,'223')
-    salience = [0,-3,-2,-3, -1,-3,-2,-3, -1,-3,-2,-3]; 
-    weightgrid = repmat(salience, 1, ceil(size(pattern,2)/length(salience))); 
-elseif strcmpi(meter,'322')
-    salience = [0,-3,-3,-2,-3,-3, -1,-3,-3,-2,-3,-3]; 
-    weightgrid = repmat(salience, 1, ceil(size(pattern,2)/length(salience))); 
-elseif strcmpi(meter,'232')
-    salience = [0,-3,-2,-3,-2,-3, -1,-3,-2,-3,-2,-3]; 
-    weightgrid = repmat(salience, 1, ceil(size(pattern,2)/length(salience))); 
 else
-    error('fuck you')
+    error('meter string specified incorrectly')
 end
     
     
 if any(strcmpi(varargin, 'perbar'))
     
-    nbars = length(pattern)/events_in_cycle; 
+    nCycles = length(pattern)/eventsInCycle; 
 
-    res = zeros(size(pattern,1),nbars); 
+    syncopationScore = zeros(size(pattern,1),nCycles); 
     for file=1:size(pattern,1)
         synidx = 0; 
         bar=1; 
@@ -70,19 +67,17 @@ if any(strcmpi(varargin, 'perbar'))
                     synidx = synidx + (max(tmpx)-weightgrid(i)); 
                 end
             end
-            if mod(i+1,events_in_cycle)==0
-               res(file, bar) = synidx; 
+            if mod(i+1,eventsInCycle)==0
+               syncopationScore(file, bar) = synidx; 
                synidx=0; 
                bar = bar+1;  
             end
         end
     end
-    
-    
+        
 else
-    
-    
-    res = zeros(1,size(pattern,1)); 
+       
+    syncopationScore = zeros(1,size(pattern,1)); 
 
     for file=1:size(pattern,1)
         synidx = 0; 
@@ -106,10 +101,9 @@ else
             end
         end
 
-        res(file) = synidx; 
+        syncopationScore(file) = synidx; 
     end
 
-    
 end
 
 

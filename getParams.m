@@ -51,5 +51,12 @@ end
 
 % Using empty vectors should work for linux when to select the "main"
 %   keyboard. You might have to try some other values for MacOS or Windows
+% TL: I think -1 should work? 
 cfg.keyboard = []; 
 cfg.responseBox = []; 
+
+
+
+
+
+
