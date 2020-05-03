@@ -1,4 +1,4 @@
-function [seq] = makeStim(cfg,curr_pattern_level,curr_cue_dB_level)
+function [seq] = makeStimTrain(cfg,curr_pattern_level,curr_cue_dB_level)
 
 
 % add parameters to output structure 
