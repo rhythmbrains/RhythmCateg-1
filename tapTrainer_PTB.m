@@ -137,7 +137,7 @@ try
 
         %% make stimuli
         % get audio for the first step/window (4 x pattern)
-        [seq] = makeStim(cfg, curr_pattern_level, curr_cue_dB_level);  
+        [seq] = makeStimTrain(cfg, curr_pattern_level, curr_cue_dB_level);  
 
         
         %% fill the buffer 
