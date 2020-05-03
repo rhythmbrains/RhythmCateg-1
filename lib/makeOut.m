@@ -1,4 +1,10 @@
 function out = makeOut(cfg,set_target,set_standard,varargin)
+% documentation needed
+% 
+%
+% 
+% 
+
 
 use_nonmeter_ratios = [0,0]; 
 if any(strcmpi(varargin,'nonmeter'))
