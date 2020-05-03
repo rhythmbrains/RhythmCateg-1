@@ -18,7 +18,7 @@ function     [cfg,expParameters] = getMainExpParameters(cfg,expParameters)
 
 % wait before running the exp
 expParameters.onsetDelay =0;
-=======
+
 %% contruct individual sound events (that will make up each pattern)
 
 % define envelope shape of the individual sound event
@@ -128,7 +128,6 @@ cfg.changePitchCategory = 0;
 cfg.changePitchStep 	= 0;     
 
 
-=======
 %% create two sets of patterns
 
 % read from txt files
@@ -150,7 +149,6 @@ out = makeOut(cfg, pat_simple, pat_complex);
 
 % save output sequence info cfg
 cfg.seq = out.sOut;
-
 
 
 %% extract in 1 sequence below numbers for preallocation
