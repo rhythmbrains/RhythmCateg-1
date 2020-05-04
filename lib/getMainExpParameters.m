@@ -150,6 +150,11 @@ pat_complex = getPatternInfo(grahn_pat_complex, cfg);
 % this should be done before each trial starts, it would take lots of
 % memory to generate everything before the experient starts...
 
+% % %
+% consider making all the sequences BEFORE the start of experiment
+% or during the previous sequence playing
+% % % 
+
 % consider blocking the fprintf
 out = makeOut(cfg, pat_simple, pat_complex); 
 
