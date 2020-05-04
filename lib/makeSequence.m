@@ -134,7 +134,7 @@ for stepi=1:cfg.nSteps
                 currGridIOIidx = randsample(gridIOI2ChooseIdx); 
             end
             
-            
+            currGridIOI = cfg.gridIOIs(currGridIOIidx); 
             
             
             % --------------------------------------------------
@@ -175,7 +175,7 @@ for stepi=1:cfg.nSteps
                 currF0idx = randsample(pitch2ChooseIdx); 
             end
             
-            
+            currF0 = cfg.F0s(currF0idx); 
             
             
             
@@ -195,7 +195,7 @@ for stepi=1:cfg.nSteps
             seq.outGridRepresentation{1,cPat} = patterns2use(currPatternID).pattern; 
             
             % make audio 
-            patternAudio = makeS(seq.outGridRepresentation{1,cPat}, cfg); 
+            patternAudio = makeS(seq.outGridRepresentation{1,cPat}, cfg, currGridIOI, currF0); 
             
             % get current audio index in the sequence, and append the audio
             currAudioIdx = round(currTime*cfg.fs); 

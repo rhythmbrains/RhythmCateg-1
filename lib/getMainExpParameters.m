@@ -27,7 +27,7 @@ expParameters.onsetDelay =0;
 % allowed to change across cycles
 % 
 % total sound duration _/```\_  
-cfg.eventDur             = 1; % 100% of gridIOI
+cfg.soundDur             = 1; % 100% of gridIOI
 % onset ramp duration  _/     
 cfg.eventRampon          = 0.05; % 5% of gridIOI 
 % offset ramp duration       \_ 
