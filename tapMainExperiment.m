@@ -63,10 +63,12 @@ try
     
     
     
-    % stimuli made in getMainExpParams.m 
+    % all stimuli made in getMainExpParams script, here we call it
     % call it now
-    % audio2push = [cfg.seq;cfg.seq];
-    audio2push = [cfg.seq];
+    audio2push = [cfg.seq;cfg.seq];
+    % we actually have mono sound but...
+    % audio2push = [cfg.seq];
+    
     %% fill the buffer
     PsychPortAudio('FillBuffer', cfg.pahandle, audio2push);
     % % %
