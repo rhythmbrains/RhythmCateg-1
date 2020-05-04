@@ -8,10 +8,9 @@ function [s,env] = makeS(pattern, cfg, varargin)
 % 
 %
 
-
-rampon_samples = round(cfg.rampon*cfg.fs); 
-rampoff_samples = round(cfg.rampoff*cfg.fs); 
-duty_samples = round(cfg.soundDur*cfg.fs); 
+rampon_samples = round(cfg.eventRampon*cfg.fs); 
+rampoff_samples = round(cfg.eventRampoff*cfg.fs); 
+%duty_samples = round(cfg.eventDur*cfg.fs); 
 
 env_event = ones(1,floor(cfg.fs*(cfg.soundDur))); 
 env_event(1:rampon_samples) = env_event(1:rampon_samples) .* linspace(0,1,rampon_samples); 

@@ -5,10 +5,17 @@ function out = makeOut(cfg,set_target,set_standard,varargin)
 % 
 % 
 
+% % % delete me after confirmed
+cfg.n_target = 4; % cfg.nPatternPerSegment = 4;
+cfg.n_standard = 4; % cfg.nPatternPerSegment = 4;
+cfg.nCycles = 1; 
+% % %
+
 % add last parameters
 % calculate the base frequency
 cfg.baseT = cfg.maxGridIOI * cfg.nGridPoints * cfg.nCycles; 
 cfg.baseFreq = 1/cfg.baseT;
+
 
 
 
@@ -25,25 +32,46 @@ fprintf('\n\nminimum IOI = %.3f s\nmaximum IOI = %.3f s\n',cfg.minGridIOI,cfg.ma
 
 
 
-%%%%%%%%%%%%%%%%%% PARSE F0 CHANGE-TYPE %%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% PARSE F0 CHANGE-CATEGORY %%%%%%%%%%%%%%%%%%
+% % % DELETE ME AFTER CONFIRMED % % %
 
-pitch_change_type = 0; 
-% change pitch for each step (i.e. each [target-standard] cycle)
-if isfield(cfg,'change_pitch_step')
-    if cfg.change_pitch_step==1
-        pitch_change_type = 1; 
+% % change pitch for each new pattern cycle
+% cfg.changePitchCycle 	= 0;
+% % change pitch for each segment
+% cfg.changePitchSegm 	= 0;           
+% % change pitch for each segment-category (every time A changes to B or the other way around)
+% cfg.changePitchCategory = 0;    
+% % change pitch for each step
+% cfg.changePitchStep 	= 0; 
+
+% % % % % %% % %% % %
+
+
+pitchChangeType = 0; 
+% change pitch for each step (i.e. each [segmentA-segmentB] step)
+if isfield(cfg,'changePitchStep')
+    if cfg.changePitchStep==1
+        pitchChangeType = 1; 
     end
 end
-% change pitch for each pattern-type (i.e. in every step, the target will have one pitch and standard another)
-if isfield(cfg,'change_pitch_type')
-    if cfg.change_pitch_type==1
-        pitch_change_type = 2; 
+% change pitch for each pattern-type (i.e. in every step, the segmentA will have one pitch and segmentB another)
+if isfield(cfg,'changePitchCategory')
+    if cfg.cfg.changePitchCategory==1
+        pitchChangeType = 2; 
     end
 end
-% change pitch for each pattern
-if isfield(cfg,'change_pitch_pattern')
-    if cfg.change_pitch_pattern==1
-        pitch_change_type = 3; 
+
+% change pitch for each segment
+if isfield(cfg,'changePitchSegm')
+    if cfg.changePitchSegm==1
+        pitchChangeType = 3; 
+    end
+end
+
+% change pitch for each pattern cycle
+if isfield(cfg,'changePitchCycle')
+    if cfg.changePitchCycle==1
+        pitchChangeType = 4; 
     end
 end
 
@@ -56,7 +84,8 @@ out = struct();
 curr_f0_idx = 1; 
 out.pat_type_out = {}; 
 out.pat_out = nan(cfg.nSteps,length(set_standard(1).pattern{1})); 
-out.sOut = zeros(1, round((cfg.n_target+cfg.n_standard)*cfg.nSteps*cfg.baseT*cfg.fs)); 
+%out.sOut = zeros(1, round((cfg.n_target+cfg.n_standard)*cfg.nSteps*cfg.baseT*cfg.fs)); 
+out.sOut = zeros(1, round(cfg.interStepInterval*cfg.nSteps*cfg.fs)); 
 out.patID_out = nan(1,cfg.nSteps); 
 out.LHL22_out = nan(1,cfg.nSteps); 
 out.ChiuFFT_out = nan(1,cfg.nSteps); 
@@ -77,7 +106,7 @@ cfg.f0 = cfg.F0s(curr_f0_idx);
 for stepi=1:cfg.nSteps
     
     % choose random f0
-    if pitch_change_type==1
+    if pitchChangeType==1
         available_f0_idx = [1:length(cfg.F0s)]; 
         available_f0_idx(available_f0_idx==curr_f0_idx) = []; 
         curr_f0_idx = randsample(available_f0_idx,1); 
@@ -90,7 +119,7 @@ for stepi=1:cfg.nSteps
     for typei=1:length(pat_type_out)
         
         % choose random f0
-        if pitch_change_type==3
+        if pitchChangeType==3
             available_f0_idx = [1:length(cfg.F0s)]; 
             available_f0_idx(available_f0_idx==curr_f0_idx) = []; 
             curr_f0_idx = randsample(available_f0_idx,1); 
@@ -199,7 +228,7 @@ for stepi=1:cfg.nSteps
         
         % ========== update f0 ==========
                
-        if pitch_change_type==2
+        if pitchChangeType==2
             if ((pat_type_out(typei)==1 && pat_type_out(typei+1)==0) || typei==length(pat_type_out))            
                 available_f0_idx = [1:length(cfg.F0s)]; 
                 available_f0_idx(available_f0_idx==curr_f0_idx) = []; 

@@ -27,11 +27,11 @@ expParameters.onsetDelay =0;
 % allowed to change across cycles
 % 
 % total sound duration _/???\_  
-cfg.event_dur             = 1; % 100% of gridIOI
+cfg.eventDur             = 1; % 100% of gridIOI
 % onset ramp duration  _/     
-cfg.event_rampon          = 0.05; % 5% of gridIOI 
+cfg.eventRampon          = 0.05; % 5% of gridIOI 
 % offset ramp duration       \_ 
-cfg.event_rampoff         = 0.020; % 10% of gridIOI
+cfg.eventRampoff         = 0.020; % 10% of gridIOI
 
 
 %% construct pattern (smallest item in sequence)
@@ -60,6 +60,12 @@ cfg.changegridIOIStep       = 0;
 % how many pattern in each segment A or B.
 cfg.nPatternPerSegment = 4; 
 
+
+% how many times the pattern will be repeated/cycle through
+% % % do we need this one?
+cfg.nCycles = 1;
+% % %
+
 % there can be a pause after all segments for category A are played 
 % (i.e. between A and B)
 cfg.delayAfterA = 0; 
@@ -67,12 +73,12 @@ cfg.delayAfterA = 0;
 % (i.e. between B and A)
 cfg.delayAfterB = 0; 
 
-% if the gridIOI can vary across cycles, we need to set the time interval 
-% between two successive segments to a fixed value (this must be greater or 
-% equal to the maximum possible segment duration)
+% if the gridIOI can vary across pattern cycles, we need to set the time 
+% interval between two successive segments to a fixed value (this must be 
+% greater or equal to the maximum possible segment duration)
 cfg.interSegmInterval = cfg.nPatternPerSegment * cfg.nGridPoints * cfg.maxGridIOI; 
 
-
+%durSeg = cfg.interSegmInterval;
 
 %% construct step [ABBB]
 % how many successive segments are presented for category A
@@ -86,19 +92,19 @@ cfg.nSegmentB = 3;
 % number of segments for each step
 nSegmPerStep = cfg.nSegmentB + cfg.nSegmentA; %4; 
 
-%calculation duration of a step 
-cfg.interStepInterval = cfg.interSegmInterval * nSegmPerStep + ...
-                        cfg.delayAfterA * cfg.nSegmentA + ... 
-                        cfg.delayAfterB * cfg.nSegmentB;
+%calculation duration (s) of a step 
+cfg.interStepInterval = (cfg.interSegmInterval * nSegmPerStep) + ...
+                        (cfg.delayAfterA * cfg.nSegmentA) + ... 
+                        (cfg.delayAfterB * cfg.nSegmentB);
 
-                    
+durStep = cfg.interStepInterval;    
 %% construct whole sequence
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
-cfg.nSteps = 10; 
+cfg.nSteps = 1; %10
 
 
-% calculate trial duration
+% calculate trial duration (min)
 SequenceDur = (durStep * cfg.nSteps)/60; 
 fprintf('\n\ntrial duration is: %.1f minutes\n',SequenceDur);
 
@@ -122,7 +128,7 @@ cfg.F0s 	= logspace(log10(cfg.minF0),log10(cfg.maxF0),cfg.nF0);
 cfg.changePitchCycle 	= 0;
 % change pitch for each segment
 cfg.changePitchSegm 	= 0;           
-% change pitch for each segment-type (every time A changes to B or the other way around)
+% change pitch for each segment-category (every time A changes to B or the other way around)
 cfg.changePitchCategory = 0;    
 % change pitch for each step
 cfg.changePitchStep 	= 0;     
