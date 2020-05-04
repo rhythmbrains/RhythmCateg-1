@@ -1,4 +1,4 @@
-function out = makeOut(cfg,set_target,set_standard,varargin)
+function out = makeOut(cfg,setTarget,setStandard,varargin)
 % documentation needed
 % 
 %
@@ -11,17 +11,20 @@ cfg.n_standard = 4; % cfg.nPatternPerSegment = 4;
 cfg.nCycles = 1; 
 % % %
 
+% % % % IS CALCULATION CORRECT?
+% e.g. if A is 1/4th of the step, then base frequency = 0.25? 
+
 % add last parameters
 % calculate the base frequency
 cfg.baseT = cfg.maxGridIOI * cfg.nGridPoints * cfg.nCycles; 
 cfg.baseFreq = 1/cfg.baseT;
+% % % %
 
 
 
-
-use_nonmeter_ratios = [0,0]; 
+useNonmeterRatios = [0,0]; 
 if any(strcmpi(varargin,'nonmeter'))
-    use_nonmeter_ratios = varargin{find(strcmpi(varargin,'nonmeter'))+1}; 
+    useNonmeterRatios = varargin{find(strcmpi(varargin,'nonmeter'))+1}; 
 end
 
 cfg.rep_rate = cfg.n_target+cfg.n_standard; 
@@ -75,6 +78,9 @@ if isfield(cfg,'changePitchCycle')
     end
 end
 
+% % % 
+% THINK WHERE DO WE ADD pitchChangeType = 4
+% % %
 
 
 %%%%%%%%%%%%%%%%%% RUN %%%%%%%%%%%%%%%%%%
@@ -83,8 +89,10 @@ end
 out = struct(); 
 curr_f0_idx = 1; 
 out.pat_type_out = {}; 
-out.pat_out = nan(cfg.nSteps,length(set_standard(1).pattern{1})); 
+out.pat_out = nan(cfg.nSteps,length(setStandard(1).pattern{1}));
+% % % DELETE ME AFTER (BELOW CORRECTION) CONFIRMED
 %out.sOut = zeros(1, round((cfg.n_target+cfg.n_standard)*cfg.nSteps*cfg.baseT*cfg.fs)); 
+% % %
 out.sOut = zeros(1, round(cfg.interStepInterval*cfg.nSteps*cfg.fs)); 
 out.patID_out = nan(1,cfg.nSteps); 
 out.LHL22_out = nan(1,cfg.nSteps); 
@@ -138,37 +146,37 @@ for stepi=1:cfg.nSteps
             out.pat_type_out{end+1} = 'standard'; 
 
             % choose pattern
-            patidx = randsample(length(set_standard),1); 
+            patidx = randsample(length(setStandard),1); 
 
             % only allow phases where the pattern starts with sound event
-            allowed_phases = find(cellfun(@(x) x(1)==1, set_standard(patidx).pattern)); 
+            allowed_phases = find(cellfun(@(x) x(1)==1, setStandard(patidx).pattern)); 
             phaseidx = randsample(allowed_phases,1);
 
             % choose phase based on the specified method
             if strcmpi(cfg.phase_choose_method,'random')
                 phaseidx = randsample(allowed_phases,1);      
             elseif strcmpi(cfg.phase_choose_method,'extreme_LHL')
-                [~,sorted_idx] = sort(set_standard(patidx).LHL_22(allowed_phases),'descend'); 
+                [~,sorted_idx] = sort(setStandard(patidx).LHL_22(allowed_phases),'descend'); 
                 phaseidx = allowed_phases(sorted_idx(1)); 
             elseif strcmpi(cfg.phase_choose_method,'original')
                 phaseidx = 1; 
             end
 
             % make sound
-            if use_nonmeter_ratios(1)
-                s2add = makeS(set_standard(patidx).ioi_ratios, cfg, 'nonmeter'); 
+            if useNonmeterRatios(1)
+                s2add = makeS(setStandard(patidx).ioi_ratios, cfg, 'nonmeter'); 
             else
-                s2add = makeS(set_standard(patidx).pattern{phaseidx}, cfg); 
+                s2add = makeS(setStandard(patidx).pattern{phaseidx}, cfg); 
             end
 
             % log 
-            out.patID_out(c_pat) = set_standard(patidx).ID; 
-            out.pat_out(c_pat,:) = set_standard(patidx).pattern{phaseidx}; 
-            if isfield(set_standard,'LHL_22')
-                out.LHL22_out(c_pat) = set_standard(patidx).LHL_22(phaseidx); 
+            out.patID_out(c_pat) = setStandard(patidx).ID; 
+            out.pat_out(c_pat,:) = setStandard(patidx).pattern{phaseidx}; 
+            if isfield(setStandard,'LHL_22')
+                out.LHL22_out(c_pat) = setStandard(patidx).LHL_22(phaseidx); 
             end
-            if isfield(set_standard,'chiuFFT_z36')
-                out.ChiuFFT_out(c_pat) = set_standard(patidx).chiuFFT_z36;
+            if isfield(setStandard,'chiuFFT_z36')
+                out.ChiuFFT_out(c_pat) = setStandard(patidx).chiuFFT_z36;
             end
             
             
@@ -177,37 +185,37 @@ for stepi=1:cfg.nSteps
             out.pat_type_out{end+1} = 'target'; 
 
             % choose pattern
-            patidx = randsample(length(set_target),1); 
+            patidx = randsample(length(setTarget),1); 
 
             % only allow phases where the pattern starts with sound event
-            allowed_phases = find(cellfun(@(x) x(1)==1, set_target(patidx).pattern)); 
+            allowed_phases = find(cellfun(@(x) x(1)==1, setTarget(patidx).pattern)); 
             phaseidx = randsample(allowed_phases,1);
 
             % choose phase based on the specified method
             if strcmpi(cfg.phase_choose_method,'random')
                 phaseidx = randsample(allowed_phases,1);      
             elseif strcmpi(cfg.phase_choose_method,'extreme_LHL')
-                [~,sorted_idx] = sort(set_target(patidx).LHL_22(allowed_phases),'descend'); 
+                [~,sorted_idx] = sort(setTarget(patidx).LHL_22(allowed_phases),'descend'); 
                 phaseidx = allowed_phases(sorted_idx(1)); 
             elseif strcmpi(cfg.phase_choose_method,'original')
                 phaseidx = 1; 
             end
 
             % make sound
-            if use_nonmeter_ratios(2)
-                s2add = makeS(set_target(patidx).ioi_ratios, cfg, 'nonmeter'); 
+            if useNonmeterRatios(2)
+                s2add = makeS(setTarget(patidx).ioi_ratios, cfg, 'nonmeter'); 
             else
-                s2add = makeS(set_target(patidx).pattern{phaseidx}, cfg); 
+                s2add = makeS(setTarget(patidx).pattern{phaseidx}, cfg); 
             end
 
             % log 
-            out.patID_out(c_pat) = set_target(patidx).ID; 
-            out.pat_out(c_pat,:) = set_target(patidx).pattern{phaseidx}; 
-            if isfield(set_target,'LHL_22')
-                out.LHL22_out(c_pat) = set_target(patidx).LHL_22(phaseidx); 
+            out.patID_out(c_pat) = setTarget(patidx).ID; 
+            out.pat_out(c_pat,:) = setTarget(patidx).pattern{phaseidx}; 
+            if isfield(setTarget,'LHL_22')
+                out.LHL22_out(c_pat) = setTarget(patidx).LHL_22(phaseidx); 
             end
-            if isfield(set_target,'chiuFFT_z36')
-                out.ChiuFFT_out(c_pat) = set_target(patidx).chiuFFT_z36;
+            if isfield(setTarget,'chiuFFT_z36')
+                out.ChiuFFT_out(c_pat) = setTarget(patidx).chiuFFT_z36;
             end
         end
 
@@ -259,6 +267,6 @@ for stepi=1:cfg.nSteps
 end
 
 
-out.set_standard = set_standard; 
-out.set_target = set_target; 
-out.use_nonmeter_ratios = use_nonmeter_ratios; 
+out.set_standard = setStandard; 
+out.set_target = setTarget; 
+out.useNonmeterRatios = useNonmeterRatios; 
