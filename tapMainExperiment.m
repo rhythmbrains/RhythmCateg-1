@@ -65,8 +65,8 @@ try
     
     % stimuli made in getMainExpParams.m 
     % call it now
-    audio2push = [cfg.seq;cfg.seq];
-    
+    % audio2push = [cfg.seq;cfg.seq];
+    audio2push = [cfg.seq];
     %% fill the buffer
     PsychPortAudio('FillBuffer', cfg.pahandle, audio2push);
     % % %
