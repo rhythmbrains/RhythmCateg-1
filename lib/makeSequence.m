@@ -16,7 +16,8 @@ function seq = makeSequence(cfg,categA,categB,varargin)
 %
 %
 
-
+% Cer: 
+% F0 and gridIOI in seq structure is not updating
 
 %% allocate variables to log
 
@@ -44,7 +45,8 @@ seq.outGridRepresentation = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * 
 % audio waveform of the sequence
 seq.outAudio = zeros(1,round(cfg.SequenceDur*cfg.fs)); 
 
-
+% audio envelop  of the sequence
+seq.outEnvelop = zeros(1,round(cfg.SequenceDur*cfg.fs)); 
 
 %% initialize counters 
 
@@ -63,8 +65,8 @@ currPatternID = Inf;
 % pattern counter (over the whole sequence)
 cPat = 1; 
 
-% current duration in the sequence as we go through the loops
-currDuration = 0; 
+% current time point in the sequence as we go through the loops
+currTimePoint = 0; 
 
 
 
@@ -204,23 +206,28 @@ for stepi=1:cfg.nStepsPerSequence
             % make audio 
             [patternAudio,currEnv] = makeStimMainExp(currpattern, cfg, currGridIOI, currF0); 
            
+            % % % do we need this? depends on how we use hilbert()
             % create a vector for the envelopes 
-            %later on change this to find whole sequence envelope?
-            seq.patternEnv{cPat} = currEnv;
+            % seq.patternEnv{cPat} = currEnv;
+            % % %
+            % the indices are currEnvIdx == currAudioIdx
+            currEnvIdx = round(currTimePoint*cfg.fs); 
+            seq.outEnvelop(currEnvIdx+1:currEnvIdx+length(currEnv)) = currEnv;
+            
             
             % get current audio index in the sequence, and append the audio
-            currAudioIdx = round(currDuration*cfg.fs); 
-            seq.outAudiocurrAudioIdx(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
+            currAudioIdx = round(currTimePoint*cfg.fs); 
+            seq.outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
                         
             % save info about the selected pattern
-            seq.patternID(cPat) = currPatternID; 
+            seq.patternID{cPat} = currPatternID; 
             seq.segmCateg{cPat} = currCateg; 
             
             
 
             % --------------------------------------------------
-            % update current time position
-            currDuration = currDuration + cfg.interPatternInterval;         
+            % update current time point
+            currTimePoint = currTimePoint + cfg.interPatternInterval;         
 
             % increase pattern counter
             cPat = cPat+1; 
@@ -231,12 +238,14 @@ for stepi=1:cfg.nStepsPerSequence
         
         
         % add delay after each category (if applicable)
+        % by shifting the current time point with delay
         if strcmpi(currCateg,'A')
-            currDuration = currDuration + cfg.delayAfterA;         
+            currTimePoint = currTimePoint + cfg.delayAfterA;         
         elseif strcmpi(currCateg,'B')
-            currDuration = currDuration + cfg.delayAfterB;         
+            currTimePoint = currTimePoint + cfg.delayAfterB;         
         end
-
+        
+seq
         
     end
     
