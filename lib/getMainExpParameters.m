@@ -25,9 +25,10 @@ expParameters.onsetDelay =0;
 % all parameters are defined relative to the gridIOI (as proportion of gridIOI)
 % we don't use minGridIOI to keep everything proportional if the gridIOI is
 % allowed to change across cycles
-% 
-% total sound duration _/```\_  
-cfg.soundDur             = 1; % 100% of gridIOI
+% And ramps are applied to each sound event
+
+% total sound duration proportion to gridIOI _/```\_  
+cfg.soundDurProp             = 1; % 100% of gridIOI
 % onset ramp duration  _/     
 cfg.eventRampon          = 0.05; % 5% of gridIOI 
 % offset ramp duration       \_ 
@@ -59,16 +60,14 @@ cfg.changeGridIOIStep       = 0;
 %% construct segment
 
 % % how many times the pattern will be repeated/cycle through
-% % % % do we need this one?
+% % % % it's inserted in makeStimMainExp.m as cfg.nCyclesPerPattern
+% % % %
 % cfg.nCyclesPerPattern = 1;
 
 % how many pattern cycles are within each step of [ABBB]
 % how many pattern in each segment A or B.
 cfg.nPatternPerSegment = 4; 
 
-% how many times the pattern will be repeated/cycle through
-% % % do we need this one?
-cfg.nCyclesPerPattern = 1;
 
 % there can be a pause after all segments for category A are played 
 % (i.e. between A and B)
@@ -109,7 +108,7 @@ cfg.nStepsPerSequence = 2; %10
 
 % calculate trial duration (min)
 cfg.SequenceDur = (cfg.interStepInterval * cfg.nStepsPerSequence); 
-fprintf('\n\ntrial duration is: %.1f minutes\n',cfg.SequenceDur/60);
+fprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
 
 
 
@@ -150,16 +149,18 @@ pat_complex = getPatternInfo(grahn_pat_complex, cfg);
 
 %% generate sequence
 
+% % % % % % 
 % this should be done before each trial starts, it would take lots of
 % memory to generate everything before the experient starts...
-
-% % %
 % consider making all the sequences BEFORE the start of experiment
 % or during the previous sequence playing
-% % % 
+% % % % % % 
 
 % consider blocking the fprintf
-out = makeOut(cfg, pat_simple, pat_complex); 
+out = makeSequence(cfg, pat_simple, pat_complex); 
+
+% makeSequence(cfg,categA,categB,varargin)
+
 
 % save output sequence info cfg
 cfg.seq = out.sOut;

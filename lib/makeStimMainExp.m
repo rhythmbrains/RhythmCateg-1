@@ -1,5 +1,8 @@
 function [s,env] = makeStimMainExp(pattern, cfg, currGridIOI, currF0)
-% 
+% this function creates pattern cycles according to the grid that was
+% provided 
+% if nCycles = 1, it will create only 1 time repeated pattern
+
 % ------
 % INPUT
 % ------
@@ -16,7 +19,7 @@ function [s,env] = makeStimMainExp(pattern, cfg, currGridIOI, currF0)
 
 
 
-%% envelope for the individual sound event 
+%% make envelope for the individual sound event 
 
 % number of samples for the onset ramp (proportion of gridIOI)
 ramponSamples   = round(currGridIOI * cfg.eventRampon * cfg.fs); 
@@ -25,7 +28,7 @@ ramponSamples   = round(currGridIOI * cfg.eventRampon * cfg.fs);
 rampoffSamples  = round(currGridIOI * cfg.eventRampoff * cfg.fs); 
 
 % individual sound event duration defined as proportion of gridIOI
-envEvent = ones(1, round(currGridIOI * cfg.soundDur * cfg.fs)); 
+envEvent = ones(1, round(currGridIOI * cfg.soundDurProp * cfg.fs)); 
 
 % make the linear ramps
 envEvent(1:ramponSamples) = envEvent(1:ramponSamples) .* linspace(0,1,ramponSamples); 
@@ -38,8 +41,9 @@ envEvent(end-rampoffSamples+1:end) = envEvent(end-rampoffSamples+1:end) .* linsp
 
 % if there is no field in the cfg structure specifying requested number of
 % cycles, set it to 1 
-if isfield(cfg,'nCycles')
-    nCycles = cfg.nCycles; 
+% how many times the pattern will be repeated/cycle through
+if isfield(cfg,'nCyclesPerPattern')
+    nCycles = cfg.nCyclesPerPattern; 
 else
     nCycles = 1;  
 end
@@ -53,18 +57,26 @@ c=0;
 for cyclei=1:nCycles
     for i=1:length(pattern)
         if pattern(i)
-            idx = round(c*cfg.IOI*cfg.fs); 
+            % % % is this correct? 
+            idx = round(c*currGridIOI*cfg.fs); 
+            %idx = round(c*cfg.IOI*cfg.fs); 
+            % % %
             env(idx+1:idx+length(envEvent)) = pattern(i) * envEvent; 
         end
         c=c+1; 
     end
 end
-
 % create carrier 
 s = sin(2*pi*currF0*t); 
 
+
 % apply envelope to the carrier
 s = s.* env;
+
+% % to visualise 1 pattern
+% figure; plot(t,s);
+% ylim([-1.5,1.5])
+
 
 
 
