@@ -26,8 +26,8 @@ expParameters.onsetDelay =0;
 % we don't use minGridIOI to keep everything proportional if the gridIOI is
 % allowed to change across cycles
 % 
-% total sound duration _/???\_  
-cfg.eventDur             = 1; % 100% of gridIOI
+% total sound duration _/```\_  
+cfg.soundDur             = 1; % 100% of gridIOI
 % onset ramp duration  _/     
 cfg.eventRampon          = 0.05; % 5% of gridIOI 
 % offset ramp duration       \_ 
@@ -44,27 +44,31 @@ cfg.maxGridIOI 	= 0.190; % maximum possible grid IOI
 cfg.nGridIOI 	= 5; 	% number of unique IOI values between the limits
 cfg.gridIOIs 	= linspace((cfg.minGridIOI),(cfg.maxGridIOI),cfg.nGridIOI); 
 
+cfg.interPatternInterval = cfg.nGridPoints * cfg.maxGridIOI; 
+
 %================================================================
 % The gridIOI changes are controlled by the Boolean variables below. 
 % change gridIOI for each segment
-cfg.changegridIOISegm       = 0;           
+cfg.changeGridIOISegm       = 0;           
 % change gridIOI for each segment-type (every time A changes to B or the other way around)
-cfg.changegridIOICategory   = 0;    
+cfg.changeGridIOICategory   = 0;    
 % change gridIOI for each step
-cfg.changegridIOIStep       = 0;     
-
+cfg.changeGridIOIStep       = 0;     
 
 
 %% construct segment
+
+% % how many times the pattern will be repeated/cycle through
+% % % % do we need this one?
+% cfg.nCyclesPerPattern = 1;
+
 % how many pattern cycles are within each step of [ABBB]
 % how many pattern in each segment A or B.
 cfg.nPatternPerSegment = 4; 
 
-
 % how many times the pattern will be repeated/cycle through
 % % % do we need this one?
-cfg.nCycles = 1;
-% % %
+cfg.nCyclesPerPattern = 1;
 
 % there can be a pause after all segments for category A are played 
 % (i.e. between A and B)
@@ -76,7 +80,7 @@ cfg.delayAfterB = 0;
 % if the gridIOI can vary across pattern cycles, we need to set the time 
 % interval between two successive segments to a fixed value (this must be 
 % greater or equal to the maximum possible segment duration)
-cfg.interSegmInterval = cfg.nPatternPerSegment * cfg.nGridPoints * cfg.maxGridIOI; 
+cfg.interSegmInterval = cfg.nPatternPerSegment * cfg.interPatternInterval; 
 
 %durSeg = cfg.interSegmInterval;
 
@@ -90,23 +94,22 @@ cfg.nSegmentA = 1;
 cfg.nSegmentB = 3; 
 
 % number of segments for each step
-nSegmPerStep = cfg.nSegmentB + cfg.nSegmentA; %4; 
+cfg.nSegmPerStep = cfg.nSegmentB + cfg.nSegmentA; %4; 
 
 %calculation duration (s) of a step 
-cfg.interStepInterval = (cfg.interSegmInterval * nSegmPerStep) + ...
+cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
                         (cfg.delayAfterA * cfg.nSegmentA) + ... 
                         (cfg.delayAfterB * cfg.nSegmentB);
 
-durStep = cfg.interStepInterval;    
 %% construct whole sequence
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
-cfg.nSteps = 1; %10
+cfg.nStepsPerSequence = 2; %10
 
 
 % calculate trial duration (min)
-SequenceDur = (durStep * cfg.nSteps)/60; 
-fprintf('\n\ntrial duration is: %.1f minutes\n',SequenceDur);
+cfg.SequenceDur = (cfg.interStepInterval * cfg.nStepsPerSequence); 
+fprintf('\n\ntrial duration is: %.1f minutes\n',cfg.SequenceDur/60);
 
 
 
