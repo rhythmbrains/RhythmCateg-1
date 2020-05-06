@@ -43,7 +43,7 @@ seq.patternID = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsP
 
 % cell array, each element is a grid representation of the chosen pattern
 % (successively as the sequence unfolds)
-seq.outGridRepresentation = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence);
+seq.outPatterns = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence);
 
 % audio waveform of the sequence
 seq.outAudio = zeros(1,round(cfg.SequenceDur*cfg.fs)); 
@@ -223,7 +223,7 @@ for stepi=1:cfg.nStepsPerSequence
 %            seq.patternID{cPat} = currPatternID; 
             seq.patternID(cPat) = currPatternID; 
             seq.segmCateg{cPat} = currCateg; 
-            seq.outGridRepresentation{1,cPat} = currpattern; 
+            seq.outPatterns{1,cPat} = currpattern; 
             seq.F0(cPat) = currF0;
             seq.gridIOI(cPat) = currGridIOI;
 
@@ -247,7 +247,7 @@ for stepi=1:cfg.nStepsPerSequence
             currTimePoint = currTimePoint + cfg.delayAfterB;         
         end
         
-seq        
+        
     end
     
     
