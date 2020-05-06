@@ -147,6 +147,16 @@ function cfg = initPTB(cfg)
     cfg.reqsampleoffset = cfg.requestoffsettime*cfg.fs; %
     
     
+    %% playing parameters
+    
+    % sound repetition
+    cfg.PTBrepet = 1;
+    
+    % Start immediately (0 = immediately)
+    cfg.PTBstartCue = 0;
+    
+    % Should we wait for the device to really start (1 = yes)
+    cfg.PTBwaitForDevice = 1;
     
     %% setup volume 
     
