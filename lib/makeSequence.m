@@ -16,9 +16,6 @@ function seq = makeSequence(cfg,categA,categB,varargin)
 %
 %
 
-% Cer: 
-% F0 and gridIOI in seq structure is not updating
-
 %% allocate variables to log
 
 % main output structure (we'll put everything else into it)
@@ -36,7 +33,13 @@ seq.segmCateg = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPe
 % each pattern will have its own ID (integer number; patterns with the same
 % ID number from category A vs. B will have the same inter-onset intervals,
 % just rearranged in time)
-seq.patternID = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
+% % %
+% really? 
+% where does the control for that same IOI happen in the script?
+% why the integers are saved as cell? 
+% % %
+%seq.patternID = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
+seq.patternID = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
 % cell array, each element is a grid representation of the chosen pattern
 % (successively as the sequence unfolds)
@@ -45,8 +48,8 @@ seq.outGridRepresentation = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * 
 % audio waveform of the sequence
 seq.outAudio = zeros(1,round(cfg.SequenceDur*cfg.fs)); 
 
-% audio envelop  of the sequence
-seq.outEnvelop = zeros(1,round(cfg.SequenceDur*cfg.fs)); 
+% % audio envelop  of the sequence
+% seq.outEnvelop = zeros(1,round(cfg.SequenceDur*cfg.fs)); 
 
 %% initialize counters 
 
@@ -200,19 +203,16 @@ for stepi=1:cfg.nStepsPerSequence
             currPatternID = randsample(patternIDs2Choose,1); 
             %assign the chosen pattern
             currpattern = patterns2use(currPatternID).pattern;
-            % log the chosen pattern (grid representation) into the output
-            seq.outGridRepresentation{1,cPat} = currpattern; 
+            
             
             % make audio 
-            [patternAudio,currEnv] = makeStimMainExp(currpattern, cfg, currGridIOI, currF0); 
-           
-            % % % do we need this? depends on how we use hilbert()
-            % create a vector for the envelopes 
-            % seq.patternEnv{cPat} = currEnv;
-            % % %
-            % the indices are currEnvIdx == currAudioIdx
-            currEnvIdx = round(currTimePoint*cfg.fs); 
-            seq.outEnvelop(currEnvIdx+1:currEnvIdx+length(currEnv)) = currEnv;
+            [patternAudio,] = makeStimMainExp(currpattern, cfg, currGridIOI, currF0); 
+
+%             % create a vector for the envelopes 
+%             % seq.patternEnv{cPat} = currEnv;
+%             % the indices are currEnvIdx == currAudioIdx
+%             currEnvIdx = round(currTimePoint*cfg.fs); 
+%             seq.outEnvelop(currEnvIdx+1:currEnvIdx+length(currEnv)) = currEnv;
             
             
             % get current audio index in the sequence, and append the audio
@@ -220,10 +220,12 @@ for stepi=1:cfg.nStepsPerSequence
             seq.outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
                         
             % save info about the selected pattern
-            seq.patternID{cPat} = currPatternID; 
+%            seq.patternID{cPat} = currPatternID; 
+            seq.patternID(cPat) = currPatternID; 
             seq.segmCateg{cPat} = currCateg; 
-            
-            
+            seq.outGridRepresentation{1,cPat} = currpattern; 
+            seq.F0(cPat) = currF0;
+            seq.gridIOI(cPat) = currGridIOI;
 
             % --------------------------------------------------
             % update current time point
@@ -245,8 +247,7 @@ for stepi=1:cfg.nStepsPerSequence
             currTimePoint = currTimePoint + cfg.delayAfterB;         
         end
         
-seq
-        
+seq        
     end
     
     
