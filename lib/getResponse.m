@@ -1,4 +1,4 @@
-function responseEvents = getTapping(action, cfg)
+function responseEvents = getResponse(action, cfg)
 % wrapper function to use KbQueue
 
 % getTapping(action, cfg, expParameters)
