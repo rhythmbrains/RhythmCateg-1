@@ -10,7 +10,7 @@ end
 addpath(genpath(fullfile(pwd, 'lib')))
 
 % Get parameters
-[cfg,expParameters] = getParams();
+[cfg,expParam] = getParams();
 
 % set and load all the subject input to run the experiment
 [subjectName, runNumber] = getSubjectID(cfg);
@@ -24,29 +24,29 @@ try
     [cfg] = initPTB(cfg);
     
     % Empty vectors and matrices for speed
-    logFile.patternOnsets    = zeros(expParameters.numPatterns, 1);
-    logFile.patternEnds      = zeros(expParameters.numPatterns, 1);
-    logFile.patternDurations = zeros(expParameters.numPatterns, 1);
+    logFile.patternOnsets    = zeros(expParam.numPatterns, 1);
+    logFile.patternEnds      = zeros(expParam.numPatterns, 1);
+    logFile.patternDurations = zeros(expParam.numPatterns, 1);
     
     %not sure every event/beep should be recorded
     % %expParameters.numSounds
     
-    logFile.sequenceOnsets    = zeros(expParameters.numPatterns, expParameters.numSequences);
-    logFile.sequenceEnds      = zeros(expParameters.numPatterns, expParameters.numSequences);
-    logFile.sequenceDurations = zeros(expParameters.numPatterns, expParameters.numSequences);
+    logFile.sequenceOnsets    = zeros(expParam.numPatterns, expParam.numSequences);
+    logFile.sequenceEnds      = zeros(expParam.numPatterns, expParam.numSequences);
+    logFile.sequenceDurations = zeros(expParam.numPatterns, expParam.numSequences);
     
     % Prepare for the output logfiles
     logFile = saveOutput(subjectName, runNumber,logFile, cfg,'open');
     
     
     %  instructions
-    displayInstr(expParameters.taskInstruction,cfg.screen,cfg.keywait);
+    displayInstr(expParam.taskInstruction,cfg.screen,cfg.keywait);
     
     % start screen with tap
     displayInstr('TAP',cfg.screen);
  
     % if there's wait time,..wait
-    WaitSecs(expParameters.onsetDelay);
+    WaitSecs(expParam.onsetDelay);
     
     
     % get time point at the beginning of the experiment (machine time)
@@ -71,9 +71,7 @@ try
     
     %% fill the buffer
     PsychPortAudio('FillBuffer', cfg.pahandle, audio2push);
-    % % %
-    % do we need cfg.reqsampleoffset here?
-    % % %
+
     
     %% start playing
     % sound repetition
