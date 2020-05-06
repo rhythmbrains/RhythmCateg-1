@@ -1,9 +1,9 @@
-function     [cfg,expParameters] = getMainExpParameters(cfg,expParameters)
+function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % this function generates audio sequences to be played in the man
 % experiment
 
 % % % 
-% should be considered exp.parameter structure for experiment related
+% should be considered exp.parameter structure for experiment/sequence related
 % parameters
 % % %
 
@@ -12,12 +12,26 @@ function     [cfg,expParameters] = getMainExpParameters(cfg,expParameters)
 % can be moved to getParams.m
 % % %
 
+
 % % %
-% consider not printing out the output "pattern 1 2 3"
+% start the sequence with one B-category segment that will be discarded during analysis
+% % %
+
+% % %
+
+% add breaks between every sequence? "would you like to continue, y/n, in
+% the mean time, matlab prepares the following sequence & loads it to the
+% buffer. 
+% every sequence can be a "run". (Run the scripts 6 times)
+
 % % %
 
 % wait before running the exp
-expParameters.onsetDelay =0;
+expParam.onsetDelay =0;
+
+
+% define ideal number of sequences to be made
+expParam.numSequences = 1; % 6 
 
 %% contruct individual sound events (that will make up each pattern)
 
@@ -66,7 +80,7 @@ cfg.changeGridIOIStep       = 0;
 
 % how many pattern cycles are within each step of [ABBB]
 % how many pattern in each segment A or B.
-cfg.nPatternPerSegment = 4; 
+cfg.nPatternPerSegment = 4; % 6
 
 
 % there can be a pause after all segments for category A are played 
@@ -103,7 +117,7 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 %% construct whole sequence
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
-cfg.nStepsPerSequence = 2; %10
+cfg.nStepsPerSequence = 2; % 5
 
 
 % calculate trial duration (min)
@@ -157,22 +171,22 @@ pat_complex = getPatternInfo(grahn_pat_complex, cfg);
 % % % % % % 
 
 % consider blocking the fprintf
-out = makeSequence(cfg, pat_simple, pat_complex); 
+seq = makeSequence(cfg, pat_simple, pat_complex); 
 
 % makeSequence(cfg,categA,categB,varargin)
 
 
 % save output sequence info cfg
-cfg.seq = out.sOut;
+cfg.seq = seq.outAudio;
 
 
-%% extract in 1 sequence below numbers for preallocation
-%     expParameters.numPatterns = 
+%% extract below numbers for preallocation in logFile
+expParam.numPatterns = length(seq.patternID) * expParam.numSequences
 %     expParameters.numSounds =
-%     expParameters.numSequences =
+
 
 %% Task Instructions
-    expParameters.taskInstruction = ['Welcome to the main experiment!\n\n', ...
+    expParam.taskInstruction = ['Welcome to the main experiment!\n\n', ...
         'Good luck!\n\n'];
 
 end
