@@ -153,12 +153,12 @@ cfg.changePitchStep 	= 0;
 %% create two sets of patterns
 
 % read from txt files
-grahn_pat_simple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
-grahn_pat_complex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
+grahnPatSimple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
+grahnPatComplex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
 
 % get different metrics of the patterns
-pat_simple = getPatternInfo(grahn_pat_simple, cfg); 
-pat_complex = getPatternInfo(grahn_pat_complex, cfg); 
+patternSimple = getPatternInfo(grahnPatSimple, cfg); 
+patternComplex = getPatternInfo(grahnPatComplex, cfg); 
 
 
 %% generate sequence
@@ -171,22 +171,25 @@ pat_complex = getPatternInfo(grahn_pat_complex, cfg);
 % % % % % % 
 
 % consider blocking the fprintf
-seq = makeSequence(cfg, pat_simple, pat_complex); 
+seq = makeSequence(cfg, patternSimple, patternComplex); 
 
-% makeSequence(cfg,categA,categB,varargin)
+% try to load all seq into cfg
+cfg.seq = seq;
 
 
 % save output sequence info cfg
-cfg.seq = seq.outAudio;
+%cfg.seq = seq.outAudio;
 
 
 %% extract below numbers for preallocation in logFile
-expParam.numPatterns = length(seq.patternID) * expParam.numSequences
+expParam.numPatterns = length(seq.patternID) * expParam.numSequences;
 %     expParameters.numSounds =
 
 
 %% Task Instructions
     expParam.taskInstruction = ['Welcome to the main experiment!\n\n', ...
-        'Good luck!\n\n'];
+        'Good luck!\n\n', ...
+        sprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
+                               ];
 
 end
