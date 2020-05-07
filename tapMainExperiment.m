@@ -1,4 +1,5 @@
 
+
 % Clear all the previous stuff
 % clc; clear;
 if ~ismac
@@ -24,16 +25,15 @@ try
     [cfg] = initPTB(cfg);
     
     % Empty vectors and matrices for speed
-    logFile.patternOnsets    = zeros(expParam.numPatterns, 1);
-    logFile.patternEnds      = zeros(expParam.numPatterns, 1);
-    logFile.patternDurations = zeros(expParam.numPatterns, 1);
+    logFile.sequenceOnsets    = zeros(expParam.numSequences, 1);
+    logFile.sequenceEnds      = zeros(expParam.numSequences, 1);
+    logFile.sequenceDurations = zeros(expParam.numSequences, 1);
     
-    %not sure every event/beep should be recorded
     % %expParameters.numSegments
     
-    logFile.sequenceOnsets    = zeros(expParam.numPatterns, expParam.numSequences);
-    logFile.sequenceEnds      = zeros(expParam.numPatterns, expParam.numSequences);
-    logFile.sequenceDurations = zeros(expParam.numPatterns, expParam.numSequences);
+    logFile.patternOnsets    = zeros(expParam.numSequences, expParam.numPatterns);
+    logFile.patternEnds      = zeros(expParam.numSequences, expParam.numPatterns);
+    logFile.patternDurations = zeros(expParam.numSequences, expParam.numPatterns);
     
     % Prepare for the output logfiles
     logFile = saveOutput(subjectName, runNumber,logFile, cfg,'open');
@@ -44,15 +44,15 @@ try
     
     % start screen with tap
     displayInstr('TAP',cfg.screen);
- 
-    % if there's wait time,..wait
-    WaitSecs(expParam.onsetDelay);
     
     
     % get time point at the beginning of the experiment (machine time)
     cfg.experimentStartTime = GetSecs();
     
-    %% play different sequence 
+    % if there's wait time,..wait
+    WaitSecs(expParam.onsetDelay);
+    
+    %% play different sequence
     for iseq = 1:expParameters.numSequences
         
         
@@ -67,10 +67,12 @@ try
         %% start playing
         % start the sound sequence
         playTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
-                                   cfg.PTBstartCue, cfg.PTBwaitForDevice);
+            cfg.PTBstartCue, cfg.PTBwaitForDevice);
         %save the time to cfg
         cfg.currSeqPlayTime = playTime;
         
+        %logFile.sequenceOnsets(iseq,1)= GetSecs-cfg.experimentStartTime;
+        logFile.sequenceOnsets(iseq,1)= cfg.currSeqPlayTime - cfg.experimentStartTime;
         
         %% check & record response/tapping
         
@@ -87,15 +89,41 @@ try
             end
             
             
-            % cfg.keywait
-            % cfg.keyquit
-            % cfg.keytap
-            %    seq.F0
-            % seq.gridIOI
-            % seq.segmCateg
+            logFile.iseq = iseq;
+            % logFile.ipatternOnsets = (ipattern, i
+            
+            
+            
+            
+            
             % seq.patternID
             % seq.outPatterns
             % seq.outAudio
+            %
+            %             subjectName, ...
+            %                 logFile.iseq, ...
+            %                 seq.segmCateg, ...
+            %                 seq.patternID, ...
+            %                 'PatternOnset', ...
+            %                 'PatternEnd', ...
+            %                 'PatternDuration', ...
+            %                 'TapOnset', ...
+            %                 'KeyPresses', ...
+            %                 'PatternGridRep',...
+            %                 seq.gridIOI,...
+            %                 seq.F0);
+            
+            
+            
+            iBlock, ...
+                iEventsPerBlock, ...
+                logFile.iEventDirection, ...
+                logFile.iEventIsFixationTarget, ...
+                logFile.iEventSpeed, ...
+                logFile.eventOnsets(iBlock, iEventsPerBlock), ...
+                logFile.eventEnds(iBlock, iEventsPerBlock), ...
+                logFile.eventDurations(iBlock, iEventsPerBlock));
+            
             
             % Direction of that event
             logFile.iEventDirection = ExpParameters.designDirections(iBlock,iEventsPerBlock);
@@ -152,11 +180,20 @@ try
             
         end
         
+        logFile.sequenceEnds(iseq,1)= GetSecs - cfg.experimentStartTime;
+        logFile.sequenceDurations(iseq,1)= logFile.sequenceEnds(iseq,1) - ...
+            logFile.sequenceOnsets(iseq,1);
+        
         %add a wait enter for possible breaks
+        if expParam.sequenceDelay
+            displayInstr(expParam.delayInstruction,cfg.screen,cfg.keywait);
+            WaitSecs(expParam.pauseSeq);
+        end  
+
         
     end %sequence loop
     
-    %save everything into .mat file 
+    %save everything into .mat file
     logFile = saveOutput(subjectName,runNumber,logFile, cfg, 'savemat');
     
     %%
@@ -164,10 +201,10 @@ try
     
 catch
     
-    % % % would this work? 
-    %save everything into .mat file 
+    % % % would this work?
+    %save everything into .mat file
     logFile = saveOutput(subjectName,runNumber,logFile, cfg, 'savemat');
-    % % % 
+    % % %
     
     cleanUp()
     psychrethrow(psychlasterror);

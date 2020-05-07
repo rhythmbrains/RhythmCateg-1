@@ -29,6 +29,10 @@ function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % wait before running the exp
 expParam.onsetDelay =0;
 
+%wait in between sequences? y/n
+expParam.sequenceDelay = 1;
+% give a pause of below seconds in between sequences
+expParam.pauseSeq = 1; 
 
 % define ideal number of sequences to be made
 expParam.numSequences = 1; % 6 
@@ -192,4 +196,11 @@ expParam.numPatterns = length(seq.patternID) * expParam.numSequences;
         sprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
                                ];
 
+                           
+   expParam.delayInstruction = [sprintf('The %d out of %d is over!\n\n',cfg.iseq, ...
+       expParameters.numSequences), ...
+        'You can give a break. When you want to continue, press ENTER. \n\n',...
+        'Good luck!\n\n', ...
+                               ];
+                                     
 end
