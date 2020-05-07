@@ -7,15 +7,13 @@
 %     - data logging 
 %     - test on Windows
 
-% notes from Cer's trials
-
-% 000. Add to instructions: before the instructions they should set the 
-% level into comfortable
-% level so they can/might block the tapping space keyboard sound. 
+% notes
+% 
+% 0. Add to instructions: 
 % be in a quite place 
-% % add this info into instructions: DELETE should work - we have it in the script
+% ESCAPE should work - we have it in the script
 
-% 0.1. The screen info does not go away after the first stage 
+% 1. The screen info does not go away after the first stage 
 % (where it says "congratulations") is done 
 % also maybe it's either good to inform people to read the screen or insert
 % a beep tone indiating it's ended.
@@ -30,7 +28,7 @@
 % calcualtes the error // what's the timing parameter // "what the computer
 % does"
 
-% 5. Let?s check the complexity
+%  for complexity check
 % checkcode('tapTrainer_PTB.m', '-cyc')
 
 
@@ -194,7 +192,7 @@ try
                     error('Experiment terminated by user...');                     
                 end
                 
-                % if they did not press delete, it looks or any response
+                % if they did not press delete, it looks for any response
                 % button and saves the time                 
                 if ~istap && any(key_code)
                     taps = [taps,secs-start_time];
@@ -404,7 +402,5 @@ end
 expTime = toc;
 
 %% print the duration of the exp
-
-
 %fprintf('\nexp. duration was %f minutes\n\n', expTime/60);
 

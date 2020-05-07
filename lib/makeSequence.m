@@ -1,5 +1,7 @@
 function seq = makeSequence(cfg,categA,categB,varargin)
-% This function constructs a stimulus sequence. 
+% This function constructs a stimulus sequence.
+% by using makeStimMainExp.m script
+
 % ------
 % INPUT
 % ------
@@ -13,8 +15,6 @@ function seq = makeSequence(cfg,categA,categB,varargin)
 %     seq:          structure with stimulus sequence and info about it
 %
 %
-
-
 
 %% allocate variables to log
 
@@ -33,16 +33,23 @@ seq.segmCateg = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPe
 % each pattern will have its own ID (integer number; patterns with the same
 % ID number from category A vs. B will have the same inter-onset intervals,
 % just rearranged in time)
-seq.patternID = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
+% % %
+% really? 
+% where does the control for that same IOI happen in the script?
+% why the integers are saved as cell? 
+% % %
+%seq.patternID = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
+seq.patternID = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
 % cell array, each element is a grid representation of the chosen pattern
 % (successively as the sequence unfolds)
-seq.outGridRepresentation = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence);
+seq.outPatterns = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence);
 
 % audio waveform of the sequence
 seq.outAudio = zeros(1,round(cfg.SequenceDur*cfg.fs)); 
 
-
+% % audio envelop  of the sequence
+% seq.outEnvelop = zeros(1,round(cfg.SequenceDur*cfg.fs)); 
 
 %% initialize counters 
 
@@ -61,20 +68,21 @@ currPatternID = Inf;
 % pattern counter (over the whole sequence)
 cPat = 1; 
 
-% current time in the sequence as we go through the loops
-currTime = 0; 
+% current time point in the sequence as we go through the loops
+currTimePoint = 0; 
 
 
 
 
-%% cycle over steps
-for stepi=1:cfg.nSteps
+%% loop over steps
+for stepi=1:cfg.nStepsPerSequence
     
     
    
     
     
-    %% cycle over segments 
+    %% loop over segments in 1 sequence
+    % to make 
     for segmi=1:cfg.nSegmPerStep
         
         
@@ -96,7 +104,8 @@ for stepi=1:cfg.nSteps
         
         
         
-        %% cycle over cycles
+        %% loop over pattern cycles in 1 segment
+        % to create a segment
         for cyclei=1:cfg.nPatternPerSegment
     
             
@@ -107,24 +116,25 @@ for stepi=1:cfg.nSteps
             
             % gridIOI change requested every segment (and this is the first
             % cycle in the segment)
-            if cfg.changeGridIOISegm & cyclei==1
+            if cfg.changeGridIOISegm && cyclei == 1
                 CHANGE_IOI = 1; 
                 
             % gridIOI change requested every category (and this is the first
             % cycle in the segment, and a category just changed from A->B
             % or B->A)
-            elseif cfg.changeGridIOICategory & cyclei==1 & ( segmi==1 | segmi==cfg.nSegmentA+1 )
+            elseif cfg.changeGridIOICategory && cyclei == 1 && ...
+                    ( segmi == 1 || segmi == cfg.nSegmentA+1 )
                 CHANGE_IOI = 1; 
                 
             % gridIOI change requested every step 
-            elseif cfg.changeGridIOIStep & segmi==1
+            elseif cfg.changeGridIOIStep && segmi==1
                 CHANGE_IOI = 1; 
                 
             end
                         
             % if change of gridIOI requested, randomly choose a new gridIOI
             % do this only if there is more than 1 gridIOI to choose from
-            if CHANGE_IOI & length(cfg.gridIOIs)>1
+            if CHANGE_IOI && length(cfg.gridIOIs)>1
                 % get gridIOI to choose from 
                 gridIOI2ChooseIdx = 1:length(cfg.gridIOIs); 
                 % remove gridIOI used in the previous iteration (to prevent
@@ -142,37 +152,38 @@ for stepi=1:cfg.nSteps
             % --------------------------------------------------
             CHANGE_PITCH = 0; 
             
-            % pitch change requested every cycle
+            % pitch change requested in every pattern cycle
             if cfg.changePitchCycle
                 CHANGE_PITCH = 1; 
                 
-            % pitch change requested every segment (and this is the first
-            % cycle in the segment)
-            elseif cfg.changePitchSegm & cyclei==1
+            % pitch change requested in every segment (and this is the first
+            % pattern cycle in the segment)
+            elseif cfg.changePitchSegm && cyclei==1
                 CHANGE_PITCH = 1; 
                 
             % pitch change requested every category (and this is the first
-            % cycle in the segment, and a category just changed from A->B
+            % pattern cycle in the segment, and a category just changed from A->B
             % or B->A)
-            elseif cfg.changePitchCategory & cyclei==1 & ( segmi==1 | segmi==cfg.nSegmentA+1 )
+            elseif cfg.changePitchCategory && cyclei==1 && ...
+                    ( segmi==1 || segmi==cfg.nSegmentA+1 )
                 CHANGE_PITCH = 1; 
                 
-            % pitch change requested every step 
-            elseif cfg.changePitchStep & segmi==1
+            % pitch change requested only in every step 
+            elseif cfg.changePitchStep && segmi==1
                 CHANGE_PITCH = 1; 
                 
             end
             
             % if change of pitch requested, randomly choose a new pitch
             % do this only if there is more than 1 F0 to choose from
-            if CHANGE_PITCH & length(cfg.F0s)>1
+            if CHANGE_PITCH && length(cfg.F0s)>1
                 % get F0s to choose from 
                 pitch2ChooseIdx = 1:length(cfg.F0s); 
                 % remove F0 used in the previous iteration (to prevent
                 % repetition in the sequence) 
                 pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = []; 
-                % randomly select new F0s
-                currF0idx = randsample(pitch2ChooseIdx); 
+                % randomly select new F0 idx
+                currF0idx = randsample(pitch2ChooseIdx,1); 
             end
             
             currF0 = cfg.F0s(currF0idx); 
@@ -189,28 +200,36 @@ for stepi=1:cfg.nSteps
             % pattern repetition in the sequence) 
             patternIDs2Choose(patternIDs2Choose==currPatternID) = []; 
             % randomly select a pattern
-            currPatternID = randsample(patternIDs2Choose); 
+            currPatternID = randsample(patternIDs2Choose,1); 
+            %assign the chosen pattern
+            currpattern = patterns2use(currPatternID).pattern;
             
-            % append pattern (grid representation) to the output
-            seq.outGridRepresentation{1,cPat} = patterns2use(currPatternID).pattern; 
             
             % make audio 
-            patternAudio = makeS(seq.outGridRepresentation{1,cPat}, cfg, currGridIOI, currF0); 
+            [patternAudio,] = makeStimMainExp(currpattern, cfg, currGridIOI, currF0); 
+
+%             % create a vector for the envelopes 
+%             % seq.patternEnv{cPat} = currEnv;
+%             % the indices are currEnvIdx == currAudioIdx
+%             currEnvIdx = round(currTimePoint*cfg.fs); 
+%             seq.outEnvelop(currEnvIdx+1:currEnvIdx+length(currEnv)) = currEnv;
+            
             
             % get current audio index in the sequence, and append the audio
-            currAudioIdx = round(currTime*cfg.fs); 
-            seq.outAudiocurrAudioIdx(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
+            currAudioIdx = round(currTimePoint*cfg.fs); 
+            seq.outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
                         
             % save info about the selected pattern
+%            seq.patternID{cPat} = currPatternID; 
             seq.patternID(cPat) = currPatternID; 
             seq.segmCateg{cPat} = currCateg; 
-            
-            
-
+            seq.outPatterns{1,cPat} = currpattern; 
+            seq.F0(cPat) = currF0;
+            seq.gridIOI(cPat) = currGridIOI;
 
             % --------------------------------------------------
-            % update current time position
-            currTime = currTime + cfg.interPatternInterval;         
+            % update current time point
+            currTimePoint = currTimePoint + cfg.interPatternInterval;         
 
             % increase pattern counter
             cPat = cPat+1; 
@@ -221,12 +240,13 @@ for stepi=1:cfg.nSteps
         
         
         % add delay after each category (if applicable)
+        % by shifting the current time point with delay
         if strcmpi(currCateg,'A')
-            currTime = currTime + cfg.delayAfterA;         
+            currTimePoint = currTimePoint + cfg.delayAfterA;         
         elseif strcmpi(currCateg,'B')
-            currTime = currTime + cfg.delayAfterB;         
+            currTimePoint = currTimePoint + cfg.delayAfterB;         
         end
-
+        
         
     end
     

@@ -122,6 +122,7 @@ function cfg = initPTB(cfg)
     
     if strcmp(cfg.device, 'mac')
         
+        % CHANNELS is 1 for mono sound or 2 for stereo sound
         cfg.audio.channels = 2;
         
         % pahandle = PsychPortAudio('Open' [, deviceid][, mode][, reqlatencyclass][, freq] ...
@@ -136,6 +137,7 @@ function cfg = initPTB(cfg)
         cfg.audio.i     = audio_dev(idx).DeviceIndex;
         cfg.fs          = audio_dev(idx).DefaultSampleRate;
         cfg.audio.channels = audio_dev.NrOutputChannels;
+        %cfg.audio.channels = 1; % we have mono sound actually
         cfg.pahandle    = PsychPortAudio('Open',cfg.audio.i,1,1,cfg.fs,cfg.audio.channels);
     end
     
@@ -145,6 +147,16 @@ function cfg = initPTB(cfg)
     cfg.reqsampleoffset = cfg.requestoffsettime*cfg.fs; %
     
     
+    %% playing parameters
+    
+    % sound repetition
+    cfg.PTBrepet = 1;
+    
+    % Start immediately (0 = immediately)
+    cfg.PTBstartCue = 0;
+    
+    % Should we wait for the device to really start (1 = yes)
+    cfg.PTBwaitForDevice = 1;
     
     %% setup volume 
     

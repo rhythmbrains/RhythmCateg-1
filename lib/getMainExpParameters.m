@@ -1,9 +1,9 @@
-function     [cfg,expParameters] = getMainExpParameters(cfg,expParameters)
+function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % this function generates audio sequences to be played in the man
 % experiment
 
 % % % 
-% should be considered exp.parameter structure for experiment related
+% should be considered exp.parameter structure for experiment/sequence related
 % parameters
 % % %
 
@@ -12,12 +12,30 @@ function     [cfg,expParameters] = getMainExpParameters(cfg,expParameters)
 % can be moved to getParams.m
 % % %
 
+
 % % %
-% consider not printing out the output "pattern 1 2 3"
+% start the sequence with one B-category segment that will be discarded during analysis
+% % %
+
+% % %
+
+% add breaks between every sequence? "would you like to continue, y/n, in
+% the mean time, matlab prepares the following sequence & loads it to the
+% buffer. 
+% every sequence can be a "run". (Run the scripts 6 times)
+
 % % %
 
 % wait before running the exp
-expParameters.onsetDelay =0;
+expParam.onsetDelay =0;
+
+%wait in between sequences? y/n
+expParam.sequenceDelay = 1;
+% give a pause of below seconds in between sequences
+expParam.pauseSeq = 1; 
+
+% define ideal number of sequences to be made
+expParam.numSequences = 1; % 6 
 
 %% contruct individual sound events (that will make up each pattern)
 
@@ -25,9 +43,10 @@ expParameters.onsetDelay =0;
 % all parameters are defined relative to the gridIOI (as proportion of gridIOI)
 % we don't use minGridIOI to keep everything proportional if the gridIOI is
 % allowed to change across cycles
-% 
-% total sound duration _/```\_  
-cfg.soundDur             = 1; % 100% of gridIOI
+% And ramps are applied to each sound event
+
+% total sound duration proportion to gridIOI _/```\_  
+cfg.soundDurProp             = 1; % 100% of gridIOI
 % onset ramp duration  _/     
 cfg.eventRampon          = 0.05; % 5% of gridIOI 
 % offset ramp duration       \_ 
@@ -59,16 +78,14 @@ cfg.changeGridIOIStep       = 0;
 %% construct segment
 
 % % how many times the pattern will be repeated/cycle through
-% % % % do we need this one?
+% % % % it's inserted in makeStimMainExp.m as cfg.nCyclesPerPattern
+% % % %
 % cfg.nCyclesPerPattern = 1;
 
 % how many pattern cycles are within each step of [ABBB]
 % how many pattern in each segment A or B.
-cfg.nPatternPerSegment = 4; 
+cfg.nPatternPerSegment = 4; % 6
 
-% how many times the pattern will be repeated/cycle through
-% % % do we need this one?
-cfg.nCyclesPerPattern = 1;
 
 % there can be a pause after all segments for category A are played 
 % (i.e. between A and B)
@@ -104,12 +121,12 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 %% construct whole sequence
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
-cfg.nStepsPerSequence = 2; %10
+cfg.nStepsPerSequence = 2; % 5
 
 
 % calculate trial duration (min)
 cfg.SequenceDur = (cfg.interStepInterval * cfg.nStepsPerSequence); 
-fprintf('\n\ntrial duration is: %.1f minutes\n',cfg.SequenceDur/60);
+fprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
 
 
 
@@ -140,38 +157,50 @@ cfg.changePitchStep 	= 0;
 %% create two sets of patterns
 
 % read from txt files
-grahn_pat_simple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
-grahn_pat_complex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
+grahnPatSimple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
+grahnPatComplex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
 
 % get different metrics of the patterns
-pat_simple = getPatternInfo(grahn_pat_simple, cfg); 
-pat_complex = getPatternInfo(grahn_pat_complex, cfg); 
+patternSimple = getPatternInfo(grahnPatSimple, cfg); 
+patternComplex = getPatternInfo(grahnPatComplex, cfg); 
 
 
 %% generate sequence
 
+% % % % % % 
 % this should be done before each trial starts, it would take lots of
 % memory to generate everything before the experient starts...
-
-% % %
 % consider making all the sequences BEFORE the start of experiment
 % or during the previous sequence playing
-% % % 
+% % % % % % 
 
 % consider blocking the fprintf
-out = makeOut(cfg, pat_simple, pat_complex); 
+seq = makeSequence(cfg, patternSimple, patternComplex); 
+
+% try to load all seq into cfg
+cfg.seq = seq;
+
 
 % save output sequence info cfg
-cfg.seq = out.sOut;
+%cfg.seq = seq.outAudio;
 
 
-%% extract in 1 sequence below numbers for preallocation
-%     expParameters.numPatterns = 
+%% extract below numbers for preallocation in logFile
+expParam.numPatterns = length(seq.patternID) * expParam.numSequences;
 %     expParameters.numSounds =
-%     expParameters.numSequences =
+
 
 %% Task Instructions
-    expParameters.taskInstruction = ['Welcome to the main experiment!\n\n', ...
-        'Good luck!\n\n'];
+    expParam.taskInstruction = ['Welcome to the main experiment!\n\n', ...
+        'Good luck!\n\n', ...
+        sprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
+                               ];
 
+                           
+   expParam.delayInstruction = [sprintf('The %d out of %d is over!\n\n',cfg.iseq, ...
+       expParameters.numSequences), ...
+        'You can give a break. When you want to continue, press ENTER. \n\n',...
+        'Good luck!\n\n', ...
+                               ];
+                                     
 end
