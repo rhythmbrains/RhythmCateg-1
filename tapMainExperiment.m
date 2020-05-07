@@ -79,104 +79,61 @@ try
         
         for ipattern = 1:expParameters.numPatterns
             
+            iEvent = 1;
+            currGridIOI = seq.gridIOI(ipattern)* iEvent;
+            
+            logFile.iPatOnset(ipattern,iseq) = GetSecs() - cfg.experimentStartTime;
             
             
+            % wait for the every small grip point and register the tapping
+         %   while GetSecs() < logFile.sequenceOnsets(iseq,1)+currGridIOI
+                
+                
+                % Check for experiment abortion from operator
+                [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
+                if (keyIsDown==1 && keyCode(cfg.keyquit))
+                    break;
+                end
+                
+                %logfile for responses - consider not using while loop above
+                responseEvents = getResponse('check', cfg);
+
+                
+                
+         %   end
             
-            % Check for experiment abortion from operator
-            [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
-            if (keyIsDown==1 && keyCode(cfg.keyquit))
-                break;
-            end
+            iEvent = iEvent + 1;
             
-            
-            logFile.iseq = iseq;
-            % logFile.ipatternOnsets = (ipattern, i
-            
-            
-            
-            
-            
-            % seq.patternID
-            % seq.outPatterns
-            % seq.outAudio
-            %
-            %             subjectName, ...
-            %                 logFile.iseq, ...
-            %                 seq.segmCateg, ...
-            %                 seq.patternID, ...
-            %                 'PatternOnset', ...
-            %                 'PatternEnd', ...
-            %                 'PatternDuration', ...
-            %                 'TapOnset', ...
-            %                 'KeyPresses', ...
-            %                 'PatternGridRep',...
-            %                 seq.gridIOI,...
-            %                 seq.F0);
+            logFile.isegmentCateg = seq.segmCateg(iseq);
+
             
             
+            %duration of 1 pattern
+             
+            logFile.iPatDuration(ipattern,iseq) = cfg.interPatternInterval; 
+            logFile.iPatEnd(ipattern,iseq) = logFile.iPatOnset(ipattern,iseq) + ...
+
             
-            iBlock, ...
-                iEventsPerBlock, ...
-                logFile.iEventDirection, ...
-                logFile.iEventIsFixationTarget, ...
-                logFile.iEventSpeed, ...
-                logFile.eventOnsets(iBlock, iEventsPerBlock), ...
-                logFile.eventEnds(iBlock, iEventsPerBlock), ...
-                logFile.eventDurations(iBlock, iEventsPerBlock));
+
             
-            
-            % Direction of that event
-            logFile.iEventDirection = ExpParameters.designDirections(iBlock,iEventsPerBlock);
-            % Speed of that event
-            logFile.iEventSpeed = ExpParameters.designSpeeds(iBlock,iEventsPerBlock);
-            
-            
-            % % % initially an input for DoDotMo func, now from
-            % ExpParameters.eventDuration, to be tested
-            % DODOTMO
-            iEventDuration = ExpParameters.eventDuration ;                        % Duration of normal events
-            % % %
-            logFile.iEventIsFixationTarget = ExpParameters.designFixationTargets(iBlock,iEventsPerBlock);
-            
-            % Event Onset
-            logFile.eventOnsets(iBlock,iEventsPerBlock) = GetSecs-Cfg.experimentStart;
-            
-            
-            % % % REFACTORE
-            % play the dots
-            doDotMo(Cfg, ExpParameters, logFile);
+
             
             
             %% logfile for responses
             
-            responseEvents = getResponse('check', Cfg, ExpParameters);
-            
-            % concatenate the new event responses with the old responses vector
-            %             logFile.allResponses = [logFile.allResponses responseTimeWithinEvent];
-            
-            
-            
-            %% Event End and Duration
-            logFile.eventEnds(iBlock,iEventsPerBlock) = GetSecs-Cfg.experimentStart;
-            logFile.eventDurations(iBlock,iEventsPerBlock) = logFile.eventEnds(iBlock,iEventsPerBlock) - logFile.eventOnsets(iBlock,iEventsPerBlock);
-            
-            
+            responseEvents = getResponse('check', cfg);
+
             
             
             % Save the events txt logfile
-            logFile = saveOutput(subjectName, logFile, ExpParameters, 'save Events', iBlock, iEventsPerBlock);
+            logFile = saveOutput(subjectName,runNumber,logFile, cfg, input,iseq,ipattern);
+            
+
+            
+          
+            getResponse('flush', cfg, expParameters);
             
             
-            % wait for the inter-stimulus interval
-            WaitSecs(ExpParameters.ISI);
-            
-            
-            getResponse('flush', Cfg, ExpParameters);
-            
-            
-            %% log file
-            % make a saveOutput script
-            logFile = saveOutput(subjectName,runNumber,logFile, cfg,'save');
             
         end
         

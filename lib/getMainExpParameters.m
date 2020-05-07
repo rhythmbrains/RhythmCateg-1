@@ -187,7 +187,6 @@ cfg.seq = seq;
 
 %% extract below numbers for preallocation in logFile
 expParam.numPatterns = length(seq.patternID) * expParam.numSequences;
-%     expParameters.numSounds =
 
 
 %% Task Instructions
