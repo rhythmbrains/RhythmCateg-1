@@ -85,7 +85,7 @@ try
     [cfg] = initPTB(cfg);
     
    
-    %  instructions   
+   % instructions   
    displayInstr(expParameters.taskInstruction,cfg.screen,cfg.keywait);     
    displayInstr('TAP',cfg.screen);   
     

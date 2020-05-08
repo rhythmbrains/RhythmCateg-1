@@ -1,4 +1,4 @@
-function seq = makeSequence(cfg,categA,categB,varargin)
+function seq = makeSequence(cfg,seqi,varargin)
 % This function constructs a stimulus sequence.
 % by using makeStimMainExp.m script
 
@@ -6,8 +6,8 @@ function seq = makeSequence(cfg,categA,categB,varargin)
 % INPUT
 % ------
 %     cfg:          structure with confuguration info
-%     categA:    
-%     categB:    
+%     seqi:         sequence iterator index (which sequence in the
+%                   experiment this is?)
 % 
 % ------
 % OUTPUT
@@ -30,16 +30,28 @@ seq.gridIOI = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPer
 % segment-category (A or B) for each pattern in the sequence 
 seq.segmCateg = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
+% onset time of each pattern
+seq.onsetTime = nan(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
+
+% put together all the patterns from both categories, we will pick from
+% this using the unique ID of each pattern (we know which IDs we want from
+% the output of getAllSeq function. 
+patterns2choose = [cfg.patternSimple,cfg.patternComplex]; 
+
+
 % each pattern will have its own ID (integer number; patterns with the same
 % ID number from category A vs. B will have the same inter-onset intervals,
 % just rearranged in time)
 % % %
 % really? 
 % where does the control for that same IOI happen in the script?
+% TL: yes, they are written in the text file (from which they are loaded) in that way
 % why the integers are saved as cell? 
+% TL: cause I think we should save it as string, e.g. 'simple23' not just
+% integer
 % % %
-%seq.patternID = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
-seq.patternID = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
+seq.patternID = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
+% seq.patternID = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
 % cell array, each element is a grid representation of the chosen pattern
 % (successively as the sequence unfolds)
@@ -58,12 +70,6 @@ currF0idx = 1;
 
 % currently chosen gridIOI index (indexing value in cfg.gridIOIs, initialize to 1)
 currGridIOIidx = 1; 
-
-
-% currently chosen pattern ID (we need to initialize to something 
-% because we'll be using this to make sure there is no direct repetition
-% of patterns in the sequence)
-currPatternID = Inf; 
 
 % pattern counter (over the whole sequence)
 cPat = 1; 
@@ -86,27 +92,20 @@ for stepi=1:cfg.nStepsPerSequence
     for segmi=1:cfg.nSegmPerStep
         
         
-        % Determine which segment category this is (A or B)
-        % and set the pool of patterns. 
-
+        % Determine which segment category this is (A or B), 
         % the first 'cfg.nSegmentA' segments will be category A, 
         % the rest will be B
         if ismember(segmi, [1:cfg.nSegmentA])            
-            currCateg = 'A'; 
-            patterns2use = categA; 
+            currCategLabel = cfg.labelCategA; 
         else
-            currCateg = 'B'; 
-            patterns2use = categB; 
+            currCategLabel = cfg.labelCategB; 
         end
-        
-        
-        
         
         
         
         %% loop over pattern cycles in 1 segment
         % to create a segment
-        for cyclei=1:cfg.nPatternPerSegment
+        for pati=1:cfg.nPatternPerSegment
     
             
             % --------------------------------------------------
@@ -116,13 +115,13 @@ for stepi=1:cfg.nStepsPerSequence
             
             % gridIOI change requested every segment (and this is the first
             % cycle in the segment)
-            if cfg.changeGridIOISegm && cyclei == 1
+            if cfg.changeGridIOISegm && pati == 1
                 CHANGE_IOI = 1; 
                 
             % gridIOI change requested every category (and this is the first
             % cycle in the segment, and a category just changed from A->B
             % or B->A)
-            elseif cfg.changeGridIOICategory && cyclei == 1 && ...
+            elseif cfg.changeGridIOICategory && pati == 1 && ...
                     ( segmi == 1 || segmi == cfg.nSegmentA+1 )
                 CHANGE_IOI = 1; 
                 
@@ -158,13 +157,13 @@ for stepi=1:cfg.nStepsPerSequence
                 
             % pitch change requested in every segment (and this is the first
             % pattern cycle in the segment)
-            elseif cfg.changePitchSegm && cyclei==1
+            elseif cfg.changePitchSegm && pati==1
                 CHANGE_PITCH = 1; 
                 
             % pitch change requested every category (and this is the first
             % pattern cycle in the segment, and a category just changed from A->B
             % or B->A)
-            elseif cfg.changePitchCategory && cyclei==1 && ...
+            elseif cfg.changePitchCategory && pati==1 && ...
                     ( segmi==1 || segmi==cfg.nSegmentA+1 )
                 CHANGE_PITCH = 1; 
                 
@@ -191,22 +190,27 @@ for stepi=1:cfg.nStepsPerSequence
             
             
             % --------------------------------------------------
-            % --------------- select new pattern ---------------
+            % ----------------- make the audio -----------------
             % --------------------------------------------------
             
-            % get pattern IDs to choose from 
-            patternIDs2Choose = [patterns2use.ID]; 
-            % remove the pattern ID used in the previous iteration (to prevent
-            % pattern repetition in the sequence) 
-            patternIDs2Choose(patternIDs2Choose==currPatternID) = []; 
-            % randomly select a pattern
-            currPatternID = randsample(patternIDs2Choose,1); 
-            %assign the chosen pattern
-            currpattern = patterns2use(currPatternID).pattern;
+            % find the pattern ID from the seqDesignFullExp (output of
+            % getAllSeq function)
+            currPatternID = cfg.seqDesignFullExp{seqi,stepi,segmi,pati}; 
+            currPatternIdx = find(strcmp(currPatternID,{patterns2choose.ID})); 
             
+            % do a quick check that the assigment of category labels is
+            % consistent, if not, give a warning
+            currPatternCateg = regexp(patterns2choose(currPatternIdx).ID, '\D*(?=\d.*)', 'match'); 
+            currPatternCateg = currPatternCateg{1}; 
+            if ~strcmpi(currPatternCateg,currCategLabel)
+                warning('mimatching category labels during sequence construction...'); 
+            end
+            
+            % get the pattern
+            currPattern = patterns2choose(currPatternIdx).pattern;
             
             % make audio 
-            [patternAudio,] = makeStimMainExp(currpattern, cfg, currGridIOI, currF0); 
+            [patternAudio,~] = makeStimMainExp(currPattern, cfg, currGridIOI, currF0); 
 
 %             % create a vector for the envelopes 
 %             % seq.patternEnv{cPat} = currEnv;
@@ -214,18 +218,18 @@ for stepi=1:cfg.nStepsPerSequence
 %             currEnvIdx = round(currTimePoint*cfg.fs); 
 %             seq.outEnvelop(currEnvIdx+1:currEnvIdx+length(currEnv)) = currEnv;
             
-            
             % get current audio index in the sequence, and append the audio
             currAudioIdx = round(currTimePoint*cfg.fs); 
             seq.outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
                         
             % save info about the selected pattern
 %            seq.patternID{cPat} = currPatternID; 
-            seq.patternID(cPat) = currPatternID; 
-            seq.segmCateg{cPat} = currCateg; 
-            seq.outPatterns{1,cPat} = currpattern; 
-            seq.F0(cPat) = currF0;
-            seq.gridIOI(cPat) = currGridIOI;
+            seq.patternID{cPat}     = currPatternID; 
+            seq.segmCateg{cPat}     = currCategLabel; 
+            seq.onsetTime(cPat)     = currTimePoint; 
+            seq.pattern{1,cPat}     = currPattern; 
+            seq.F0(cPat)            = currF0;
+            seq.gridIOI(cPat)       = currGridIOI;
 
             % --------------------------------------------------
             % update current time point
@@ -241,9 +245,9 @@ for stepi=1:cfg.nStepsPerSequence
         
         % add delay after each category (if applicable)
         % by shifting the current time point with delay
-        if strcmpi(currCateg,'A')
+        if strcmpi(currCategLabel,cfg.labelCategA)
             currTimePoint = currTimePoint + cfg.delayAfterA;         
-        elseif strcmpi(currCateg,'B')
+        elseif strcmpi(currCategLabel,cfg.labelCategB)
             currTimePoint = currTimePoint + cfg.delayAfterB;         
         end
         
@@ -253,10 +257,5 @@ for stepi=1:cfg.nStepsPerSequence
     
 end
 
-
-
-% save the pattern info for each category 
-seq.categA = categA; 
-seq.categB = categB; 
 
 

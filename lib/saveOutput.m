@@ -1,54 +1,53 @@
-function logFile = saveOutput(subjectName,runNumber,logFile, cfg, input)
+function datalog = saveOutput(datalog, cfg, expParam, action)
 
 
 
-switch input
+% make sure logiles directory exists 
+if ~exist('logfiles','dir')
+    mkdir('logfiles')
+end
+
+DateFormat = 'yyyy_mm_dd_HH_MM';
+
+Filename = fullfile(pwd, 'logfiles', ...
+    ['sub-' datalog.subjectName, ...
+    '_run-' datalog.runNumber, ...
+    '_' datestr(now, DateFormat)]);
+
+
+switch action
     
+    
+    % ==================================================================================
     case 'open'
         
-        if ~exist('logfiles','dir')
-            mkdir('logfiles')
-        end
         
         
-        %% .tsv file
-        %logfile name for .txt or .tsv
-        DateFormat = 'yyyy_mm_dd_HH_MM';
-        Filename = fullfile(pwd, 'logfiles', ...
-            ['sub-' subjectName, ...
-            '_run-' runNumber, ...
-            '_' datestr(now, DateFormat) '.txt']);
+        %----------------------------------------
+        % .tsv file for stimulus
+        %----------------------------------------
+             
+        % open text file
+        datalog.fidStim = fopen([Filename,'_stimulus.txt'], 'w'); %'a'
+        
+        % print header
+        fprintf(datalog.fidStim,'subjectID\trunNumber\tpatternID\tcategory\tonsetTime\tF0\tgridIOI\n'); 
+        
+        
+        %----------------------------------------
+        % .tsv file for tapping
+        %----------------------------------------
 
+        % open text file
+        datalog.fidTap = fopen([Filename,'_tapping.txt'], 'w'); %'a'
         
-        % open a tsv/txt file to write the output 
-        logFile.txt = fopen(Filename, 'w'); %'a'
-        fprintf(logFile.txt,'%12s %12s %12s %18s %12s %12s %12s %12s %12s %12s %12s %12s \n', ...
-            'SubjID', ...
-            'SequenceNum', ...
-            'SegmentCateg', ...
-            'PatternID', ...
-            'PatternOnset', ...
-            'PatternEnd', ...
-            'PatternDuration', ...
-            'TapOnset', ...
-            'KeyPresses', ...
-            'PatternGridRep',...
-            'gridIOI',...
-            'F0');
-%         fprintf(fid, 'SubjID\tSequenceNum\tSegmentCateg\tPatternID\tPatternOnset\tTapOnset\tKeyPresses\tPatternGridRep\tgridIOI\tF0\t\n');
-
-        %     logFile.patternOnsets
-        %     logFile.patternEnds
-        %     logFile.patternDurations
-        %     logFile.sequenceOnsets
-        %     logFile.sequenceEnds
-        %     logFile.sequenceDurations
-
+        % print header
+        fprintf(datalog.fidTap, 'subjectID\trunNumber\tseqi\ttapOnset\n'); 
         
         
-
         
-    case 'save'
+    % ==================================================================================
+    case 'update'
         
 %         % Event txt_Logfile
 %         fprintf(logFile.EventTxtLogFile,'%12.0f %12.0f %12.0f %18.0f %12.2f %12.5f %12.5f %12.5f \n',...
@@ -61,33 +60,37 @@ switch input
 %             logFile.eventEnds(iBlock, iEventsPerBlock), ...
 %             logFile.eventDurations(iBlock, iEventsPerBlock));
 
-        fprintf(logFile.txt,'%12.0f %12.0f %12s %18s %12.3f %12.3f %12.3f %12.3f %12s %12s %12.3f %12.0f \n', ...
-            subjectName, ...
-            'SequenceNum', ...
-            'SegmentCateg', ...
-            'PatternID', ...
-            'PatternOnset', ...
-            'PatternEnd', ...
-            'PatternDuration', ...
-            'TapOnset', ...
-            'KeyPresses', ...
-            'PatternGridRep',...
-            'gridIOI',...
-            'F0');
+% 
+%         fprintf(logFile.txt,'%12.0f %12.0f %12s %18s %12.3f %12.3f %12.3f %12.3f %12s %12s %12.3f %12.0f \n', ...
+%             subjectName, ...
+%             'SequenceNum', ...
+%             'SegmentCateg', ...
+%             'PatternID', ...
+%             'PatternOnset', ...
+%             'PatternEnd', ...
+%             'PatternDuration', ...
+%             'TapOnset', ...
+%             'KeyPresses', ...
+%             'PatternGridRep',...
+%             'gridIOI',...
+%             'F0');
         
+    % ==================================================================================
     case 'savemat'
         
-        %.mat file
-        save(fullfile('logfiles',[Filename,'_all.mat']))
+        % save all config structures and datalog to .mat file
+        save(fullfile([Filename,'_all.mat']), 'datalog', 'cfg', 'expParam')
+       
         
-        
+    % ==================================================================================
     case 'close'
-        
-        % close txt log file
-        fclose(logFile.txt);
+      
+        % close txt log files
+        fclose(datalog.fidStim);
+        fclose(datalog.fidTap);
         
         
 end
 
 
-end
+
