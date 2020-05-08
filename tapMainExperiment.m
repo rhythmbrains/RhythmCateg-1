@@ -23,7 +23,7 @@ datalog.experimentStartTime = GetSecs();
 [datalog.subjectName, datalog.runNumber] = getSubjectID(cfg);
 
 
-%%  Experiment
+%% Experiment
 
 % Safety loop: close the screen if code crashes
 try
@@ -32,7 +32,7 @@ try
         
     % Prepare for the output logfiles
     datalog = saveOutput(datalog, cfg, expParam, 'open'); 
-    
+        
     %  instructions
     displayInstr(expParam.taskInstruction,cfg.screen,cfg.keywait);
     
@@ -43,16 +43,12 @@ try
     % if there's wait time,..wait
     WaitSecs(expParam.onsetDelay);
     
-    
-    
-    
     %% play sequences
     for seqi = 1:expParam.numSequences
         
         % construct sequence 
         currSeq = makeSequence(cfg,seqi); 
 
-        
         % fill the buffer
         PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
                 
@@ -61,9 +57,8 @@ try
             cfg.PTBstartCue, cfg.PTBwaitForDevice);
         
         
-        
         %% record tapping (fast looop)
-        
+
         % allocate vector of tap times
         currTapOnsets = []; 
         
@@ -154,7 +149,7 @@ try
 
         % pause (before next sequence starts, wait for key to continue)
         if expParam.sequenceDelay
-            displayInstr(expParam.delayInstruction,cfg.screen,cfg.keywait);
+           displayInstr(expParam.delayInstruction,cfg.screen,cfg.keywait);
             WaitSecs(expParam.pauseSeq);
         end  
 
@@ -181,7 +176,6 @@ catch
     % clean the workspace
     cleanUp(cfg); 
     
-    psychrethrow(psychlasterror);
     
 end
 

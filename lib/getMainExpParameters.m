@@ -183,6 +183,7 @@ cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cf
 
 
 
+
 %% Task Instructions
     expParam.taskInstruction = ['Welcome to the main experiment!\n\n', ...
         'Good luck!\n\n', ...
