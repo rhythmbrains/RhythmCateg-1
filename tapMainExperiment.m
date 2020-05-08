@@ -30,13 +30,14 @@ try
     logFile.sequenceDurations = zeros(expParam.numSequences, 1);
     
     % %expParameters.numSegments
-    
-    logFile.patternOnsets    = zeros(expParam.numSequences, expParam.numPatterns);
-    logFile.patternEnds      = zeros(expParam.numSequences, expParam.numPatterns);
-    logFile.patternDurations = zeros(expParam.numSequences, expParam.numPatterns);
-    
+    logFile.iPatOnset    = zeros(expParam.numSequences, expParam.numPatterns);
+
     % Prepare for the output logfiles
     logFile = saveOutput(subjectName, runNumber,logFile, cfg,'open');
+    
+    % not working atm
+    % prepare the KbQueue to collect responses
+    % getResponse('start', cfg);
     
     
     %  instructions
@@ -53,7 +54,7 @@ try
     WaitSecs(expParam.onsetDelay);
     
     %% play different sequence
-    for iseq = 1:expParameters.numSequences
+    for iseq = 1:expParam.numSequences
         
         
         % all stimuli made in getMainExpParams script, here we call it now
@@ -68,6 +69,7 @@ try
         % start the sound sequence
         playTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
             cfg.PTBstartCue, cfg.PTBwaitForDevice);
+        
         %save the time to cfg
         cfg.currSeqPlayTime = playTime;
         
@@ -76,107 +78,76 @@ try
         
         %% check & record response/tapping
         
+        iEvent = 1;
         
-        for ipattern = 1:expParameters.numPatterns
+        for ipattern = 1:expParam.numPatterns
             
             
+            % probably we do not need
+            logFile.isegmentCateg = cfg.seq.segmCateg(iseq);
+            logFile.iPatOnset(ipattern,iseq) = GetSecs() - cfg.experimentStartTime;
             
             
-            % Check for experiment abortion from operator
-            [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
-            if (keyIsDown==1 && keyCode(cfg.keyquit))
-                break;
+            % stupid way - it doesnt enter the while loop
+            
+            
+            % currGridIOI = cfg.seq.gridIOI(ipattern)* iEvent -0.01;
+            currGridIOI = 0.19;
+            
+            
+            % wait for the every small grip point and register the tapping
+            % I think you want to have while loop over gridIOI * gripPoints
+            % (e.g. 12 * 0.19) but I'm looking for a way to look every
+            % 0.19s and if response, write it down, of not, insert 0
+            while GetSecs() < playTime+currGridIOI
+                
+                status = PsychPortAudio('GetStatus', cfg.pahandle);
+                if ~status.Active
+                    PsychPortAudio('Stop', cfg.pahandle);
+                end
+                
+                [keyIsDown, secs, keyCode] = KbCheck(-1);
+                
+                if keyIsDown
+                    
+                    responseKey = KbName(find(keyCode));
+                    responseTime = secs - experimentStartTime;
+                    
+                    
+                    % ecs key press - stop playing the sounds//script
+                    if strcmp(responseKey,'ESCAPE')==1
+                        
+                        % If the script is stopped while a sequence is being
+                        % played, it close psychport audio
+                        cleanUp();
+                        
+                        return
+                        
+                    end
+                    
+                    % % % inserting all above into function
+                    % % % failed attempt
+                    %logfile for responses - consider not using while loop above
+                    %responseEvents = getResponse('check', cfg);
+                    %cfg.responseEvents = responseEvents;
+                    
+                    %here it logs every 0.18s
+                    logFile = saveOutput(subjectName,runNumber,logFile, cfg, input,iseq,ipattern);
+                    
+                    
+                end
             end
+            iEvent = iEvent + 1;
             
-            
-            logFile.iseq = iseq;
-            % logFile.ipatternOnsets = (ipattern, i
-            
-            
-            
-            
-            
-            % seq.patternID
-            % seq.outPatterns
-            % seq.outAudio
-            %
-            %             subjectName, ...
-            %                 logFile.iseq, ...
-            %                 seq.segmCateg, ...
-            %                 seq.patternID, ...
-            %                 'PatternOnset', ...
-            %                 'PatternEnd', ...
-            %                 'PatternDuration', ...
-            %                 'TapOnset', ...
-            %                 'KeyPresses', ...
-            %                 'PatternGridRep',...
-            %                 seq.gridIOI,...
-            %                 seq.F0);
-            
-            
-            
-            iBlock, ...
-                iEventsPerBlock, ...
-                logFile.iEventDirection, ...
-                logFile.iEventIsFixationTarget, ...
-                logFile.iEventSpeed, ...
-                logFile.eventOnsets(iBlock, iEventsPerBlock), ...
-                logFile.eventEnds(iBlock, iEventsPerBlock), ...
-                logFile.eventDurations(iBlock, iEventsPerBlock));
-            
-            
-            % Direction of that event
-            logFile.iEventDirection = ExpParameters.designDirections(iBlock,iEventsPerBlock);
-            % Speed of that event
-            logFile.iEventSpeed = ExpParameters.designSpeeds(iBlock,iEventsPerBlock);
-            
-            
-            % % % initially an input for DoDotMo func, now from
-            % ExpParameters.eventDuration, to be tested
-            % DODOTMO
-            iEventDuration = ExpParameters.eventDuration ;                        % Duration of normal events
-            % % %
-            logFile.iEventIsFixationTarget = ExpParameters.designFixationTargets(iBlock,iEventsPerBlock);
-            
-            % Event Onset
-            logFile.eventOnsets(iBlock,iEventsPerBlock) = GetSecs-Cfg.experimentStart;
-            
-            
-            % % % REFACTORE
-            % play the dots
-            doDotMo(Cfg, ExpParameters, logFile);
-            
-            
-            %% logfile for responses
-            
-            responseEvents = getResponse('check', Cfg, ExpParameters);
-            
-            % concatenate the new event responses with the old responses vector
-            %             logFile.allResponses = [logFile.allResponses responseTimeWithinEvent];
-            
-            
-            
-            %% Event End and Duration
-            logFile.eventEnds(iBlock,iEventsPerBlock) = GetSecs-Cfg.experimentStart;
-            logFile.eventDurations(iBlock,iEventsPerBlock) = logFile.eventEnds(iBlock,iEventsPerBlock) - logFile.eventOnsets(iBlock,iEventsPerBlock);
-            
-            
-            
-            
+        
             % Save the events txt logfile
-            logFile = saveOutput(subjectName, logFile, ExpParameters, 'save Events', iBlock, iEventsPerBlock);
+            % here in every pattern
+            %
+            % logFile = saveOutput(subjectName,runNumber,logFile, cfg, input,iseq,ipattern);
+            
+            % getResponse('flush', cfg);
             
             
-            % wait for the inter-stimulus interval
-            WaitSecs(ExpParameters.ISI);
-            
-            
-            getResponse('flush', Cfg, ExpParameters);
-            
-            
-            %% log file
-            % make a saveOutput script
-            logFile = saveOutput(subjectName,runNumber,logFile, cfg,'save');
             
         end
         
@@ -184,9 +155,10 @@ try
         logFile.sequenceDurations(iseq,1)= logFile.sequenceEnds(iseq,1) - ...
             logFile.sequenceOnsets(iseq,1);
         
-        %add a wait enter for possible breaks
+        %add a wait enter for possible breaks - needs instruction
+        
         if expParam.sequenceDelay
-            displayInstr(expParam.delayInstruction,cfg.screen,cfg.keywait);
+         %   displayInstr(expParam.delayInstruction,cfg.screen,cfg.keywait);
             WaitSecs(expParam.pauseSeq);
         end  
 
@@ -197,7 +169,7 @@ try
     logFile = saveOutput(subjectName,runNumber,logFile, cfg, 'savemat');
     
     %%
-    cleanUp()
+    cleanUp(cfg)
     
 catch
     
@@ -206,7 +178,7 @@ catch
     logFile = saveOutput(subjectName,runNumber,logFile, cfg, 'savemat');
     % % %
     
-    cleanUp()
+    cleanUp(cfg)
     psychrethrow(psychlasterror);
     
 end

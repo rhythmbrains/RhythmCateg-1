@@ -37,7 +37,7 @@ function cfg = initPTB(cfg)
     
     KbName('UnifyKeyNames');
     cfg.keywait     = KbName({'RETURN'}); % press enter to start bloc
-    cfg.keyquit     = KbName('DELETE'); % press ESCAPE at response time to quit 
+    cfg.keyquit     = KbName('ESCAPE'); % press ESCAPE at response time to quit 
     cfg.keytap     = KbName('SPACE'); 
 
 
@@ -73,10 +73,10 @@ function cfg = initPTB(cfg)
     % init PTB with different options in concordance to the Debug Parameters
     if cfg.debug
         
-        %     % set to one because we don not care about time
-        %     Screen('Preference', 'SkipSyncTests', 2);
-        %     Screen('Preference', 'Verbosity', 0);
-        %     Screen('Preferences', 'SuppressAllWarnings', 2);
+%             % set to one because we don not care about time
+%             Screen('Preference', 'SkipSyncTests', 2);
+%             Screen('Preference', 'Verbosity', 0);
+%             Screen('Preferences', 'SuppressAllWarnings', 2);
 
         if cfg.testingTranspScreen
             PsychDebugWindowConfiguration
