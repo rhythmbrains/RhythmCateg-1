@@ -1,9 +1,11 @@
-function idx=waitForKeyKbCheck(keywait)
+function keyCodePressed=waitForKeyKbCheck(keywait)
+% keywait:      vector, each entry is the numeric code of one key that is
+%               allowed
 
-idx=0;
+keyCodePressed=0;
 KbReleaseWait; 
-while ~ismember(idx,keywait)
-        [secs, key_code] = KbWait();
-        idx = find(key_code);         
+while ~ismember(keyCodePressed,keywait)
+        [secs, keyCode] = KbWait();
+        keyCodePressed = find(keyCode);         
 end    
 KbReleaseWait; 

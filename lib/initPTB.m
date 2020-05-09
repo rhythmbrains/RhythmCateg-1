@@ -36,9 +36,13 @@ function cfg = initPTB(cfg)
     
     
     KbName('UnifyKeyNames');
-    cfg.keywait     = KbName({'RETURN'}); % press enter to start bloc
-    cfg.keyquit     = KbName('ESCAPE'); % press ESCAPE at response time to quit 
-    cfg.keytap     = KbName('SPACE'); 
+    cfg.keywait         = KbName({'RETURN'}); % press enter to start bloc
+    cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit 
+    cfg.keytap          = KbName('SPACE'); 
+    cfg.keyVolUp        = KbName('UpArrow'); 
+    cfg.keyVolDown      = KbName('DownArrow'); 
+    cfg.keyAudioPlay    = KbName('p'); 
+    cfg.keyAudioStop    = KbName('s'); 
 
 
     % now I'm using flush in getTapping.m script, so I'm going to delete
@@ -70,6 +74,7 @@ function cfg = initPTB(cfg)
     cfg.screen.graycol      = GrayIndex(cfg.screen.i);
     cfg.screen.whitecol     = WhiteIndex(cfg.screen.i);
     
+
     % init PTB with different options in concordance to the Debug Parameters
     if cfg.debug
         
@@ -108,8 +113,11 @@ function cfg = initPTB(cfg)
     
     %% text 
     % Select specific text font, style and size:
-    Screen('TextFont',cfg.screen.h,'Arial');
-    Screen('TextSize',cfg.screen.h,round(cfg.screen.res.width/100));
+    cfg.textSize = 30; 
+    cfg.textFont = 'Arial'; 
+    
+    Screen('TextFont',cfg.screen.h,cfg.textFont);
+    Screen('TextSize',cfg.screen.h,cfg.textSize);
        
     
 

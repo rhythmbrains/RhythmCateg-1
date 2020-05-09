@@ -59,9 +59,15 @@ cfg.nWinDown        = 1;
 % number of consecuitve windows in order to finish the level 4
 cfg.nWinUp_lastLevel = 3; 
 
-% not sured atm - 
-%if the feedback wil be given after each window of pattern
-% cfg.fbk_on_sceen_maxtime = 2; 
+% duration (secs) for which real-time feedback will be displayed on screen during tapping 
+cfg.fbkOnScreenMaxtime = 5; 
+
+%% generate example stimulus for volume setting
+
+volTestSound = makeStimTrain(cfg,1,1); 
+cfg.volumeSettingSound = repmat(volTestSound.s,2,1); 
+
+
 
 %% Task
 

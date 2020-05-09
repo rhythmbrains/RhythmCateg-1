@@ -181,21 +181,24 @@ cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cf
 %% extract below numbers for preallocation in logFile
 
 
+%% generate example stimulus for volume setting
+cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg, cfg.gridIOIs(end), cfg.F0s(end)), 2,1); 
 
 
 
 %% Task Instructions
     expParam.taskInstruction = ['Welcome to the main experiment!\n\n', ...
-        'Good luck!\n\n', ...
-        sprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
+                                'Good luck!\n\n', ...
+                                sprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
                                ];
 
-% % % % % TL: cannot use iseq here...                           
-   expParam.delayInstruction = [sprintf('The %d out of %d is over!\n\n', ...
-       0, expParam.numSequences), ...
-        'You can have a break. When you want to continue, press ENTER. \n\n',...
-        'Good luck!\n\n', ...
-                               ];
-% % % % %                          
+                          
+   expParam.delayInstruction = ['The %d out of %d is over!\n\n', ...
+                                'You can have a break. \n\n',...
+                                'Good luck!\n\n']; 
 
+    
+    
 end
+
+

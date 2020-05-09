@@ -1,3 +1,9 @@
+% 
+% !!! TL: I SOMETIMES HAVE CRACKS IN THE SOUND WHEN I TAP... !!!
+% (maybe there's too much in the audio buffer at the same time?)
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 % Clear all the previous stuff
@@ -34,17 +40,16 @@ try
     datalog = saveOutput(datalog, cfg, expParam, 'open'); 
         
     %  instructions
-    displayInstr(expParam.taskInstruction,cfg.screen,cfg.keywait);
-    
-    % start screen with tap
-    displayInstr('TAP',cfg.screen);
-    
+    displayInstr(expParam.taskInstruction,cfg,'setVolume');
     
     % if there's wait time,..wait
     WaitSecs(expParam.onsetDelay);
     
     %% play sequences
     for seqi = 1:expParam.numSequences
+        
+        % change screen to "TAP" instruction 
+        displayInstr('TAP',cfg,'instrAndQuitOption');   
         
         % construct sequence 
         currSeq = makeSequence(cfg,seqi); 
@@ -131,6 +136,9 @@ try
         % save (machine) onset time for the current sequence
         datalog.data(seqi).currSeqStartTime = currSeqStartTime; 
         
+        % save PTB volume
+        datalog.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle); 
+
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
         datalog.data(seqi).seq = currSeq; 
@@ -147,18 +155,20 @@ try
         
         %% Pause
 
-        % pause (before next sequence starts, wait for key to continue)
-        if expParam.sequenceDelay
-            
-            % % % % % % % % % % 
-            % add here option to quit the experiment
-            % volume setting? 
-            % % % % % % % % % % 
-            displayInstr(expParam.delayInstruction,cfg.screen,cfg.keywait);
-            WaitSecs(expParam.pauseSeq);
-        end  
+        if seqi<expParam.numSequences
+            % pause (before next sequence starts, wait for key to continue)
+            if expParam.sequenceDelay
+                fbkToDisp = sprintf(expParam.delayInstruction, seqi, expParam.numSequences);            
+                displayInstr(fbkToDisp,cfg,'setVolume');
+                WaitSecs(expParam.pauseSeq);
+            end  
 
-        
+        else
+            % end of experient
+            displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);  
+            % wait 3 seconds and end the experiment
+            WaitSecs(3); 
+        end
         
     end % sequence loop
     

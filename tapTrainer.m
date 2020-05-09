@@ -65,16 +65,12 @@ try
     % Prepare for the output logfiles
     datalog = saveOutput(datalog, cfg, expParam, 'open'); 
 
-    % % % % %
-    % -> volume setting
-    % % % % %
 
-    % instructions   
-    displayInstr(expParam.taskInstruction,cfg.screen,cfg.keywait);     
-    displayInstr('TAP',cfg.screen);   
-
+    % show instructions and do initial volume setting
+    displayInstr(expParam.taskInstruction,cfg,'setVolume');         
+    
     % simultenaous feedback 
-    % fbk_on_screen = false; 
+    fbkOnScreen = false; 
     
     % index (counter) of current pattern that is used in the stimulus
     % sequence
@@ -86,6 +82,9 @@ try
     
     %% loop over patterns (atm, n pattern = 2)
     while 1
+        
+        % change screen to "TAP" instruction 
+        displayInstr('TAP',cfg,'instrAndQuitOption');   
         
         % once the pattern is repeated 4 times, the script looks back in
         % this time window, this is an index (counter) of analysis windows
@@ -226,15 +225,16 @@ try
                     [curunderflow, ~, ~] = PsychPortAudio('FillBuffer', cfg.pahandle, pushdata, 1);
                 end
 
-%                 % if there is overdue feedback on the screen, remove it
-%                 if fbk_on_screen
-%                     if feedback_on_screen_time>cfg.fbk_on_sceen_maxtime
-%                         displayInstr('TAP',screen);   
-%                         fbk_on_screen = false; 
-%                     else
-%                         feedback_on_screen_time = feedback_on_screen_time+
-%                     end
-%                 end       
+                
+                % if there is overdue feedback on the screen, remove it
+                if fbkOnScreen
+                    if (GetSecs-fbkOnScreenTime)>cfg.fbkOnScreenMaxtime
+                        fbkOnScreen = false; 
+                        % change screen back to "TAP" instruction 
+                        displayInstr('TAP',cfg,'instrAndQuitOption');   
+                    end
+                end       
+                
                 
             end      
 
@@ -332,11 +332,12 @@ try
                 cueDBleveli = cueDBleveli+1; 
                 
                 % Give positive feedback. 
-                txt = [sprintf('Your error was = %.3f\n\n',tapCvAsynch), ...
-                       sprintf('You are in level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
-                       'Well done, level up! \n\nKeep going!']; 
-                displayInstr(txt,cfg.screen);
-            
+                txt = [sprintf('level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
+                        sprintf('(error = %.3f)\n\n',tapCvAsynch), ...
+                       'Well done!']; 
+                displayInstr(txt,cfg);
+                fbkOnScreenTime = GetSecs; 
+                fbkOnScreen = 1; 
                 
                 
             % disregarding which level you are in, if the last N successive steps    
@@ -351,19 +352,23 @@ try
                 cueDBleveli = max(cueDBleveli-1, 1); 
                 
                 % Give negative feedback. 
-                txt = [sprintf('Your error was = %.3f\n\n',tapCvAsynch), ...
-                       sprintf('You are in level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
-                       'Sorry, that was not good enough.\n Maybe let''s train one level below again? \n\nYou can do it!']; 
-                displayInstr(txt,cfg.screen);
-                
+                txt = [sprintf('level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
+                        sprintf('(error = %.3f)\n\n',tapCvAsynch), ...
+                       'Keep trying :)']; 
+                displayInstr(txt,cfg);
+                fbkOnScreenTime = GetSecs; 
+                fbkOnScreen = 1; 
                 
                 
             % otherwise just give feedback and continue...
             else
-                txt = [sprintf('Your error was = %.3f\n\n',tapCvAsynch), ...
-                       sprintf('You are in level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
-                       sprintf('\n\n\n')]; 
-                displayInstr(txt,cfg.screen);
+                txt = [sprintf('level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
+                       sprintf('(error = %.3f)\n\n',tapCvAsynch), ...
+                       sprintf('\n')]; 
+                displayInstr(txt,cfg);
+                fbkOnScreenTime = GetSecs; 
+                fbkOnScreen = 1; 
+
             end
             
             
@@ -404,6 +409,9 @@ try
         % save all the taps for this sequence
         datalog.data(currPatterni).taps = taps; 
 
+        % save PTB volume
+        datalog.data(currPatterni).ptbVolume = PsychPortAudio('Volume',cfg.pahandle); 
+
         % save other window-level variables
         datalog.data(currPatterni).wini = winIdxs; 
         datalog.data(currPatterni).cueDBs = cueDBs; 
@@ -420,16 +428,15 @@ try
         
         %% instructions   
         if currPatterni>cfg.nPatterns
-            displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg.screen,cfg.keywait);  
+            % end of experient
+            displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);  
+            % wait 3 seconds and end the experiment
+            WaitSecs(3); 
             break
         else
-            txt = sprintf('CONGRATULATIONS!\n\nYou finished this level.\n\nWhen ready to try something more difficult, press ENTER.\n\nThe new rhythm will start.\nSame instructions as before.\n\nGood luck, tapping ninja!\n\n'); 
-            displayInstr(txt,cfg.screen,cfg.keywait);     
-            
-            % % % % %
-            % - volume setting
-            % - terminate the experiment 
-            % % % % %
+            % end of one pattern
+            txt = sprintf('CONGRATULATIONS!\n\nYou finished this rhythm.\n\nWhen ready to try something more difficult, press ENTER.\n\nThe new rhythm will start.\nSame instructions as before.\n\n\n\n'); 
+            displayInstr(txt,cfg,'setVolume');  
         end        
         
     
