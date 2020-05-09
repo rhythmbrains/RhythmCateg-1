@@ -11,7 +11,7 @@ end
 addpath(genpath(fullfile(pwd, 'lib')))
 
 % Get parameters
-[cfg,expParam] = getParams();
+[cfg,expParam] = getParams('tapMainExp');
 
 % datalogging structure
 datalog = []; 
@@ -149,7 +149,12 @@ try
 
         % pause (before next sequence starts, wait for key to continue)
         if expParam.sequenceDelay
-           displayInstr(expParam.delayInstruction,cfg.screen,cfg.keywait);
+            
+            % % % % % % % % % % 
+            % add here option to quit the experiment
+            % volume setting? 
+            % % % % % % % % % % 
+            displayInstr(expParam.delayInstruction,cfg.screen,cfg.keywait);
             WaitSecs(expParam.pauseSeq);
         end  
 
@@ -162,6 +167,7 @@ try
     
     % save everything into .mat file
     saveOutput(datalog, cfg, expParam, 'savemat'); 
+    saveOutput(datalog, cfg, expParam, 'close'); 
         
     % clean the workspace
     cleanUp(cfg); 
@@ -172,11 +178,12 @@ catch
     
     % save everything into .mat file
     saveOutput(datalog, cfg, expParam, 'savemat'); 
+    saveOutput(datalog, cfg, expParam, 'close'); 
     
     % clean the workspace
     cleanUp(cfg); 
     
-    
+    psychrethrow(psychlasterror);
 end
 
 

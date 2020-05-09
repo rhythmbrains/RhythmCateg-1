@@ -150,7 +150,7 @@ cfg.changePitchCycle 	= 0;
 % change pitch for each segment
 cfg.changePitchSegm 	= 0;           
 % change pitch for each segment-category (every time A changes to B or the other way around)
-cfg.changePitchCategory = 0;    
+cfg.changePitchCategory = 1;    
 % change pitch for each step
 cfg.changePitchStep 	= 0;     
 

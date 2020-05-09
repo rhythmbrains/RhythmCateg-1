@@ -1,13 +1,26 @@
-function [cfg,expParameters] = getParams()
-
+function [cfg,expParameters] = getParams(task)
 % Initialize the parameters variables
 % Initialize the general configuration variables
+% =======
+% INPUT: 
+% =======
+%     task:             string specifying the current task to get parameters for
+%                       (tapTraining or tapMainExp)
+% =======
+% OUTPUT: 
+% =======
+%     cfg:
+%     expParameters:
+
+
+
+% parameters
 cfg = struct; 
+
+% general configuration
 expParameters = struct;
 
-% % % THINK using this function tapping + main exp
-expParameters.task = 'tapMainExp'; % tapTraining or tapMainExp to run main experiment
-% % %
+expParameters.task = task; 
 
 
 %% Debug mode settings

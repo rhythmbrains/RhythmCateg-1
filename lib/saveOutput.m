@@ -14,56 +14,93 @@ Filename = fullfile(pwd, 'logfiles', ...
     '_' datestr(now, DateFormat)]);
 
 
-switch action
-    
-    
-    % ==================================================================================
-    case 'open'
-        
-        
-        
-        %----------------------------------------
-        % .tsv file for stimulus
-        %----------------------------------------
-             
-        % open text file
-        datalog.fidStim = fopen([Filename,'_stimulus.txt'], 'w'); %'a'
-        
-        % print header
-        fprintf(datalog.fidStim,'subjectID\trunNumber\tpatternID\tcategory\tonsetTime\tF0\tgridIOI\n'); 
-        
-        
-        %----------------------------------------
-        % .tsv file for tapping
-        %----------------------------------------
 
-        % open text file
-        datalog.fidTap = fopen([Filename,'_tapping.txt'], 'w'); %'a'
-        
-        % print header
-        fprintf(datalog.fidTap, 'subjectID\trunNumber\tseqi\ttapOnset\n'); 
-        
-        
-        
-    % ==================================================================================
-    case 'update'
-        
-    % ==================================================================================
-    case 'savemat'
-        
-        % save all config structures and datalog to .mat file
-        save(fullfile([Filename,'_all.mat']), 'datalog', 'cfg', 'expParam')
-       
-        
-    % ==================================================================================
-    case 'close'
-      
-        % close txt log files
-        fclose(datalog.fidStim);
-        fclose(datalog.fidTap);
-        
-        
+%% MAIN EXPERIMENT
+if strcmp(expParam.task,'tapMainExp')
+
+    switch action
+
+        % ==================================================================================
+        case 'open'
+
+            %----------------------------------------
+            % .tsv file for stimulus
+            %----------------------------------------
+
+            % open text file
+            datalog.fidStim = fopen([Filename,'_stimulus.tsv'], 'w'); %'a'
+
+            % print header
+            fprintf(datalog.fidStim,'subjectID\trunNumber\tpatternID\tcategory\tonsetTime\tF0\tgridIOI\n'); 
+
+            %----------------------------------------
+            % .tsv file for tapping
+            %----------------------------------------
+
+            % open text file
+            datalog.fidTap = fopen([Filename,'_tapping.tsv'], 'w'); %'a'
+
+            % print header
+            fprintf(datalog.fidTap, 'subjectID\trunNumber\tseqi\ttapOnset\n'); 
+
+        % ==================================================================================
+        case 'update'
+
+        % ==================================================================================
+        case 'savemat'
+
+            % save all config structures and datalog to .mat file
+            save(fullfile([Filename,'_all.mat']), 'datalog', 'cfg', 'expParam')
+
+        % ==================================================================================
+        case 'close'
+
+            % close txt log files
+            fclose(datalog.fidStim);
+            fclose(datalog.fidTap);
+
+    end
+
+    
+    
+%% TAP TRAINING
+elseif strcmp(expParam.task,'tapTraining')
+    
+    switch action
+
+        % ==================================================================================
+        case 'open'
+
+            % open text file
+            datalog.fidTapTrainer = fopen([Filename,'_tapTraining.tsv'], 'w'); %'a'
+
+            % print header
+            fprintf(datalog.fidTapTrainer, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', ...
+            'subjectID',...             % subject id
+            'pattern',...               % pattern 
+            'seqStartTime',...          % machine time of sequence audio start
+            'cuePeriod',...             % cue (i.e. metronome) period (N of grid-points)
+            'cueLeveldB',...            % cue (i.e. metronome) level in dB 
+            'analysisWin', ...          % index (count) of this analysis window (for this sequence)
+            'winStartTime', ...         % analysis window start time wrt sequence start
+            'tapOnset');                % tap onset time relative to sequence start time
+
+        % ==================================================================================
+        case 'update'
+
+        % ==================================================================================
+        case 'savemat'
+
+            % save all config structures and datalog to .mat file
+            save(fullfile([Filename,'_tapTraining.mat']), 'datalog', 'cfg', 'expParam')
+
+        % ==================================================================================
+        case 'close'
+
+            % close txt log files
+            fclose(datalog.fidTapTrainer);
+    end
+
+    
+    
 end
-
-
-
