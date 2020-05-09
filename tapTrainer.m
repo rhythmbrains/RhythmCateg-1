@@ -65,6 +65,10 @@ try
     % Prepare for the output logfiles
     datalog = saveOutput(datalog, cfg, expParam, 'open'); 
 
+    % % % % %
+    % -> volume setting
+    % % % % %
+
     % instructions   
     displayInstr(expParam.taskInstruction,cfg.screen,cfg.keywait);     
     displayInstr('TAP',cfg.screen);   
@@ -72,7 +76,9 @@ try
     % simultenaous feedback 
     % fbk_on_screen = false; 
     
-    curr_pattern_level = 1; 
+    % index (counter) of current pattern that is used in the stimulus
+    % sequence
+    currPatterni = 1; 
    
     % pattern has 12 events
     % metronome interval is 4 event
@@ -82,41 +88,42 @@ try
     while 1
         
         % once the pattern is repeated 4 times, the script looks back in
-        % this time window, and in the next "step" ...
-        curr_step = 1; 
+        % this time window, this is an index (counter) of analysis windows
+        % for the current sequence
+        currWini = 1; 
         
         % dB changes in the loop - tapping cue (decreases over time if the
         % error rate is low(er))
         % which dB sound will be played choose the index in the list
-        curr_cue_dB_level = 1; 
+        cueDBleveli = 1; 
         
         %number of grip points between two tapping cue sounds
         %convert the grip interval to target inter-tap-interval in seconds.
         % every 800ms there'll be a cue sound to tap along
-        curr_metronome_interval = cfg.period_metronome(curr_pattern_level)*cfg.grid_interval;
+        cuePeriod = cfg.cuePeriod(currPatterni)*cfg.gridIOI;
         
-        % atm, total duration of the pattern window (4 x pattern)
-        curr_step_dur = cfg.n_cycles_per_step * length(cfg.patterns{curr_pattern_level}) * cfg.grid_interval; 
+        % total duration of the analysis window (4 x pattern) in seconds
+        winDur = cfg.nCyclesPerWin * length(cfg.patterns{currPatterni}) * cfg.gridIOI; 
         
-        % to calculate the max #taps
-        curr_taketap_dur = curr_step_dur - 0.200; 
+        % time from the start of the analysis window (in secs) taken to analyse the tapping
+        taketapDur = winDur - 0.200; 
         
         %to be used later on to calculate the min number that participant
         %has to tap - 
-        tap_max_n_taps = floor(curr_taketap_dur/curr_metronome_interval);
-        % to calculate 70% of this max taps
-        tap_min_n_taps = floor(tap_max_n_taps*cfg.min_n_taps_prop); 
+        maxPossibleNtaps = floor(taketapDur/cuePeriod);
         
-        
+        % minimum required number of taps in an analysis window 
+        % (70% of max possible taps in the window)
+        minNtaps = floor(maxPossibleNtaps*cfg.minNtapsProp); 
+                
         % counters for calculating the tapping accuracy later on
-        tap_perform_status = 0; % if good +1, if bad -1
+        performStatus = 0; % if good +1, if bad -1
         taps = []; 
         istap = false;
 
         
         %% allocate datalog variables
-         pattern_levels     = []; 
-         window_i           = []; 
+         winIdxs            = []; 
          cueDBs             = []; 
          winStartTimes      = []; 
          feedbacks          = {}; 
@@ -124,7 +131,7 @@ try
          
         %% make stimuli
         % get audio for the first step/window (4 x pattern)
-        [seq] = makeStimTrain(cfg, curr_pattern_level, curr_cue_dB_level);  
+        [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli);  
 
         
         %% fill the buffer 
@@ -143,22 +150,21 @@ try
         % start playback (note: set repetitions=0, otherwise it will not allow you to seamlessly push more data into the buffer once the sound is playing)  
         % starts to play whats in the buffer and play on whatever is in on
         % a seamlessly in the loop
-        start_time = PsychPortAudio('Start', cfg.pahandle, 0, [], 1); 
+        currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, 0, [], 1); 
         % startTime = PsychPortAudio('Start', pahandle [, repetitions=1] [, when=0] [, waitForStart=0] [, stopTime=inf] [, resume=0]);
         
         % ceren can try with 1 sound input into two channels
         audio2push = [seq.s;seq.s]; 
 
-        
         %silence is going, then we will upload to the buffer audio sequence after the
         % 1s of silent has started
         [underflow] = PsychPortAudio('FillBuffer', cfg.pahandle, audio2push, 1, cfg.reqsampleoffset);
 
         % and update start time (by offset)
         % start time = actual time of audio seq presented
-        start_time = start_time+cfg.requestoffsettime; 
-        curr_step_start_time = start_time; 
-        nsamples_audio2push = 0; 
+        currSeqStartTime = currSeqStartTime+cfg.requestoffsettime; 
+        currWinStartTime = currSeqStartTime; 
+        nSamplesAudio2push = 0; 
         idx2push = 1; 
 
         
@@ -171,20 +177,20 @@ try
             
             
             %% tapping while loop
-            while GetSecs < (curr_step_start_time+curr_taketap_dur)
+            while GetSecs < (currWinStartTime+taketapDur)
 
                 % collect tapping 
-                [~,secs,key_code] = KbCheck(-1);
+                [~,tapOnset,keyCode] = KbCheck(-1);
                 
                 % terminate if quit-button pressed
-                if find(key_code)==cfg.keyquit
+                if find(keyCode)==cfg.keyquit
                     error('Experiment terminated by user...');                     
                 end
                 
                 % if they did not press delete, it looks for any response
                 % button and saves the time                 
-                if ~istap && any(key_code)
-                    taps = [taps,secs-start_time];
+                if ~istap && any(keyCode)
+                    taps = [taps,tapOnset-currSeqStartTime];
                     istap = true;
                     
                     % -------------------- log ----------------------------
@@ -192,27 +198,27 @@ try
                     % write to the log file            
                     fprintf(datalog.fidTapTrainer, '%s\t%d\t%f\t%f\t%f\t%d\t%f\t%f\n', ...
                         datalog.subjectName,...                 % subject id
-                        curr_pattern_level, ...                 % pattern 
-                        start_time,...                          % machine time of sequence audio start
-                        curr_metronome_interval,...             % cue (i.e. metronome) period (N of grid-points)
-                        cfg.snr_metronome(curr_cue_dB_level),... % cue (i.e. metronome) level in dB (SNR)
-                        curr_step, ...                          % index (count) of this analysis window (for this sequence)
-                        curr_step_start_time-start_time,...     % analysis window start time wrt sequence start
+                        currPatterni, ...                 % pattern 
+                        currSeqStartTime,...                          % machine time of sequence audio start
+                        cuePeriod,...             % cue (i.e. metronome) period (N of grid-points)
+                        cfg.cueDB(cueDBleveli),... % cue (i.e. metronome) level in dB (SNR)
+                        currWini, ...                          % index (count) of this analysis window (for this sequence)
+                        currWinStartTime-currSeqStartTime,...     % analysis window start time wrt sequence start
                         taps(end));                             % tap onset time relative to sequence start time
                     % -----------------------------------------------------
                 end
                 
                 % it counts as tap if reponse buttons were released
                 % initially
-                if istap && ~any(key_code)
+                if istap && ~any(keyCode)
                     istap = false;
                 end
 
                 % if there is any audio waiting to be pushed, push it to the buffer!
-                if nsamples_audio2push
-                    if idx2push + cfg.audio.pushsize > nsamples_audio2push
+                if nSamplesAudio2push
+                    if idx2push + cfg.audio.pushsize > nSamplesAudio2push
                         pushdata = audio2push(:,idx2push:end);
-                        nsamples_audio2push = 0; 
+                        nSamplesAudio2push = 0; 
                     else
                         pushdata = audio2push(:,idx2push:idx2push + cfg.audio.pushsize-1);
                         idx2push = idx2push + cfg.audio.pushsize;
@@ -239,34 +245,33 @@ try
             % evaluate tapping and decide on the next step/window parameters
             %look at which window you are in (curr_step_
             % taps you will consider : step_dur
-            min_taketap_time = (curr_step-1)*curr_step_dur; 
-            max_taketap_time = (curr_step)*curr_step_dur;
+            minTaketapTime = (currWini-1)*winDur; 
+            maxTaketapTime = (currWini)*winDur;
             
             % we will only take the taps which are relevant - in our
             % current window
             %test test 
             %curr_taps = [0:0.8:6.2] + randn(1,8)*0.1
-            curr_taps = taps(taps>min_taketap_time & taps<max_taketap_time) - min_taketap_time; 
+            currTaps = taps(taps>minTaketapTime & taps<maxTaketapTime) - minTaketapTime; 
             
             %making tapping vector
-            disp(curr_taps')
-            curr_n_taps = length(curr_taps); 
-
+            disp(currTaps')
+            currTapsN = length(currTaps); 
 
             % round to the closest beat position
             % there are target positions set by the cue. But they can skip
             % a tap and still be good in synch. round the mto the closest
             % beat positions. that will give you the target position. and
             % you calculate the how far your target + your current taps
-            target_pos = round(curr_taps/curr_metronome_interval)*curr_metronome_interval; 
+            targetTapTimes = round(currTaps/cuePeriod)*cuePeriod; 
 
             % calculate asynchronies
-            tap_asynch = curr_taps - target_pos; 
+            tapAsynch = currTaps - targetTapTimes; 
             %first normalise it by the interval. because your variability
             %is proportional to the legnth of the interval (equalise across
             %different time interval/tempi)
             %then std it 
-            tap_cv_asynch = std(tap_asynch/curr_metronome_interval); 
+            tapCvAsynch = std(tapAsynch/cuePeriod); 
             
             
 
@@ -274,16 +279,16 @@ try
             % (wrt cvASY threshold and n-taps)
             % tap_perform_status = -1, 0, 1, 2, 3, ...(correctness)
             
-            if (tap_cv_asynch < cfg.tap_cv_asynch_thr) && curr_n_taps>=tap_min_n_taps
+            if (tapCvAsynch < cfg.tapCvAsynchThr) && currTapsN>=minNtaps
                 % good performance, one up!
-                curr_perform       = 'good'; 
-                tap_perform_status = max(0,tap_perform_status); % if negative make 0
-                tap_perform_status = tap_perform_status+1; 
+                currPerform       = 'good'; 
+                performStatus = max(0,performStatus); % if negative make 0
+                performStatus = performStatus+1; 
             else
                 % bad performance, one down...
-                curr_perform       = 'bad'; 
-                tap_perform_status = min(0,tap_perform_status); % if positive make 0
-                tap_perform_status = tap_perform_status-1; 
+                currPerform       = 'bad'; 
+                performStatus = min(0,performStatus); % if positive make 0
+                performStatus = performStatus-1; 
             end
 
                     
@@ -291,13 +296,13 @@ try
             %% update datalog variables
 
             % index (count) of the current analsysis window
-            window_i           = [window_i, curr_step]; 
+            winIdxs           = [winIdxs, currWini]; 
             % cue dB level (SNR)
-            cueDBs             = [cueDBs, cfg.snr_metronome(curr_cue_dB_level)]; 
+            cueDBs             = [cueDBs, cfg.cueDB(cueDBleveli)]; 
             % start time of the analysis window (wrt sequence start time)
-            winStartTimes      = [winStartTimes, curr_step_start_time-start_time]; 
+            winStartTimes      = [winStartTimes, currWinStartTime-currSeqStartTime]; 
             % feedback for the current window (good/bad)
-            feedbacks          = [feedbacks, curr_perform]; 
+            feedbacks          = [feedbacks, currPerform]; 
 
 
             %% update next window parameters
@@ -305,7 +310,7 @@ try
             
             % if this window was the last dB level, and the last-dB-level
             % counter is equal to the goal number
-            if (curr_cue_dB_level==cfg.max_snr_level) && (tap_perform_status==cfg.n_steps_up_lastLevel)
+            if (cueDBleveli==cfg.nCueDB) && (performStatus==cfg.nWinUp_lastLevel)
                 
                 % stop the audio
                 PsychPortAudio('Stop',cfg.pahandle,1);
@@ -318,17 +323,17 @@ try
                 
             % if we are not yet in the last level, and we have enough good
             % successive windows, we need to move one db-level up
-            elseif (curr_cue_dB_level~=cfg.max_snr_level) && (tap_perform_status==cfg.n_steps_up) 
+            elseif (cueDBleveli~=cfg.nCueDB) && (performStatus==cfg.nWinUp) 
                 
                 % reset the performance counter to start next level from 0
-                tap_perform_status = 0; 
+                performStatus = 0; 
                 
                 % increase the dB level one step up
-                curr_cue_dB_level = curr_cue_dB_level+1; 
+                cueDBleveli = cueDBleveli+1; 
                 
                 % Give positive feedback. 
-                txt = [sprintf('Your error was = %.3f\n\n',tap_cv_asynch), ...
-                       sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
+                txt = [sprintf('Your error was = %.3f\n\n',tapCvAsynch), ...
+                       sprintf('You are in level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
                        'Well done, level up! \n\nKeep going!']; 
                 displayInstr(txt,cfg.screen);
             
@@ -336,18 +341,18 @@ try
                 
             % disregarding which level you are in, if the last N successive steps    
             % were bad (N == n_steps_down) -> decrease level
-            elseif tap_perform_status <= -cfg.n_steps_down
+            elseif performStatus <= -cfg.nWinDown
                 
                 % reset the performance counter to start the next (decreased) level from 0
-                tap_perform_status = 0; 
+                performStatus = 0; 
                 
                 % decrease the dB level one step down (don't change if it
                 % is already at the lowest possible level)
-                curr_cue_dB_level = max(curr_cue_dB_level-1, 1); 
+                cueDBleveli = max(cueDBleveli-1, 1); 
                 
                 % Give negative feedback. 
-                txt = [sprintf('Your error was = %.3f\n\n',tap_cv_asynch), ...
-                       sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
+                txt = [sprintf('Your error was = %.3f\n\n',tapCvAsynch), ...
+                       sprintf('You are in level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
                        'Sorry, that was not good enough.\n Maybe let''s train one level below again? \n\nYou can do it!']; 
                 displayInstr(txt,cfg.screen);
                 
@@ -355,14 +360,14 @@ try
                 
             % otherwise just give feedback and continue...
             else
-                txt = [sprintf('Your error was = %.3f\n\n',tap_cv_asynch), ...
-                       sprintf('You are in level %d out of %d.\n\n',curr_cue_dB_level,cfg.max_snr_level), ...
+                txt = [sprintf('Your error was = %.3f\n\n',tapCvAsynch), ...
+                       sprintf('You are in level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
                        sprintf('\n\n\n')]; 
                 displayInstr(txt,cfg.screen);
             end
             
             
-            fprintf('current metronome-SNR level = %d\n',curr_cue_dB_level); 
+            fprintf('current metronome-SNR level = %d\n',cueDBleveli); 
             % ---- end of next window parameters update ----
             
             
@@ -370,57 +375,61 @@ try
 
             
             %% create audio with the new dB level for the next step/window
-            [seq] = makeStimTrain(cfg, curr_pattern_level, curr_cue_dB_level); 
+            [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli); 
            
             %update the push variable
             audio2push = [seq.s;seq.s];   
-            nsamples_audio2push = size(audio2push,2); 
+            nSamplesAudio2push = size(audio2push,2); 
             idx2push = 1; 
 
             % update step counter
-            curr_step = curr_step+1; 
+            currWini = currWini+1; 
             
             % Update current time! 
             % This will be used as the start time of the following window
-            curr_step_start_time = curr_step_start_time + curr_step_dur; 
+            currWinStartTime = currWinStartTime + winDur; 
             
         end
 
         %====================== update datalog =============================
 
         % save (machine) onset time for the current sequence
-        datalog.data(curr_pattern_level).currSeqStartTime = start_time; 
+        datalog.data(currPatterni).currSeqStartTime = currSeqStartTime; 
 
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
-        datalog.data(curr_pattern_level).seq = seq; 
-        datalog.data(curr_pattern_level).seq.s = []; 
+        datalog.data(currPatterni).seq = seq; 
+        datalog.data(currPatterni).seq.s = []; 
 
         % save all the taps for this sequence
-        datalog.data(curr_pattern_level).taps = taps; 
+        datalog.data(currPatterni).taps = taps; 
 
         % save other window-level variables
-        datalog.data(curr_pattern_level).window_i = window_i; 
-        datalog.data(curr_pattern_level).cueDBs = cueDBs; 
-        datalog.data(curr_pattern_level).winStartTimes = winStartTimes; 
-        datalog.data(curr_pattern_level).feedbacks = feedbacks; 
-        
+        datalog.data(currPatterni).wini = winIdxs; 
+        datalog.data(currPatterni).cueDBs = cueDBs; 
+        datalog.data(currPatterni).winStartTimes = winStartTimes; 
+        datalog.data(currPatterni).feedbacks = feedbacks; 
         
         %==================================================================
         
         
         % we will move on to the next pattern in the following loop iteration 
-        curr_pattern_level = curr_pattern_level+1; 
+        currPatterni = currPatterni+1; 
         
         
         
         %% instructions   
-        if curr_pattern_level>cfg.max_pattern_level
+        if currPatterni>cfg.nPatterns
             displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg.screen,cfg.keywait);  
             break
         else
             txt = sprintf('CONGRATULATIONS!\n\nYou finished this level.\n\nWhen ready to try something more difficult, press ENTER.\n\nThe new rhythm will start.\nSame instructions as before.\n\nGood luck, tapping ninja!\n\n'); 
             displayInstr(txt,cfg.screen,cfg.keywait);     
+            
+            % % % % %
+            % - volume setting
+            % - terminate the experiment 
+            % % % % %
         end        
         
     
