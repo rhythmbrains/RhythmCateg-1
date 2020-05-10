@@ -31,11 +31,14 @@ cfg.testingTranspScreen = true;  % To test with trasparent full size screen
 % no blocking keyboard - just play the sounds
 
 %% set the type of your computer
-if ~ismac
+if IsWin
     cfg.device='windows';
-else
+elseif ismac
     cfg.device = 'mac';
+elseif IsLinux
+    cfg.device = 'linux';
 end
+
 %% other parameters
 % sampling rate
 cfg.fs = 44100; 

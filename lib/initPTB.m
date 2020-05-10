@@ -128,7 +128,7 @@ function cfg = initPTB(cfg)
 
     InitializePsychSound(1);
     
-    if strcmp(cfg.device, 'mac')
+    if any(strcmp(cfg.device,{'mac','linux'}))
         
         % CHANNELS is 1 for mono sound or 2 for stereo sound
         cfg.audio.channels = 2;
