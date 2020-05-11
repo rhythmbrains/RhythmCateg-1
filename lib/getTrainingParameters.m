@@ -1,4 +1,4 @@
-function [cfg,expParameters] = getTrainingParameters(cfg,expParameters)
+function [cfg,expParam] = getTrainingParameters(cfg,expParam)
 
 % % % 
 
@@ -10,6 +10,8 @@ function [cfg,expParameters] = getTrainingParameters(cfg,expParameters)
 % two pattersn to be played - will be tried from the first to the last
 % rhythmic patterns (from simplest to most difficult)
 cfg.patterns            = {[1 1 1 0 1 1 1 0 1 1 0 0 ],
+                           [1 1 1 0 1 1 1 0 1 1 0 0 ],
+                           [1 1 1 1 0 1 1 1 0 0 1 0 ], 
                            [1 1 1 1 0 1 1 1 0 0 1 0 ]}; 
                        
 % number of patterns
@@ -17,10 +19,10 @@ cfg.nPatterns   = length(cfg.patterns);
 
 %% tapping training parameters
 % tapping cue sounds (metronome)
-cfg.cuePeriod    = [4,4]; % each pattern needs a metronome period assigned (units: N-grid-ticks)
+cfg.cuePeriod    = [4,3,4,3]; % each pattern needs a metronome period assigned (units: N-grid-ticks)
 
 % decreasing the DB along with the high accuracy of tapping 
-cfg.cueDB       = [0, -14, -25, -Inf]; % SNRs between rhythm and metronome audio (to be used across levels)
+cfg.cueDB       = [0, -25, -Inf]; % [0, -14, -25, -Inf] SNRs between rhythm and metronome audio (to be used across levels)
 
 % to calculate how many levels there : the exp will have 4 
 % levels with different difficulty (a.k.a dB)
@@ -38,7 +40,7 @@ cfg.gridIOI       = 0.200;
 % the taps to be registered as correct "it" should be below the threshold
 % within the 4 cycle of pattern representation the error is calculated and 
 % this is the shift of tapping variation should be in the range of 10%
-cfg.tapCvAsynchThr   = 0.1; 
+cfg.tapCvAsynchThr   = 0.160; 
 
 % minimum N taps for the step/cycle/window to be valid (units: proportion of max. possible N taps considering the beat period)
 % if they tapped less than 70% of the maximum possible number of taps
@@ -69,18 +71,50 @@ cfg.volumeSettingSound = repmat(volTestSound.s,2,1);
 
 
 
-%% Task
+%% Instructions
 
-% add what to press to quit
+% general task instructions and intro
+instrFid = fopen(fullfile('lib','instr','instrTrainingIntro1'),'r'); 
+expParam.taskInstruction = []; 
+while ~feof(instrFid)
+    expParam.taskInstruction = [expParam.taskInstruction, fgets(instrFid)]; 
+end
+fclose(instrFid); 
 
-% training
-expParameters.taskInstruction = ['Welcome!\n\n', ...
-    'You will hear a repeated rhythm played by a "click sound".\n', ...
-    'There will also be a "bass sound", playing a regular pulse.\n\n', ...
-    'Tap in synchrony with the bass sound on SPACEBAR.\n', ...
-    'If your tapping is precise, the bass sound will get softer and softer.\n', ...
-    'Eventually (if you are tapping well), the bass sound will disappear.\n', ...
-    'Keep your internal pulse as the bass drum fades out.\n', ...
-    'Keep tapping at the positions where the bass drum was before...\n\n\n', ...
-    'Good luck!\n\n'];
+
+% after each pattern (each sequence), these can be specific instruction
+% that explains some importnat conceps that shuold be learned by the
+% participants. 
+expParam.afterSeqInstruction = cell(1,length(cfg.patterns)); 
+for pati=1:length(cfg.patterns)
+    % look in the instr folder
+    if exist(fullfile('lib','instr',sprintf('instrTrainingAfterRhythm%d',pati)))
+        % if you can find a text file, load it
+        instrFid = fopen(fullfile('lib','instr',sprintf('instrTrainingAfterRhythm%d',pati)),'r'); 
+        tmptxt = []; 
+        while ~feof(instrFid)
+            tmptxt = [tmptxt, fgets(instrFid)]; 
+        end
+        fclose(instrFid); 
+        expParam.afterSeqInstruction{pati} = tmptxt; 
+    else
+        % if not, just write empty text
+        expParam.afterSeqInstruction{pati} = ''; 
+    end    
+end
+
+
+
+
+
+
+% expParameters.taskInstruction = ['Welcome!\n\n', ...
+%     'You will hear a repeated rhythm played by a tone.\n', ...
+%     'There will also be a "bass sound", playing a regular pulse.\n\n', ...
+%     'Tap in synchrony with the bass sound on SPACEBAR.\n', ...
+%     'If your tapping is precise, the bass sound will get softer and softer.\n', ...
+%     'Eventually (if you are tapping well), the bass sound will disappear.\n', ...
+%     'Keep your internal pulse as the bass drum fades out.\n', ...
+%     'Keep tapping at the positions where the bass drum was before...\n\n\n', ...
+%     'Good luck!\n\n'];
 end
