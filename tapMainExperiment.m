@@ -39,9 +39,11 @@ try
     % Prepare for the output logfiles
     datalog = saveOutput(datalog, cfg, expParam, 'open'); 
         
-    %  instructions
-    displayInstr(expParam.taskInstruction,cfg,'setVolume');
-    
+    % task instructions
+    displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
+    % more instructions
+    displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
+
     % if there's wait time,..wait
     WaitSecs(expParam.onsetDelay);
     

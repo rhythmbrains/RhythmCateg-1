@@ -418,16 +418,12 @@ try
         datalog.data(currPatterni).winStartTimes = winStartTimes; 
         datalog.data(currPatterni).feedbacks = feedbacks; 
         
-        %==================================================================
+        %========================= instructions ===============================
         
-        
-        % we will move on to the next pattern in the following loop iteration 
-        currPatterni = currPatterni+1; 
-        
-        
-        
-        %% instructions   
-        if currPatterni>cfg.nPatterns
+        if currPatterni==cfg.nPatterns
+            % end of last pattern
+            txt = expParam.afterSeqInstruction{currPatterni}; 
+            displayInstr(txt,cfg,'waitForKeypress');  
             % end of experient
             displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);  
             % wait 3 seconds and end the experiment
@@ -435,11 +431,15 @@ try
             break
         else
             % end of one pattern
-            txt = sprintf('CONGRATULATIONS!\n\nYou finished this rhythm.\n\nWhen ready to try something more difficult, press ENTER.\n\nThe new rhythm will start.\nSame instructions as before.\n\n\n\n'); 
+            txt = expParam.afterSeqInstruction{currPatterni}; 
             displayInstr(txt,cfg,'setVolume');  
         end        
         
-    
+        %========================= update counter ===============================
+
+        % we will move on to the next pattern in the following loop iteration 
+        currPatterni = currPatterni+1; 
+
     end
     
     saveOutput(datalog, cfg, expParam, 'savemat'); 

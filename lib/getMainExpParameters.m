@@ -1,4 +1,4 @@
-function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
+function     [cfg,expParam] = getMainexpParam(cfg,expParam)
 % this function generates audio sequences to be played in the man
 % experiment
 
@@ -187,17 +187,25 @@ cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg, cfg.gridIOIs(en
 
 
 %% Task Instructions
-    expParam.taskInstruction = ['Welcome to the main experiment!\n\n', ...
-                                'Good luck!\n\n', ...
-                                sprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
-                               ];
 
-                          
-   expParam.delayInstruction = ['The %d out of %d is over!\n\n', ...
-                                'You can have a break. \n\n',...
-                                'Good luck!\n\n']; 
+instrFid = fopen(fullfile('lib','instr','instrMainExpIntro1'),'r'); 
+expParam.taskInstruction = []; 
+while ~feof(instrFid)
+    expParam.taskInstruction = [expParam.taskInstruction, fgets(instrFid)]; 
+end
+fclose(instrFid); 
 
-    
+
+expParam.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.SequenceDur/60), ...
+                            'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n']; 
+                           
+
+
+expParam.delayInstruction = ['The %d out of %d is over!\n\n', ...
+                            'You can have a break. \n\n',...
+                            'Good luck!\n\n']; 
+
+
     
 end
 
