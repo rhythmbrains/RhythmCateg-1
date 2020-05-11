@@ -5,3 +5,6 @@
 ..*
 *.tsv
 ./logfiles/*
+
+
+logfiles/
