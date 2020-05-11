@@ -2,16 +2,16 @@ function [cfg,expParam] = getTrainingParameters(cfg,expParam)
 
 % % % 
 
-% some parameters should be shared with main exp so insert them into
+% check if some parameters could be inserted  into
 % getParams.m script instead
 
 % % %
 
-% two pattersn to be played - will be tried from the first to the last
+% patterns to be played - will be tried from the first to the last
 % rhythmic patterns (from simplest to most difficult)
-cfg.patterns            = {[1 1 1 0 1 1 1 0 1 1 0 0 ],
-                           [1 1 1 0 1 1 1 0 1 1 0 0 ],
-                           [1 1 1 1 0 1 1 1 0 0 1 0 ], 
+cfg.patterns            = {[1 1 1 0 1 1 1 0 1 1 0 0 ],...
+                           [1 1 1 0 1 1 1 0 1 1 0 0 ],...
+                           [1 1 1 1 0 1 1 1 0 0 1 0 ],... 
                            [1 1 1 1 0 1 1 1 0 0 1 0 ]}; 
                        
 % number of patterns
@@ -24,16 +24,16 @@ cfg.cuePeriod    = [4,3,4,3]; % each pattern needs a metronome period assigned (
 % decreasing the DB along with the high accuracy of tapping 
 cfg.cueDB       = [0, -25, -Inf]; % [0, -14, -25, -Inf] SNRs between rhythm and metronome audio (to be used across levels)
 
-% to calculate how many levels there : the exp will have 4 
-% levels with different difficulty (a.k.a dB)
-cfg.nCueDB       = length(cfg.cueDB); % number of SNR-levels
+% to calculate how many difficulty levels there (in dB)
+% or number of SNR-levels
+cfg.nCueDB       = length(cfg.cueDB); 
 
 % number of pattern cycles in each step/window of pattern: how many cycles
 % of the pattern will be repeated
 cfg.nCyclesPerWin   = 4; 
 
 % time-interval of one grid-tick (IOI between events)
-% it's not the duration of the sound. 
+% it's not necessarily the duration of the sound. 
 cfg.gridIOI       = 0.200; 
 
 % threshold for coefficient of variation (cv) of tap-beat asynchronies (defines good/bad tapping performance in each step)
@@ -55,18 +55,17 @@ cfg.nWinUp          = 2;
 % N successive steps that need to be "bad tapping" to move one SNR level down
 cfg.nWinDown        = 1;
 
-% N successive steps that need to be "good tapping" for the final level to finish
-% this is the final window count to be correct in order to finish
-% this is the last level (level 4)
-% number of consecuitve windows in order to finish the level 4
+% N successive steps/windows that need to be "good tapping" for the final level to finish
+% this is in the  last level (level cfg.nCueDB)
 cfg.nWinUp_lastLevel = 3; 
 
 % duration (secs) for which real-time feedback will be displayed on screen during tapping 
 cfg.fbkOnScreenMaxtime = 5; 
 
-%% generate example stimulus for volume setting
+%% generate example stimulus/sequence for only volume setting
 
 volTestSound = makeStimTrain(cfg,1,1); 
+% make sequence for 2 channels
 cfg.volumeSettingSound = repmat(volTestSound.s,2,1); 
 
 
@@ -83,9 +82,11 @@ fclose(instrFid);
 
 
 % after each pattern (each sequence), these can be specific instruction
-% that explains some importnat conceps that shuold be learned by the
+% that explains some important concepts that should be learned by the
 % participants. 
 expParam.afterSeqInstruction = cell(1,length(cfg.patterns)); 
+
+% loop through each pattern to present instr for each level
 for pati=1:length(cfg.patterns)
     % look in the instr folder
     if exist(fullfile('lib','instr',sprintf('instrTrainingAfterRhythm%d',pati)))

@@ -1,17 +1,11 @@
 % 
 % TO DO: 
-%     - make feedback nicer on the screen
-%     - set PTB Volume before starting the experiment (maybe even throughout?)
 %     - PTB latency test? (but audio capture device may be late anyway so no
 %       point in doing this...)
-%     - data logging 
 %     - test on Windows
 
 % notes
-% 
-% 0. Add to instructions: 
-% be in a quite place 
-% ESCAPE should work - we have it in the script
+
 
 % 1. The screen info does not go away after the first stage 
 % (where it says "congratulations") is done 
@@ -24,9 +18,6 @@
 % of while loop
 % >> break after certain count number// time out // 
 
-% 3. What I meant by creating a word doc is to write down how the code
-% calcualtes the error // what's the timing parameter // "what the computer
-% does"
 
 %  for complexity check
 % checkcode('tapTrainer_PTB.m', '-cyc')
@@ -75,9 +66,7 @@ try
     % index (counter) of current pattern that is used in the stimulus
     % sequence
     currPatterni = 1; 
-   
-    % pattern has 12 events
-    % metronome interval is 4 event
+
     
     
     %% loop over patterns (atm, n pattern = 2)
@@ -152,7 +141,7 @@ try
         currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, 0, [], 1); 
         % startTime = PsychPortAudio('Start', pahandle [, repetitions=1] [, when=0] [, waitForStart=0] [, stopTime=inf] [, resume=0]);
         
-        % ceren can try with 1 sound input into two channels
+        % 1 sound input into 1 channels also works
         audio2push = [seq.s;seq.s]; 
 
         %silence is going, then we will upload to the buffer audio sequence after the
@@ -295,7 +284,7 @@ try
             
             %% update datalog variables
 
-            % index (count) of the current analsysis window
+            % index (count) of the current analysis window
             winIdxs           = [winIdxs, currWini]; 
             % cue dB level (SNR)
             cueDBs             = [cueDBs, cfg.cueDB(cueDBleveli)]; 

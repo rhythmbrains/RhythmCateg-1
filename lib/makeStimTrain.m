@@ -6,7 +6,8 @@ seq                 = [];
 seq.fs              = cfg.fs; 
 seq.pattern         = cfg.patterns{currPatterni}; 
 seq.cueDB           = cfg.cueDB(cueDBleveli); 
-seq.cue             = repmat([1,zeros(1,cfg.cuePeriod(currPatterni)-1)],1,floor(length(seq.pattern)/cfg.cuePeriod(currPatterni))); 
+seq.cue             = repmat([1,zeros(1,cfg.cuePeriod(currPatterni)-1)],...
+                                1,floor(length(seq.pattern)/cfg.cuePeriod(currPatterni))); 
 seq.nCycles         = cfg.nCyclesPerWin; 
 seq.dur             = length(seq.pattern)*seq.nCycles*cfg.gridIOI; 
 seq.nSamples        = round(seq.dur*seq.fs); 

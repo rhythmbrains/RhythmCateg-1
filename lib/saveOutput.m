@@ -28,7 +28,7 @@ if strcmp(expParam.task,'tapMainExp')
             %----------------------------------------
 
             % open text file
-            datalog.fidStim = fopen([Filename,'_stimulus.tsv'], 'w'); %'a'
+            datalog.fidStim = fopen([Filename,'_mainStimulus.tsv'], 'w'); %'a'
 
             % print header
             fprintf(datalog.fidStim,'subjectID\trunNumber\tpatternID\tcategory\tonsetTime\tF0\tgridIOI\n'); 
@@ -38,7 +38,7 @@ if strcmp(expParam.task,'tapMainExp')
             %----------------------------------------
 
             % open text file
-            datalog.fidTap = fopen([Filename,'_tapping.tsv'], 'w'); %'a'
+            datalog.fidTap = fopen([Filename,'_mainTapping.tsv'], 'w'); %'a'
 
             % print header
             fprintf(datalog.fidTap, 'subjectID\trunNumber\tseqi\ttapOnset\n'); 
@@ -50,7 +50,7 @@ if strcmp(expParam.task,'tapMainExp')
         case 'savemat'
 
             % save all config structures and datalog to .mat file
-            save(fullfile([Filename,'_all.mat']), 'datalog', 'cfg', 'expParam')
+            save(fullfile([Filename,'_mainAll.mat']), 'datalog', 'cfg', 'expParam')
 
         % ==================================================================================
         case 'close'
@@ -71,7 +71,7 @@ elseif strcmp(expParam.task,'tapTraining')
         % ==================================================================================
         case 'open'
 
-            % open text file
+            % open tsv file
             datalog.fidTapTrainer = fopen([Filename,'_tapTraining.tsv'], 'w'); %'a'
 
             % print header
