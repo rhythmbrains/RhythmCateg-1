@@ -1,125 +1,106 @@
-function logFile = saveOutput(subjectName,runNumber,logFile, cfg, input,varargin)
+function datalog = saveOutput(datalog, cfg, expParam, action)
 
 
-if nargin > 5
-    iseq = varargin{1};
-    ipattern = varargin{2};
+% make sure logiles directory exists 
+if ~exist('logfiles','dir')
+    mkdir('logfiles')
 end
 
-if isfield(cfg,'responseEvents')
-    responseEvents = cfg.responseEvents;
-end
-
-%% .tsv file
-%logfile name for .txt or .tsv
-% % % change the naming 
 DateFormat = 'yyyy_mm_dd_HH_MM';
+
 Filename = fullfile(pwd, 'logfiles', ...
-    ['sub-' subjectName, ...
-    '_run-' runNumber, ...
-    '_' datestr(now, DateFormat) '.txt']);
+    ['sub-' datalog.subjectName, ...
+    '_run-' datalog.runNumber, ...
+    '_' datestr(now, DateFormat)]);
 
-FilenameR = fullfile(pwd, 'logfiles', ...
-    ['sub-' subjectName, ...
-    '_run-' runNumber, '.txt']);
-% % %
 
-switch input
+
+%% MAIN EXPERIMENT
+if strcmp(expParam.task,'tapMainExp')
+
+    switch action
+
+        % ==================================================================================
+        case 'open'
+
+            %----------------------------------------
+            % .tsv file for stimulus
+            %----------------------------------------
+
+            % open text file
+            datalog.fidStim = fopen([Filename,'_stimulus.tsv'], 'w'); %'a'
+
+            % print header
+            fprintf(datalog.fidStim,'subjectID\trunNumber\tpatternID\tcategory\tonsetTime\tF0\tgridIOI\n'); 
+
+            %----------------------------------------
+            % .tsv file for tapping
+            %----------------------------------------
+
+            % open text file
+            datalog.fidTap = fopen([Filename,'_tapping.tsv'], 'w'); %'a'
+
+            % print header
+            fprintf(datalog.fidTap, 'subjectID\trunNumber\tseqi\ttapOnset\n'); 
+
+        % ==================================================================================
+        case 'update'
+
+        % ==================================================================================
+        case 'savemat'
+
+            % save all config structures and datalog to .mat file
+            save(fullfile([Filename,'_all.mat']), 'datalog', 'cfg', 'expParam')
+
+        % ==================================================================================
+        case 'close'
+
+            % close txt log files
+            fclose(datalog.fidStim);
+            fclose(datalog.fidTap);
+
+    end
+
     
-    case 'open'
-        
-        if ~exist('logfiles','dir')
-            mkdir('logfiles')
-        end
-        
-        
-        % open a tsv/txt file to write the output
-        logFile.txt = fopen(Filename, 'w'); %'a'
-        fprintf(logFile.txt,'%12s %12s %12s %18s %12s %12s %12s %12s %12s %12s %12s %12s \n', ...
-            'SubjID', ...
-            'SequenceNum', ...
-            'SegmentCateg', ...
-            'PatternID', ...
-            'PatternOnset', ...
-            'PatternEnd', ...
-            'PatternDuration', ...
-            'TapOnset', ...
-            'KeyPresses', ...
-            'PatternGridRep',...
-            'gridIOI',...
-            'F0');
-        %  fprintf(fid, 'SubjID\tSequenceNum\tSegmentCateg\tPatternID\tPatternOnset\tTapOnset\tKeyPresses\tPatternGridRep\tgridIOI\tF0\t\n');
-        %     logFile.patternOnsets
-        %     logFile.patternEnds
-        %     logFile.patternDurations
-        %     logFile.sequenceOnsets
-        %     logFile.sequenceEnds
-        %     logFile.sequenceDurations
-        
-        % open a tsv/txt file to write the output
-        
-        
-        logFile.responsetxt = fopen(FilenameR, 'w'); %'a'
-        
-        fprintf(logFile.responsetxt,'%12s %12s %12s %12s %12s %12s \n', ...
-            'SubjID', ...
-            'TapOnset', ...
-            'PressedKey', ...
-            'KeyName', ...
-            'PatternNum',...
-            'SequenceNum');
-        
-        
-        
-    case 'save'
-        
-        
-        fprintf(logFile.txt,'%12.0f %12.0f %12s %18s %12.3f %12.3f %12.3f %12.3f %12s %12s %12.3f %12.0f \n', ...
-            subjectName, ...
-            iseq, ...
-            seq.segmCateg(ipattern), ...
-            seq.patternID(ipattern), ...
-            logFile.iPatOnset(ipattern,iseq), ...
-            seq.outPatterns(ipattern),...
-            seq.gridIOI(ipattern,iseq),...
-            seq.F0(ipattern,iseq));
-        
-        
-        
-    case 'saveresponse'
-        
-        for iResp = 1:size(responseEvents, 1)
-            
-            
-            fprintf(logFile.responsetxt,'%12.0f %12.3f %12.0f %12s %12.0f %12.0f\n', ...
-                subjectName, ...
-                responseEvents(iResp).onset - cfg.experimentStartTime, ...
-                responseEvents(iResp).pressed,...
-                responseEvents(iEvent,1).key_name,...
-                ipattern, ...
-                iseq);
-            
-            
-        end
-        
-        
-        
-        
-        
-    case 'savemat'
-        
-        %.mat file
-        save([Filename,'_all.mat'])
-        
-        
-    case 'close'
-        
-        % close txt log file
-        fclose(logFile.txt);
-        fclose(logFile.responsetxt);
-        
-        
-end
+    
+%% TAP TRAINING
+elseif strcmp(expParam.task,'tapTraining')
+    
+    switch action
 
+        % ==================================================================================
+        case 'open'
 
+            % open text file
+            datalog.fidTapTrainer = fopen([Filename,'_tapTraining.tsv'], 'w'); %'a'
+
+            % print header
+            fprintf(datalog.fidTapTrainer, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', ...
+            'subjectID',...             % subject id
+            'pattern',...               % pattern 
+            'seqStartTime',...          % machine time of sequence audio start
+            'cuePeriod',...             % cue (i.e. metronome) period (N of grid-points)
+            'cueLeveldB',...            % cue (i.e. metronome) level in dB 
+            'analysisWin', ...          % index (count) of this analysis window (for this sequence)
+            'winStartTime', ...         % analysis window start time wrt sequence start
+            'tapOnset');                % tap onset time relative to sequence start time
+
+        % ==================================================================================
+        case 'update'
+
+        % ==================================================================================
+        case 'savemat'
+
+            % save all config structures and datalog to .mat file
+            save(fullfile([Filename,'_tapTraining.mat']), 'datalog', 'cfg', 'expParam')
+
+        % ==================================================================================
+        case 'close'
+
+            % close txt log files
+            fclose(datalog.fidTapTrainer);
+    end
+
+    
+    
 end

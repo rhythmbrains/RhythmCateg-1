@@ -1,4 +1,4 @@
-function patternInfo=getPatternInfo(patterns, cfg, varargin)
+function patternInfo=getPatternInfo(patterns, categName, cfg, varargin)
 % This function analyses a set of rhythmic patterns that are given as input
 % using grid representation (e.g. [111011101100]). 
 % Different theoretical metrics are calculated, including syncopation scores and
@@ -85,7 +85,7 @@ for pati=1:length(patterns)
     end
     
     % give the pattern an ID number in the resutling structure
-    patternInfo(pati).ID = pati; 
+    patternInfo(pati).ID = sprintf('%s%d',categName,pati); 
     % save the number of sound events in the pattern
     patternInfo(pati).n_sounds = sum(shiftedPattern{1}); 
     % save total number of events in the pattern

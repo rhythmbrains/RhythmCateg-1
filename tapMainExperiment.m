@@ -1,3 +1,9 @@
+% 
+% !!! TL: I SOMETIMES HAVE CRACKS IN THE SOUND WHEN I TAP... !!!
+% (maybe there's too much in the audio buffer at the same time?)
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 % Clear all the previous stuff
@@ -11,174 +17,187 @@ end
 addpath(genpath(fullfile(pwd, 'lib')))
 
 % Get parameters
-[cfg,expParam] = getParams();
+[cfg,expParam] = getParams('tapMainExp');
+
+% datalogging structure
+datalog = []; 
+
+% get time point at the beginning of the experiment (machine time)
+datalog.experimentStartTime = GetSecs();
 
 % set and load all the subject input to run the experiment
-[subjectName, runNumber] = getSubjectID(cfg);
+[datalog.subjectName, datalog.runNumber] = getSubjectID(cfg);
 
 
-%%  Experiment
+%% Experiment
 
 % Safety loop: close the screen if code crashes
 try
     % Init the experiment
     [cfg] = initPTB(cfg);
-    
-    % Empty vectors and matrices for speed
-    logFile.sequenceOnsets    = zeros(expParam.numSequences, 1);
-    logFile.sequenceEnds      = zeros(expParam.numSequences, 1);
-    logFile.sequenceDurations = zeros(expParam.numSequences, 1);
-    
-    % %expParameters.numSegments
-    logFile.iPatOnset    = zeros(expParam.numSequences, expParam.numPatterns);
-
+        
     % Prepare for the output logfiles
-    logFile = saveOutput(subjectName, runNumber,logFile, cfg,'open');
-    
-    % not working atm
-    % prepare the KbQueue to collect responses
-    % getResponse('start', cfg);
-    
-    
+    datalog = saveOutput(datalog, cfg, expParam, 'open'); 
+        
     %  instructions
-    displayInstr(expParam.taskInstruction,cfg.screen,cfg.keywait);
-    
-    % start screen with tap
-    displayInstr('TAP',cfg.screen);
-    
-    
-    % get time point at the beginning of the experiment (machine time)
-    cfg.experimentStartTime = GetSecs();
+    displayInstr(expParam.taskInstruction,cfg,'setVolume');
     
     % if there's wait time,..wait
     WaitSecs(expParam.onsetDelay);
     
-    %% play different sequence
-    for iseq = 1:expParam.numSequences
+    %% play sequences
+    for seqi = 1:expParam.numSequences
         
+        % change screen to "TAP" instruction 
+        displayInstr('TAP',cfg,'instrAndQuitOption');   
         
-        % all stimuli made in getMainExpParams script, here we call it now
-        audio2push = [cfg.seq.outAudio;cfg.seq.outAudio];
-        % we actually have mono sound, should work: audio2push = [cfg.seq];
-        
-        %% fill the buffer
-        PsychPortAudio('FillBuffer', cfg.pahandle, audio2push);
-        
-        
-        %% start playing
-        % start the sound sequence
-        playTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
+        % construct sequence 
+        currSeq = makeSequence(cfg,seqi); 
+
+        % fill the buffer
+        PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
+                
+        % start playing
+        currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
             cfg.PTBstartCue, cfg.PTBwaitForDevice);
         
-        %save the time to cfg
-        cfg.currSeqPlayTime = playTime;
         
-        %logFile.sequenceOnsets(iseq,1)= GetSecs-cfg.experimentStartTime;
-        logFile.sequenceOnsets(iseq,1)= cfg.currSeqPlayTime - cfg.experimentStartTime;
+        %% record tapping (fast looop)
+
+        % allocate vector of tap times
+        currTapOnsets = []; 
         
-        %% check & record response/tapping
-        
-        iEvent = 1;
-        
-        for ipattern = 1:expParam.numPatterns
-            
-            
-            % probably we do not need
-            logFile.isegmentCateg = cfg.seq.segmCateg(iseq);
-            logFile.iPatOnset(ipattern,iseq) = GetSecs() - cfg.experimentStartTime;
-            
-            
-            % stupid way - it doesnt enter the while loop
-            
-            
-            % currGridIOI = cfg.seq.gridIOI(ipattern)* iEvent -0.01;
-            currGridIOI = 0.19;
-            
-            
-            % wait for the every small grip point and register the tapping
-            % I think you want to have while loop over gridIOI * gripPoints
-            % (e.g. 12 * 0.19) but I'm looking for a way to look every
-            % 0.19s and if response, write it down, of not, insert 0
-            while GetSecs() < playTime+currGridIOI
+        % boolean helper variable used to determine if the button was just
+        % pressed (and not held down from previous loop iteration)
+        istap = false;
+
+        % stay in the loop until the sequence ends
+        while GetSecs < (currSeqStartTime+cfg.SequenceDur)
+
+                % check if key is pressed
+                [~, tapOnset, keyCode] = KbCheck(cfg.keyboard);
                 
-                status = PsychPortAudio('GetStatus', cfg.pahandle);
-                if ~status.Active
-                    PsychPortAudio('Stop', cfg.pahandle);
+                % terminate if quit-button pressed
+                if find(keyCode)==cfg.keyquit
+                    error('Experiment terminated by user...');                     
                 end
                 
-                [keyIsDown, secs, keyCode] = KbCheck(-1);
-                
-                if keyIsDown
-                    
-                    responseKey = KbName(find(keyCode));
-                    responseTime = secs - experimentStartTime;
-                    
-                    
-                    % ecs key press - stop playing the sounds//script
-                    if strcmp(responseKey,'ESCAPE')==1
-                        
-                        % If the script is stopped while a sequence is being
-                        % played, it close psychport audio
-                        cleanUp();
-                        
-                        return
-                        
-                    end
-                    
-                    % % % inserting all above into function
-                    % % % failed attempt
-                    %logfile for responses - consider not using while loop above
-                    %responseEvents = getResponse('check', cfg);
-                    %cfg.responseEvents = responseEvents;
-                    
-                    %here it logs every 0.18s
-                    logFile = saveOutput(subjectName,runNumber,logFile, cfg, input,iseq,ipattern);
-                    
-                    
+                % check if tap and save time (it counts as tap if
+                % reponse buttons were released initially)
+                if ~istap && any(keyCode)
+                    % tap onset time is saved wrt sequence start time
+                    currTapOnsets = [currTapOnsets,tapOnset-currSeqStartTime];
+                    istap = true;
                 end
-            end
-            iEvent = iEvent + 1;
-            
-        
-            % Save the events txt logfile
-            % here in every pattern
-            %
-            % logFile = saveOutput(subjectName,runNumber,logFile, cfg, input,iseq,ipattern);
-            
-            % getResponse('flush', cfg);
-            
-            
-            
+                if istap && ~any(keyCode)
+                    istap = false;
+                end
+
         end
-        
-        logFile.sequenceEnds(iseq,1)= GetSecs - cfg.experimentStartTime;
-        logFile.sequenceDurations(iseq,1)= logFile.sequenceEnds(iseq,1) - ...
-            logFile.sequenceOnsets(iseq,1);
-        
-        %add a wait enter for possible breaks - needs instruction
-        
-        if expParam.sequenceDelay
-         %   displayInstr(expParam.delayInstruction,cfg.screen,cfg.keywait);
-            WaitSecs(expParam.pauseSeq);
-        end  
 
         
-    end %sequence loop
+        %% log
+        
+        
+        % ===========================================
+        % log sequence into text file
+        % ===========================================
+        
+        % each pattern on one row
+        for i=1:length(currSeq.patternID)
+            fprintf(datalog.fidStim,'%s\t%s\t%s\t%s\t%f\t%f\t%f\n', ... 
+                datalog.subjectName, ...
+                datalog.runNumber, ...
+                currSeq.patternID{i}, ...
+                currSeq.segmCateg{i}, ...
+                currSeq.onsetTime(i), ...
+                currSeq.F0(i), ...
+                currSeq.gridIOI(i)); 
+        end
+        
+        % ===========================================
+        % log tapping into text file
+        % ===========================================
+                
+        % each tap on one row
+        % subjectID, seqi, tapOnset
+        for i=1:length(currTapOnsets)                        
+            fprintf(datalog.fidTap, '%s\t%s\t%d\t%f\n', ...
+                datalog.subjectName, ...
+                datalog.runNumber, ...
+                seqi, ...
+                currTapOnsets(i)); 
+        end
+        
+        % ===========================================
+        % log everything into matlab structure
+        % ===========================================
+        
+        % save (machine) onset time for the current sequence
+        datalog.data(seqi).currSeqStartTime = currSeqStartTime; 
+        
+        % save PTB volume
+        datalog.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle); 
+
+        % save current sequence information (without the audio, which can
+        % be easily resynthesized)
+        datalog.data(seqi).seq = currSeq; 
+        datalog.data(seqi).seq.outAudio = []; 
+        
+        % save all the taps for this sequence
+        datalog.data(seqi).taps = currTapOnsets; 
+
+
+            
+        
+         
+        
+        
+        %% Pause
+
+        if seqi<expParam.numSequences
+            % pause (before next sequence starts, wait for key to continue)
+            if expParam.sequenceDelay
+                fbkToDisp = sprintf(expParam.delayInstruction, seqi, expParam.numSequences);            
+                displayInstr(fbkToDisp,cfg,'setVolume');
+                WaitSecs(expParam.pauseSeq);
+            end  
+
+        else
+            % end of experient
+            displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);  
+            % wait 3 seconds and end the experiment
+            WaitSecs(3); 
+        end
+        
+    end % sequence loop
     
-    %save everything into .mat file
-    logFile = saveOutput(subjectName,runNumber,logFile, cfg, 'savemat');
+     
     
-    %%
-    cleanUp(cfg)
+    
+    % save everything into .mat file
+    saveOutput(datalog, cfg, expParam, 'savemat'); 
+    saveOutput(datalog, cfg, expParam, 'close'); 
+        
+    % clean the workspace
+    cleanUp(cfg); 
+    
+    
     
 catch
     
-    % % % would this work?
-    %save everything into .mat file
-    logFile = saveOutput(subjectName,runNumber,logFile, cfg, 'savemat');
-    % % %
+    % save everything into .mat file
+    saveOutput(datalog, cfg, expParam, 'savemat'); 
+    saveOutput(datalog, cfg, expParam, 'close'); 
     
-    cleanUp(cfg)
+    % clean the workspace
+    cleanUp(cfg); 
+    
     psychrethrow(psychlasterror);
-    
 end
+
+
+
+
+
+

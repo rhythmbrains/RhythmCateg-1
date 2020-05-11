@@ -13,7 +13,7 @@ sca
 % if audioport was opened, close it
 if isstruct(cfg)
     if isfield(cfg,'pahandle')
-        PsychPortAudio('Stop', cfg.pahandle,1);
+        PsychPortAudio('Stop', cfg.pahandle,0);% don't wait for playback end!
         PsychPortAudio('Close',cfg.pahandle)
     end
 end

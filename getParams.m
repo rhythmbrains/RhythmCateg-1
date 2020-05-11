@@ -1,13 +1,26 @@
-function [cfg,expParameters] = getParams()
-
+function [cfg,expParameters] = getParams(task)
 % Initialize the parameters variables
 % Initialize the general configuration variables
+% =======
+% INPUT: 
+% =======
+%     task:             string specifying the current task to get parameters for
+%                       (tapTraining or tapMainExp)
+% =======
+% OUTPUT: 
+% =======
+%     cfg:
+%     expParameters:
+
+
+
+% parameters
 cfg = struct; 
+
+% general configuration
 expParameters = struct;
 
-% % % THINK using this function tapping + main exp
-expParameters.task = 'tapMainExp'; % tapTraining or tapMainExp to run main experiment
-% % %
+expParameters.task = task; 
 
 
 %% Debug mode settings
@@ -18,11 +31,14 @@ cfg.testingTranspScreen = true;  % To test with trasparent full size screen
 % no blocking keyboard - just play the sounds
 
 %% set the type of your computer
-if ~ismac
+if IsWin
     cfg.device='windows';
-else
+elseif ismac
     cfg.device = 'mac';
+elseif IsLinux
+    cfg.device = 'linux';
 end
+
 %% other parameters
 % sampling rate
 cfg.fs = 44100; 

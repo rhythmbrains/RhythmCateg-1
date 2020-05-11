@@ -1,40 +1,40 @@
-function [seq] = makeStimTrain(cfg,curr_pattern_level,curr_cue_dB_level)
+function [seq] = makeStimTrain(cfg,currPatterni,cueDBleveli)
 
 
 % add parameters to output structure 
 seq                 = []; 
 seq.fs              = cfg.fs; 
-seq.pattern         = cfg.patterns{curr_pattern_level}; 
-seq.snr_metronome   = cfg.snr_metronome(curr_cue_dB_level); 
-seq.metronome       = repmat([1,zeros(1,cfg.period_metronome(curr_pattern_level)-1)],1,floor(length(seq.pattern)/4)); 
-seq.n_cycles        = cfg.n_cycles_per_step; 
-seq.dur             = length(seq.pattern)*seq.n_cycles*cfg.grid_interval; 
-seq.n_samples       = round(seq.dur*seq.fs); 
+seq.pattern         = cfg.patterns{currPatterni}; 
+seq.cueDB           = cfg.cueDB(cueDBleveli); 
+seq.cue             = repmat([1,zeros(1,cfg.cuePeriod(currPatterni)-1)],1,floor(length(seq.pattern)/4)); 
+seq.nCycles         = cfg.nCyclesPerWin; 
+seq.dur             = length(seq.pattern)*seq.nCycles*cfg.gridIOI; 
+seq.nSamples        = round(seq.dur*seq.fs); 
 
 
 % load audio samples
-[sound_pattern,~]   = audioread(fullfile('.','stimuli','tone440Hz_10-50ramp.wav')); % rimshot_015
-sound_pattern       = 1/3 * sound_pattern; % set amplitude to 1/3 to prevent clipping after adding pattern+metronome
+[soundPattern,~]   = audioread(fullfile('.','stimuli','tone440Hz_10-50ramp.wav')); % rimshot_015
+soundPattern       = 1/3 * soundPattern; % set amplitude to 1/3 to prevent clipping after adding pattern+metronome
 
-[sound_metronome,~] = audioread(fullfile('.','stimuli','Kick8.wav')); 
-sound_metronome     = mean(sound_metronome,2); % average L and R channels
-sound_metronome     = 1/3 * sound_metronome; % set amplitude to 1/3 to prevent clipping after adding pattern+metronome
+[soundBeat,~] = audioread(fullfile('.','stimuli','Kick8.wav')); 
+soundBeat     = mean(soundBeat,2); % average L and R channels
+soundBeat     = 1/3 * soundBeat; % set amplitude to 1/3 to prevent clipping after adding pattern+metronome
 
-[sound_grid,~]      = audioread(fullfile('.','stimuli','Perc5_cut.wav')); 
-sound_grid          = mean(sound_grid,2); % average L and R channels
-sound_grid          = 1/3 * sound_grid; % set amplitude to 1/3 to prevent clipping after adding pattern+metronome
+[soundGrid,~]      = audioread(fullfile('.','stimuli','Perc5_cut.wav')); 
+soundGrid          = mean(soundGrid,2); % average L and R channels
+soundGrid          = 1/3 * soundGrid; % set amplitude to 1/3 to prevent clipping after adding pattern+metronome
 
 
 % equalize RMS
-rms_pat         = rms(sound_pattern); 
-rms_metr        = rms(sound_metronome); 
-rms_grid        = rms(sound_grid); 
+rmsPat         = rms(soundPattern); 
+rmsBeat        = rms(soundBeat); 
+rmsGrid        = rms(soundGrid); 
 
-max_allowed_rms = min([rms_pat, rms_metr, rms_grid]); 
+maxAllowedRms = min([rmsPat, rmsBeat, rmsGrid]); 
 
-sound_pattern   = sound_pattern/rms_pat * max_allowed_rms; 
-sound_metronome = sound_metronome/rms_metr * max_allowed_rms; 
-sound_grid      = sound_grid/rms_grid * max_allowed_rms; 
+soundPattern   = soundPattern/rmsPat * maxAllowedRms; 
+soundBeat = soundBeat/rmsBeat * maxAllowedRms; 
+soundGrid      = soundGrid/rmsGrid * maxAllowedRms; 
 
 % % set metronome/cue and grid level based on requested SNR/dB (pattern/metronome, dB)
 % if any(strcmp(varargin,'snr_metronome'))
@@ -43,43 +43,43 @@ sound_grid      = sound_grid/rms_grid * max_allowed_rms;
 %     seq.snr_metronome = -Inf; 
 % end
 
-rms_metr = rms(sound_metronome);
-sound_metronome = sound_metronome/rms_metr * rms_metr*10^(seq.snr_metronome/20); 
+rmsBeat = rms(soundBeat);
+soundBeat = soundBeat/rmsBeat * rmsBeat*10^(seq.cueDB/20); 
 
-rms_grid = rms(sound_grid); 
-sound_grid = sound_grid/rms_grid * rms_grid*10^(seq.snr_metronome/20); 
+rmsGrid = rms(soundGrid); 
+soundGrid = soundGrid/rmsGrid * rmsGrid*10^(seq.cueDB/20); 
 
 % further attenuate grid sound 
-sound_grid = sound_grid * 1/4; 
+soundGrid = soundGrid * 1/4; 
 
 
 
 % generate pattern sequence
-seq_pattern = zeros(1,seq.n_samples); 
-s_pat_idx = round( (find(repmat(seq.pattern,1,seq.n_cycles))-1) * cfg.grid_interval * seq.fs ); 
-for i=1:length(s_pat_idx)   
-    seq_pattern(s_pat_idx(i)+1:s_pat_idx(i)+length(sound_pattern)) = sound_pattern; 
+seqPattern = zeros(1,seq.nSamples); 
+sPatIdx = round( (find(repmat(seq.pattern,1,seq.nCycles))-1) * cfg.gridIOI * seq.fs ); 
+for i=1:length(sPatIdx)   
+    seqPattern(sPatIdx(i)+1:sPatIdx(i)+length(soundPattern)) = soundPattern; 
 end
 
 
 % generate metrononme sequence
-seq_metronome = zeros(1,seq.n_samples); 
-s_metr_idx = round( (find(repmat(seq.metronome,1,seq.n_cycles))-1) * cfg.grid_interval * seq.fs ); 
-for i=1:length(s_metr_idx)   
-    seq_metronome(s_metr_idx(i)+1:s_metr_idx(i)+length(sound_metronome)) = sound_metronome; 
+seqBeat = zeros(1,seq.nSamples); 
+sBeatIdx = round( (find(repmat(seq.cue,1,seq.nCycles))-1) * cfg.gridIOI * seq.fs ); 
+for i=1:length(sBeatIdx)   
+    seqBeat(sBeatIdx(i)+1:sBeatIdx(i)+length(soundBeat)) = soundBeat; 
 end
 
 % generate grid sequence
-seq_grid = zeros(1,seq.n_samples); 
-s_grid_idx = round( (find(ones(1,seq.n_cycles*length(seq.pattern)))-1) * cfg.grid_interval * seq.fs ); 
-for i=1:length(s_grid_idx)   
-    seq_grid(s_grid_idx(i)+1:s_grid_idx(i)+length(sound_grid)) = sound_grid; 
+seqGrid = zeros(1,seq.nSamples); 
+sGridIdx = round( (find(ones(1,seq.nCycles*length(seq.pattern)))-1) * cfg.gridIOI * seq.fs ); 
+for i=1:length(sGridIdx)   
+    seqGrid(sGridIdx(i)+1:sGridIdx(i)+length(soundGrid)) = soundGrid; 
 end
 
 
 
 % add them together
-seq.s = seq_pattern + seq_metronome + seq_grid; 
+seq.s = seqPattern + seqBeat + seqGrid; 
 
 
 % check sound amplitude for clipping
