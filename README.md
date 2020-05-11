@@ -36,7 +36,7 @@ The task is to tap on SPACEBAR along with the beat pulse. Good tapping performan
 
 The session goes over multiple rhythmic patterns with increasing difficulty (also different beat periods can be used in the future releases).  
 
-
+All important parameters can be found in `/lib/getTrainingParameters.m`. The file should be sufficiently commented to make sense. 
 
 
 &nbsp;  
@@ -45,7 +45,7 @@ The session goes over multiple rhythmic patterns with increasing difficulty (als
 
 Long, non-repeating rhythmic sequences are presented. The task is to (1) find a plausible pulse, and (2) synchronize finger tapping to it.  
 
-
+All important parameters  can be found in `/lib/getMainExpParameters.m`. The file should be sufficiently commented to make sense.  
 
 
 
