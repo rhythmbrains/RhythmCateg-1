@@ -6,3 +6,5 @@
 *.tsv
 ./logfiles/*
 
+
+logfiles/
