@@ -53,6 +53,14 @@ patterns2choose = [cfg.patternSimple,cfg.patternComplex];
 % To use ID number as an index (e.g. , it might be better to keep "23" 
 % in column. Do you intent to use "simple23" as an index somewhere?
 % % %
+% TL: I know the same thing is saved twice (i.e. the category information is, saved 
+% in the "category" colum, but is also in the rhythm ID string. But I'd perhaps keep this
+% redundancy for the sake of safety :) Because this way I can directly check if there is
+% any discrepancy between what the script thinks is category A and the
+% actual patterns that are used for that category. So this info is primarily for visual
+% checking that the script is doing what it's meant to. If I need the
+% rhythm ID number at any point I can always get it out of the string with regexp. 
+
 seq.patternID = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 % seq.patternID = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
