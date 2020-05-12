@@ -36,7 +36,7 @@ expParam.sequenceDelay = 1;
 expParam.pauseSeq = 1; 
 
 % define ideal number of sequences to be made
-expParam.numSequences = 2; % 
+expParam.numSequences = 2; % 15
 
 %% contruct individual sound events (that will make up each pattern)
 
@@ -85,7 +85,7 @@ cfg.changeGridIOIStep       = 0;
 
 % how many pattern cycles are within each step of [ABBB]
 % how many pattern in each segment A or B.
-cfg.nPatternPerSegment = 2; % 4 or 6
+cfg.nPatternPerSegment = 4; % 4 or 6
 
 
 % there can be a pause after all segments for category A are played 
@@ -122,7 +122,7 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 %% construct whole sequence
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
-cfg.nStepsPerSequence = 2; % 5
+cfg.nStepsPerSequence = 4; % 5
 
 
 % calculate trial duration (min)
@@ -146,11 +146,11 @@ cfg.F0s 	= logspace(log10(cfg.minF0),log10(cfg.maxF0),cfg.nF0);
 % also every segment and step...
 
 % change pitch for each new pattern cycle
-cfg.changePitchCycle 	= 0;
+cfg.changePitchCycle 	= 1;
 % change pitch for each segment
 cfg.changePitchSegm 	= 0;           
 % change pitch for each segment-category (every time A changes to B or the other way around)
-cfg.changePitchCategory = 1;    
+cfg.changePitchCategory = 0;    
 % change pitch for each step
 cfg.changePitchStep 	= 0;     
 
