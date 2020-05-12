@@ -1,4 +1,4 @@
-function     [cfg,expParam] = getMainexpParam(cfg,expParam)
+function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % this function generates audio sequences to be played in the man
 % experiment
 

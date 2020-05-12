@@ -49,6 +49,9 @@ patterns2choose = [cfg.patternSimple,cfg.patternComplex];
 % why the integers are saved as cell? 
 % TL: cause I think we should save it as string, e.g. 'simple23' not just
 % integer
+% CB: we are already saying "simple" in a column in datalog("currSeq.segmCateg"). 
+% To use ID number as an index (e.g. , it might be better to keep "23" 
+% in column. Do you intent to use "simple23" as an index somewhere?
 % % %
 seq.patternID = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 % seq.patternID = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
