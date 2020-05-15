@@ -13,11 +13,9 @@ This repository contains Matlab code for tapping pilot, including:
 
 To run:  
 
-1. Download the whole repository. 
-2. Navigate to the downloaded folder.  
-3. Download the required audio files: 
-    * automatically (Unix only): by executing downloadStimuli bash script. (type `sh downloadStimuli` in Terminal).  
-    * manually: Download [this folder from Dropbox](https://www.dropbox.com/sh/20hgit6xoqxsbt0/AABnGrj6XDH08zQ5ilICLARVa?dl=1) and place it to the main directory.
+1. Download the whole repository as zip. 
+2. Unzip and navigate to the downloaded folder.  
+3. Download the required audio files from [this Dropbox folder](https://www.dropbox.com/sh/20hgit6xoqxsbt0/AABnGrj6XDH08zQ5ilICLARVa?dl=1) and place the downloaded folder to the main directory of the project.
 4. Run tapTrainer.m in Matlab to launch the Tap Trainer psychtoolbox session. 
 5. Run tapMainExperiment.m in Matlab to launch the Main Experiment psychtoolbox session.  
 
