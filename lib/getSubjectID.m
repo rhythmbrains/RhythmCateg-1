@@ -1,47 +1,46 @@
-function [subjectName, runNumber] = getSubjectID(cfg)
-% Get Subject Name, run number
+function [datalog] = getSubjectID(cfg)
+% Get integer values for Subject Name, run number, 
+% saves them into a datalog structure
 
 
 if cfg.debug
-    
-    subjectName = [];
-    runNumber = [];
 
-    
+    subjectNumber = '666';
+    runNumber = '666';
+
+  
 else
     
-    subjectName = input('Enter Subject ID number: ','s');
-    runNumber = input('Enter the run Number: ','s');
+    %subject
+    subjectNumber = str2double(input('Enter Subject ID number: ','s'));
+    subjectNumber = checkInput(subjectNumber);
     
     
-    if ~isnumeric(subjectName)
-        subjectName = input('Please enter a numeric value for Subject ID : ','s');
-    end
+    %run
+    runNumber = str2double(input('Enter the run Number: ','s'));
+    runNumber = checkInput(runNumber);
     
-    if ~isnumeric(runNumber)
-        runNumber = input('Please enter a numeric value for run number : ','s');
-    end    
+     
     
     
 end
 
-if isempty(subjectName)
-    subjectName = '001';
+
+%assign them into its structure to carry around
+datalog.subjectNumber = subjectNumber;
+datalog.runNumber = runNumber;
+
+
+
 end
 
-if isempty(runNumber)
-    runNumber = '666';
+
+function input2check = checkInput(input2check)
+
+
+while isnan(input2check) || fix(input2check) ~= input2check || input2check<0
+    input2check = str2double(input('Please enter a positive integer: ', 's'));
 end
-
-
-
-
-
-%     if exist(fullfile(pwd, '..', 'logfiles',[subjectName,'_run_',num2str(runNumber),num2str(sessionNumber),'.mat']),'file')>0
-%         error('This file is already present in your logfiles. Delete the old file or rename your run!!')
-%     end
-
-
 
 
 end

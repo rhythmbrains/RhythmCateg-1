@@ -9,7 +9,7 @@ end
 DateFormat = 'yyyy_mm_dd_HH_MM';
 
 Filename = fullfile(pwd, 'logfiles', ...
-    ['sub-' datalog.subjectName, ...
+    ['sub-' datalog.subjectNumber, ...
     '_run-' datalog.runNumber, ...
     '_' datestr(now, DateFormat)]);
 
@@ -56,8 +56,10 @@ if strcmp(expParam.task,'tapMainExp')
         case 'close'
 
             % close txt log files
-            fclose(datalog.fidStim);
-            fclose(datalog.fidTap);
+            if isfield(datalog,'fidStim') || isfield(datalog,'fidTap')
+                fclose(datalog.fidStim);
+                fclose(datalog.fidTap);
+            end
 
     end
 

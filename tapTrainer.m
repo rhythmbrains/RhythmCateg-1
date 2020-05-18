@@ -47,7 +47,7 @@ datalog = [];
 datalog.experimentStartTime = GetSecs();
 
 % set and load all the subject input to run the experiment
-[datalog.subjectName, datalog.runNumber] = getSubjectID(cfg);
+[datalog] = getSubjectID(cfg);
 
 
 try
@@ -185,7 +185,7 @@ try
                     % now we have some time before they tap again so let's
                     % write to the log file            
                     fprintf(datalog.fidTapTrainer, '%s\t%d\t%f\t%f\t%f\t%d\t%f\t%f\n', ...
-                        datalog.subjectName,...                 % subject id
+                        datalog.subjectNumber,...                 % subject id
                         currPatterni, ...                 % pattern 
                         currSeqStartTime,...                          % machine time of sequence audio start
                         cuePeriod,...             % cue (i.e. metronome) period (N of grid-points)

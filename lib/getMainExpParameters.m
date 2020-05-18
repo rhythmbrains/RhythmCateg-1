@@ -5,6 +5,8 @@ function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % % % 
 % should be considered exp.parameter structure for experiment/sequence related
 % parameters
+% > later on for fMRI, I'll separate exp from cfg (all make stim == exp,
+% all fmri parameters - cfg)
 % % %
 
 % % %
@@ -17,14 +19,6 @@ function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % start the sequence with one B-category segment that will be discarded during analysis
 % % %
 
-% % %
-
-% add breaks between every sequence? "would you like to continue, y/n, in
-% the mean time, matlab prepares the following sequence & loads it to the
-% buffer. 
-% every sequence can be a "run". (Run the scripts 6 times)
-
-% % %
 
 % wait before running the exp
 expParam.onsetDelay = 0;
@@ -36,7 +30,7 @@ expParam.sequenceDelay = 1;
 expParam.pauseSeq = 1; 
 
 % define ideal number of sequences to be made
-expParam.numSequences = 2; % 15
+expParam.numSequences = 2; % 6
 
 %% contruct individual sound events (that will make up each pattern)
 

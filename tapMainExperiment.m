@@ -28,7 +28,7 @@ datalog = [];
 datalog.experimentStartTime = GetSecs();
 
 % set and load all the subject input to run the experiment
-[datalog.subjectName, datalog.runNumber] = getSubjectID(cfg);
+[datalog] = getSubjectID(cfg);
 
 
 %% Experiment
