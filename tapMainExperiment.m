@@ -83,7 +83,7 @@ try
                 
                 % terminate if quit-button pressed
                 if find(keyCode)==cfg.keyquit
-                    error('Experiment terminated by user...');                     
+                    warning('Experiment terminated by user...');                     
                 end
                 
                 % check if tap and save time (it counts as tap if
