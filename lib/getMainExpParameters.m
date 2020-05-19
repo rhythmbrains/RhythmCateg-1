@@ -30,7 +30,7 @@ expParam.sequenceDelay = 1;
 expParam.pauseSeq = 1; 
 
 % define ideal number of sequences to be made
-expParam.numSequences = 2; % 6
+expParam.numSequences = 6; % multiples of 3
 
 %% contruct individual sound events (that will make up each pattern)
 
@@ -116,7 +116,7 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 %% construct whole sequence
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
-cfg.nStepsPerSequence = 4; % 5
+cfg.nStepsPerSequence = 5; % 5
 
 
 % calculate trial duration (min)
