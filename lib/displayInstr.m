@@ -90,7 +90,7 @@ if any(strcmpi(varargin,'setVolume'))
             
         elseif ismember(keyCodePressed, cfg.keyquit)
             PsychPortAudio('Stop',cfg.pahandle); 
-            warning('experiment terminated by user'); 
+            error('experiment terminated by user'); 
             
         end
         
@@ -130,7 +130,7 @@ elseif any(strcmpi(varargin,'waitForKeypress'))
         
     elseif ismember(keyCodePressed, cfg.keyquit)
         PsychPortAudio('Stop',cfg.pahandle); 
-        warning('experiment terminated by user'); 
+        error('experiment terminated by user'); 
 
     end
 
