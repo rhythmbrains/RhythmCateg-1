@@ -54,9 +54,10 @@ function cfg = initPTB(cfg)
         end
         
         
-    else
-         Screen('Preference', 'SkipSyncTests', 0); 
+    else       
+       % we do not need high accuracy for the screen atm
        % Screen('Preference', 'SkipSyncTests', 1); 
+        Screen('Preference', 'SkipSyncTests', 0); 
         cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
         
     end
