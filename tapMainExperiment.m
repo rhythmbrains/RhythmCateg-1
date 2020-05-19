@@ -28,7 +28,7 @@ datalog = [];
 datalog.experimentStartTime = GetSecs();
 
 % set and load all the subject input to run the experiment
-[datalog.subjectName, datalog.runNumber] = getSubjectID(cfg);
+[datalog] = getSubjectID(cfg);
 
 
 %% Experiment
@@ -48,9 +48,10 @@ try
 
     % if there's wait time,..wait
     WaitSecs(expParam.onsetDelay);
-    
+
     %% play sequences
     for seqi = 1:expParam.numSequences
+        
         
         % change screen to "TAP" instruction 
         displayInstr('TAP',cfg,'instrAndQuitOption');   
@@ -83,7 +84,7 @@ try
                 
                 % terminate if quit-button pressed
                 if find(keyCode)==cfg.keyquit
-                    error('Experiment terminated by user...');                     
+                    error('Experiment terminated by user...'); 
                 end
                 
                 % check if tap and save time (it counts as tap if
@@ -110,7 +111,7 @@ try
         % each pattern on one row
         for i=1:length(currSeq.patternID)
             fprintf(datalog.fidStim,'%s\t%s\t%s\t%s\t%f\t%f\t%f\n', ... 
-                datalog.subjectName, ...
+                datalog.subjectNumber, ...
                 datalog.runNumber, ...
                 currSeq.patternID{i}, ...
                 currSeq.segmCateg{i}, ...
@@ -127,7 +128,7 @@ try
         % subjectID, seqi, tapOnset
         for i=1:length(currTapOnsets)                        
             fprintf(datalog.fidTap, '%s\t%s\t%d\t%f\n', ...
-                datalog.subjectName, ...
+                datalog.subjectNumber, ...
                 datalog.runNumber, ...
                 seqi, ...
                 currTapOnsets(i)); 
