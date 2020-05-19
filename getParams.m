@@ -24,11 +24,9 @@ expParameters.task = task;
 
 
 %% Debug mode settings
-cfg.debug               = true;  % To test the script
-cfg.testingTranspScreen = true;  % To test with trasparent full size screen 
-% not sure that's helpful now 
-% what I wanted : in debug mode, transparent monitor, no hide cursor,
-% no blocking keyboard - just play the sounds
+cfg.debug               = false;  % To test the script
+cfg.testingTranspScreen = false;  % To test with trasparent full size screen 
+
 
 %% set the type of your computer
 if IsWin
