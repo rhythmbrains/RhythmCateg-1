@@ -1,6 +1,17 @@
-
 function cfg = initPTB(cfg)
 
+
+% check for octave:
+if IsOctave
+    checkOctave()
+end
+
+
+% check for OpenGL compatibility, abort otherwise:
+% AssertOpenGL;
+
+
+%%
     PsychJavaTrouble;
 
     
@@ -100,7 +111,11 @@ function cfg = initPTB(cfg)
         
         % pahandle = PsychPortAudio('Open' [, deviceid][, mode][, reqlatencyclass][, freq] ...
             %       [, channels][, buffersize][, suggestedLatency][, selectchannels][, specialFlags=0]);
-        cfg.pahandle = PsychPortAudio('Open', [], [], 3, cfg.fs, cfg.audio.channels);
+        % cfg.pahandle = PsychPortAudio('Open', [], [], 3, cfg.fs, cfg.audio.channels);
+        % change the latency to:
+        % Try to get the lowest latency that is possible under the constraint of reliable playback
+        cfg.pahandle = PsychPortAudio('Open', [], [], 1, cfg.fs, cfg.audio.channels);
+
         
     else
         
