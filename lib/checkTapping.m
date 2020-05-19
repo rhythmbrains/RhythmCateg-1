@@ -1,4 +1,9 @@
 function responseEvents = checkTapping(cfg)
+% % %
+% not used function atm. Consider deleting it
+% % % 
+
+
 % The queue will be listening to key presses on the response box as defined
 % in the cfg structure : see setParameters for more details
 

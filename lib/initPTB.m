@@ -2,37 +2,7 @@
 function cfg = initPTB(cfg)
 
     PsychJavaTrouble;
-    
-    
-    
-    %% init keyboard
-    % % %
-    % set in getParams instead
-    % can be called from cfg structure to make actual names
-    
-%      % Check the state of the keyboard.
-%     [ keyIsDown, seconds, keyCode ] = KbCheck;
-% 
-%     % If the user is pressing a key, then display its code number and name.
-%     if keyIsDown
-% 
-%         % Note that we use find(keyCode) because keyCode is an array.
-%         % See 'help KbCheck'
-%         fprintf('You pressed key %i which is %s\n', find(keyCode), KbName(keyCode));
-% 
-%         if keyCode(escapeKey)
-%             break;
-%         end
-%         
-%         % If the user holds down a key, KbCheck will report multiple events.
-%         % To condense multiple 'keyDown' events into a single event, we wait until all
-%         % keys have been released.
-%         KbReleaseWait;
-%     end
-    
-    
-    
-    % % %
+
     
     
     KbName('UnifyKeyNames');
@@ -44,24 +14,17 @@ function cfg = initPTB(cfg)
     cfg.keyAudioPlay    = KbName('p'); 
     cfg.keyAudioStop    = KbName('s'); 
 
-
-    % now I'm using flush in getTapping.m script, so I'm going to delete
-    % this
-    % FlushEvents;
     
     % Don't echo keypresses to Matlab window
     % enable listening & additional keypress will be suppressed in command window
     % use CTRL+C to reenable keyboard input when necessary
-    if cfg.debug
-        ListenChar(0);
-    else
-        ListenChar(2); 
-    end
+    ListenChar(-1); 
+
     
     
     %% mouse
     % Hide the mouse cursor:
-  %  HideCursor;
+    HideCursor;
     
     %% init Visual
     
@@ -78,10 +41,10 @@ function cfg = initPTB(cfg)
     % init PTB with different options in concordance to the Debug Parameters
     if cfg.debug
         
-%             % set to one because we don not care about time
-%             Screen('Preference', 'SkipSyncTests', 2);
-%             Screen('Preference', 'Verbosity', 0);
-%             Screen('Preferences', 'SuppressAllWarnings', 2);
+        % set to one because we don not care about time
+        Screen('Preference', 'SkipSyncTests', 2);
+        Screen('Preference', 'Verbosity', 0);
+        Screen('Preferences', 'SuppressAllWarnings', 2);
 
         if cfg.testingTranspScreen
             PsychDebugWindowConfiguration
@@ -91,8 +54,10 @@ function cfg = initPTB(cfg)
         end
         
         
-    else
-        Screen('Preference', 'SkipSyncTests', 0);
+    else       
+       % we do not need high accuracy for the screen atm
+       % Screen('Preference', 'SkipSyncTests', 1); 
+        Screen('Preference', 'SkipSyncTests', 0); 
         cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
         
     end
@@ -155,7 +120,7 @@ function cfg = initPTB(cfg)
     cfg.reqsampleoffset = cfg.requestoffsettime*cfg.fs; %
     
     
-    %% playing parameters
+    % playing parameters
     
     % sound repetition
     cfg.PTBrepet = 1;
@@ -166,22 +131,31 @@ function cfg = initPTB(cfg)
     % Should we wait for the device to really start (1 = yes)
     cfg.PTBwaitForDevice = 1;
     
-    %% setup volume 
-    
-    % adapt this part
-    % sound wav file hasn't defined in the main exp script!
-    % you can add test sound (== cue sound?) to adjust the volume
-    
-    
-%     cfg.sound_vol = PTB_volGUI_RME(...
-%         'pahandle', cfg.pahandle,...
-%         'sound', sound,...
-%         'nchan', cfg.audio.channels);
 
-        
-    
-    
- 
-    
 end
+
+    %% init keyboard
+    % % %
+    % set in getParams instead
+    % can be called from cfg structure to make actual names
+    
+%      % Check the state of the keyboard.
+%     [ keyIsDown, seconds, keyCode ] = KbCheck;
+% 
+%     % If the user is pressing a key, then display its code number and name.
+%     if keyIsDown
+% 
+%         % Note that we use find(keyCode) because keyCode is an array.
+%         % See 'help KbCheck'
+%         fprintf('You pressed key %i which is %s\n', find(keyCode), KbName(keyCode));
+% 
+%         if keyCode(escapeKey)
+%             break;
+%         end
+%         
+%         % If the user holds down a key, KbCheck will report multiple events.
+%         % To condense multiple 'keyDown' events into a single event, we wait until all
+%         % keys have been released.
+%         KbReleaseWait;
+%     end
     
