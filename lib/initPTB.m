@@ -8,7 +8,7 @@ end
 
 
 % check for OpenGL compatibility, abort otherwise:
-% AssertOpenGL;
+AssertOpenGL;
 
 
 %%
@@ -38,9 +38,7 @@ end
     HideCursor;
     
     %% init Visual
-    
-    %PsychDebugWindowConfiguration
-    %Screen('Preference', 'SkipSyncTests', 1);
+
     
     cfg.screen              = [];
     cfg.screen.i            = max(Screen('Screens'));
@@ -67,8 +65,8 @@ end
         
     else       
        % we do not need high accuracy for the screen atm
-       % Screen('Preference', 'SkipSyncTests', 1); 
-        Screen('Preference', 'SkipSyncTests', 0); 
+       % Screen('Preference', 'SkipSyncTests', 0); 
+        Screen('Preference', 'SkipSyncTests', 1); 
         cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
         
     end
