@@ -76,7 +76,7 @@ try
         % pressed (and not held down from previous loop iteration)
         istap = false;
 
-        currTapOnsets = mb_getResponse(cfg, currSeqStartTime)
+        currTapOnsets = mb_getResponse(cfg, currSeqStartTime, istap);
 
 
         %% log

@@ -1,4 +1,11 @@
-function [currTapOnsets] = mb_getResponse(cfg, currSeqStartTime)
+function [currTapOnsets] = mb_getResponse(cfg, currSeqStartTime, istap)
+
+% allocate vector of tap times
+currTapOnsets = [];
+
+% boolean helper variable used to determine if the button was just
+% pressed (and not held down from previous loop iteration)
+istap = false;
 
 % stay in the loop until the sequence ends
 while GetSecs < (currSeqStartTime+cfg.SequenceDur)
