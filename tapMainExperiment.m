@@ -69,14 +69,7 @@ try
 
         %% record tapping (fast looop)
 
-        % allocate vector of tap times
-        currTapOnsets = [];
-
-        % boolean helper variable used to determine if the button was just
-        % pressed (and not held down from previous loop iteration)
-        istap = false;
-
-        currTapOnsets = mb_getResponse(cfg, currSeqStartTime, istap);
+        currTapOnsets = mb_getResponse(cfg, currSeqStartTime);
 
 
         %% log
