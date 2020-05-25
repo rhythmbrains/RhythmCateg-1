@@ -24,8 +24,8 @@ expParameters.task = task;
 
 
 %% Debug mode settings
-cfg.debug               = false;  % To test the script
-cfg.testingTranspScreen = false;  % To test with trasparent full size screen 
+cfg.debug               = 0 ;  % To test the script
+cfg.testingTranspScreen = 0 ;  % To test with trasparent full size screen 
 
 
 %% set the type of your computer
@@ -70,7 +70,14 @@ cfg.keyboard = [];
 cfg.responseBox = []; 
 
 
+if cfg.debug
+    fprintf('\n\n\n\n')
+    fprintf('######################################## \n')
+    fprintf('##  DEBUG MODE, NOT THE ACTUAL EXP CODE  ## \n')
+    fprintf('######################################## \n\n')
+end
 
-
-
+%% create a function for linux/octave
+% 
+% status = system(command)
 
