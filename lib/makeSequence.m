@@ -211,6 +211,9 @@ for stepi=1:cfg.nStepsPerSequence
             
             % make audio 
             [patternAudio,~] = makeStimMainExp(currPattern, cfg, currGridIOI, currF0); 
+            
+            % tune it down
+            patternAudio    = 1/5 * patternAudio;
 
 %             % create a vector for the envelopes 
 %             % seq.patternEnv{cPat} = currEnv;
