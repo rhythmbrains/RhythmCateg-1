@@ -1,4 +1,4 @@
-function [currTapOnsets] = mb_getResponse(cfg, currSeqStartTime, istap)
+function [currTapOnsets] = mb_getResponse(cfg, currSeqStartTime)
 
 % allocate vector of tap times
 currTapOnsets = [];

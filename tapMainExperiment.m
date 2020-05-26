@@ -19,18 +19,19 @@ end
 % make sure we got access to all the required functions and inputs
 addpath(genpath(fullfile(pwd, 'lib')))
 
+% ! ! ! for now - change before sending to ANYONE ! ! !
+addpath(genpath(fullfile('../../CPP_BIDS')))
+
 % Get parameters
 [cfg,expParam] = getParams('tapMainExp');
 
-% datalogging structure
-datalog = [];
+% set and load all the subject input to run the experiment
+expParam = userInputs(cfg,expParam);
+expParam = createFilename(cfg,expParam);
+
 
 % get time point at the beginning of the experiment (machine time)
-datalog.experimentStartTime = GetSecs();
-
-% set and load all the subject input to run the experiment
-[datalog] = getSubjectID(cfg);
-
+expParam.experimentStartTime = GetSecs();
 
 %% Experiment
 
@@ -40,7 +41,10 @@ try
     [cfg] = initPTB(cfg);
 
     % Prepare for the output logfiles
-    datalog = saveOutput(datalog, cfg, expParam, 'open');
+    expParam = saveOutput(cfg, expParam, 'open');
+    
+    [ datalog ] = saveEventsFile('open', expParam);
+    
 
     % task instructions
     displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
@@ -82,9 +86,9 @@ try
 
         % each pattern on one row
         for i=1:length(currSeq.patternID)
-            fprintf(datalog.fidStim,'%d\t%d\t%s\t%s\t%f\t%f\t%f\n', ...
-                datalog.subjectNumber, ...
-                datalog.runNumber, ...
+            fprintf(expParam.fidStim,'%d\t%d\t%s\t%s\t%f\t%f\t%f\n', ...
+                expParam.subjectNumber, ...
+                expParam.runNumber, ...
                 currSeq.patternID{i}, ...
                 currSeq.segmCateg{i}, ...
                 currSeq.onsetTime(i), ...
@@ -99,9 +103,9 @@ try
         % each tap on one row
         % subjectID, seqi, tapOnset
         for i=1:length(currTapOnsets)
-            fprintf(datalog.fidTap, '%d\t%d\t%d\t%f\n', ...
-                datalog.subjectNumber, ...
-                datalog.runNumber, ...
+            fprintf(expParam.fidTap, '%d\t%d\t%d\t%f\n', ...
+                expParam.subjectNumber, ...
+                expParam.runNumber, ...
                 seqi, ...
                 currTapOnsets(i));
         end
@@ -111,18 +115,18 @@ try
         % ===========================================
 
         % save (machine) onset time for the current sequence
-        datalog.data(seqi).currSeqStartTime = currSeqStartTime;
+        expParam.data(seqi).currSeqStartTime = currSeqStartTime;
 
         % save PTB volume
-        datalog.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
+        expParam.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
 
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
-        datalog.data(seqi).seq = currSeq;
-        datalog.data(seqi).seq.outAudio = [];
+        expParam.data(seqi).seq = currSeq;
+        expParam.data(seqi).seq.outAudio = [];
 
         % save all the taps for this sequence
-        datalog.data(seqi).taps = currTapOnsets;
+        expParam.data(seqi).taps = currTapOnsets;
 
 
 
@@ -153,8 +157,8 @@ try
 
 
     % save everything into .mat file
-    saveOutput(datalog, cfg, expParam, 'savemat');
-    saveOutput(datalog, cfg, expParam, 'close');
+    saveOutput(cfg, expParam, 'savemat');
+    saveOutput(cfg, expParam, 'close');
 
     % clean the workspace
     cleanUp(cfg);
@@ -164,8 +168,8 @@ try
 catch
 
     % save everything into .mat file
-    saveOutput(datalog, cfg, expParam, 'savemat');
-    saveOutput(datalog, cfg, expParam, 'close');
+    saveOutput(cfg, expParam, 'savemat');
+    saveOutput(cfg, expParam, 'close');
 
     % clean the workspace
     cleanUp(cfg);

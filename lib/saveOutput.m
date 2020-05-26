@@ -1,4 +1,4 @@
-function datalog = saveOutput(datalog, cfg, expParam, action)
+function expParam = saveOutput(cfg, expParam, action)
 
 
 % make sure logiles directory exists 
@@ -9,8 +9,8 @@ end
 DateFormat = 'yyyy_mm_dd_HH_MM';
 
 Filename = fullfile(pwd, 'logfiles', ...
-    ['sub-' datalog.subjectNumber, ...
-    '_run-' datalog.runNumber, ...
+    ['sub-' expParam.subjectNumber, ...
+    '_run-' expParam.runNumber, ...
     '_' datestr(now, DateFormat)]);
 
 
@@ -28,20 +28,20 @@ if strcmp(expParam.task,'tapMainExp')
             %----------------------------------------
 
             % open text file
-            datalog.fidStim = fopen([Filename,'_mainStimulus.tsv'], 'w'); %'a'
+            expParam.fidStim = fopen([Filename,'_mainStimulus.tsv'], 'w'); %'a'
 
             % print header
-            fprintf(datalog.fidStim,'subjectID\trunNumber\tpatternID\tcategory\tonsetTime\tF0\tgridIOI\n'); 
+            fprintf(expParam.fidStim,'subjectID\trunNumber\tpatternID\tcategory\tonsetTime\tF0\tgridIOI\n'); 
 
             %----------------------------------------
             % .tsv file for tapping
             %----------------------------------------
 
             % open text file
-            datalog.fidTap = fopen([Filename,'_mainTapping.tsv'], 'w'); %'a'
+            expParam.fidTap = fopen([Filename,'_mainTapping.tsv'], 'w'); %'a'
 
             % print header
-            fprintf(datalog.fidTap, 'subjectID\trunNumber\tseqi\ttapOnset\n'); 
+            fprintf(expParam.fidTap, 'subjectID\trunNumber\tseqi\ttapOnset\n'); 
 
         % ==================================================================================
         case 'update'
@@ -50,15 +50,15 @@ if strcmp(expParam.task,'tapMainExp')
         case 'savemat'
 
             % save all config structures and datalog to .mat file
-            save(fullfile([Filename,'_mainAll.mat']), 'datalog', 'cfg', 'expParam')
+            save(fullfile([Filename,'_mainAll.mat']),'cfg', 'expParam')
 
         % ==================================================================================
         case 'close'
 
             % close txt log files
-            if isfield(datalog,'fidStim') || isfield(datalog,'fidTap')
-                fclose(datalog.fidStim);
-                fclose(datalog.fidTap);
+            if isfield(expParam,'fidStim') || isfield(expParam,'fidTap')
+                fclose(expParam.fidStim);
+                fclose(expParam.fidTap);
             end
 
     end
@@ -74,10 +74,10 @@ elseif strcmp(expParam.task,'tapTraining')
         case 'open'
 
             % open tsv file
-            datalog.fidTapTrainer = fopen([Filename,'_tapTraining.tsv'], 'w'); %'a'
+            expParam.fidTapTrainer = fopen([Filename,'_tapTraining.tsv'], 'w'); %'a'
 
             % print header
-            fprintf(datalog.fidTapTrainer, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', ...
+            fprintf(expParam.fidTapTrainer, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', ...
             'subjectID',...             % subject id
             'pattern',...               % pattern 
             'seqStartTime',...          % machine time of sequence audio start
@@ -94,15 +94,15 @@ elseif strcmp(expParam.task,'tapTraining')
         case 'savemat'
 
             % save all config structures and datalog to .mat file
-            save(fullfile([Filename,'_tapTraining.mat']), 'datalog', 'cfg', 'expParam')
+            save(fullfile([Filename,'_tapTraining.mat']),'cfg', 'expParam')
 
         % ==================================================================================
         case 'close'
 
             % close txt log files
-            if isfield(datalog,'fidStim') || isfield(datalog,'fidTap')
-                fclose(datalog.fidStim);
-                fclose(datalog.fidTap);
+            if isfield(expParam,'fidStim') || isfield(expParam,'fidTap')
+                fclose(expParam.fidStim);
+                fclose(expParam.fidTap);
             end
     end
 

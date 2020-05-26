@@ -2,12 +2,6 @@ function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % this function generates audio sequences to be played in the man
 % experiment
 
-% % % 
-% should be considered exp.parameter structure for experiment/sequence related
-% parameters
-% > later on for fMRI, I'll separate exp from cfg (all make stim == exp,
-% all fmri parameters - cfg)
-% % %
 
 % % %
 % start the sequence with one B-category segment that will be discarded during analysis
