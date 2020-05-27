@@ -19,18 +19,19 @@ end
 % make sure we got access to all the required functions and inputs
 addpath(genpath(fullfile(pwd, 'lib')))
 
+% ! ! ! for now - change before sending to ANYONE ! ! !
+addpath(genpath(fullfile('../../CPP_BIDS')))
+
 % Get parameters
 [cfg,expParam] = getParams('tapMainExp');
 
-% datalogging structure
-datalog = [];
+% set and load all the subject input to run the experiment
+expParam = userInputs(cfg,expParam);
+expParam = createFilename(cfg,expParam);
+
 
 % get time point at the beginning of the experiment (machine time)
-datalog.experimentStartTime = GetSecs();
-
-% set and load all the subject input to run the experiment
-[datalog] = getSubjectID(cfg);
-
+expParam.experimentStartTime = GetSecs();
 
 %% Experiment
 
@@ -40,7 +41,11 @@ try
     [cfg] = initPTB(cfg);
 
     % Prepare for the output logfiles
-    datalog = saveOutput(datalog, cfg, expParam, 'open');
+    expParam = saveOutput(cfg, expParam, 'open');
+    
+    logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
+        'patternID','category','F0','gridIOI');
+    
 
     % task instructions
     displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
@@ -58,6 +63,10 @@ try
         displayInstr('TAP',cfg,'instrAndQuitOption');
 
         % construct sequence
+        % % % BIDS concerns below:
+        % % % DO WE NEED LINE_STRUCTURE FIELds specifically?
+        % % % Or is its ok to convert the structure column-wise?
+        % % % do we need cell array or character would suffice? 
         currSeq = makeSequence(cfg,seqi);
 
         % fill the buffer
@@ -67,31 +76,49 @@ try
         currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
             cfg.PTBstartCue, cfg.PTBwaitForDevice);
 
-
-        %% record tapping (fast looop)
-
-        currTapOnsets = mb_getResponse(cfg, currSeqStartTime);
-
-
-        %% log
-
-
         % ===========================================
         % log sequence into text file
         % ===========================================
-
         % each pattern on one row
         for i=1:length(currSeq.patternID)
-            fprintf(datalog.fidStim,'%d\t%d\t%s\t%s\t%f\t%f\t%f\n', ...
-                datalog.subjectNumber, ...
-                datalog.runNumber, ...
+            fprintf(expParam.fidStim,'%d\t%d\t%s\t%s\t%f\t%f\t%f\n', ...
+                expParam.subjectNb, ...
+                expParam.runNb, ...
                 currSeq.patternID{i}, ...
                 currSeq.segmCateg{i}, ...
-                currSeq.onsetTime(i), ...
+                currSeq.onset(i), ...
                 currSeq.F0(i), ...
                 currSeq.gridIOI(i));
         end
 
+        
+        % stimulus save for BIDS
+        % we save sequence by sequence so we clear this variable every loop
+        currSeqEvent.eventLogFile = logFile.eventLogFile;
+        
+        % converting currSeq into column-structure for BIDS format
+        for i=1:length(currSeq.patternID)
+            currSeqEvent(i).trial_type  = 'dummy';
+            currSeqEvent(i).duration    = 0;
+            currSeqEvent(i).sequenceNum = seqi;
+            currSeqEvent(i).patternID   = currSeq.patternID{i};
+            currSeqEvent(i).segmCateg   = currSeq.segmCateg{i};
+            currSeqEvent(i).onset       = currSeq.onset(i);
+            currSeqEvent(i).F0          = currSeq.F0(i);
+            currSeqEvent(i).gridIOI     = currSeq.gridIOI(i);
+        end
+        
+        
+        saveEventsFile('save', expParam, currSeqEvent,'sequenceNum',...
+                'patternID','segmCateg','F0','gridIOI');
+            
+        
+        
+        %% record tapping (fast looop)
+
+        currTapOnsets = mb_getResponse(cfg, currSeqStartTime);
+
+        
         % ===========================================
         % log tapping into text file
         % ===========================================
@@ -99,30 +126,70 @@ try
         % each tap on one row
         % subjectID, seqi, tapOnset
         for i=1:length(currTapOnsets)
-            fprintf(datalog.fidTap, '%d\t%d\t%d\t%f\n', ...
-                datalog.subjectNumber, ...
-                datalog.runNumber, ...
+            fprintf(expParam.fidTap, '%d\t%d\t%d\t%f\n', ...
+                expParam.subjectNb, ...
+                expParam.runNb, ...
                 seqi, ...
                 currTapOnsets(i));
         end
+        
+        % response save for BIDS
+        for i=1:length(currTapOnsets)
+            responseEvents(i).sequenceNum = seqi;
+            responseEvents(i).onset = currTapOnsets(i);
+            responseEvents(i).duration = 0;
+            responseEvents(i).trial_type = 'response';
+            responseEvents(i).patternID   = currSeq.patternID{i};
+            responseEvents(i).segmCateg   = currSeq.segmCateg{i};
+            responseEvents(i).F0          = currSeq.F0(i);
+            responseEvents(i).gridIOI     = currSeq.gridIOI(i);
+            
+        end
 
+        responseEvents.eventLogFile = logFile.eventLogFile;
+        
+        saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
+            'patternID','segmCateg','F0','gridIOI');
+            
+%             
+%             responseEvents = getResponse('check', cfg, expParameters);
+%             
+%             if ~isempty(responseEvents(1).onset)
+%                 
+%                 responseEvents.eventLogFile = logFile.eventLogFile;
+%                 
+%                 for iResp = 1:size(responseEvents, 1)
+%                     responseEvents(iResp).onset = ...
+%                         responseEvents(iResp).onset - cfg.experimentStart;
+%                     responseEvents(iResp).target = expParameters.designFixationTargets(iBlock,iEvent);
+%                     responseEvents(iResp).event = iEvent;
+%                     responseEvents(iResp).block = iBlock;
+%                 end
+%                 
+%                 saveEventsFile('save', expParameters, responseEvents, ...
+%                     'direction', 'speed', 'target', 'event', 'block');
+%             end
+            
+            
+            
+        
         % ===========================================
         % log everything into matlab structure
         % ===========================================
 
         % save (machine) onset time for the current sequence
-        datalog.data(seqi).currSeqStartTime = currSeqStartTime;
+        expParam.data(seqi).currSeqStartTime = currSeqStartTime;
 
         % save PTB volume
-        datalog.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
+        expParam.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
 
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
-        datalog.data(seqi).seq = currSeq;
-        datalog.data(seqi).seq.outAudio = [];
+        expParam.data(seqi).seq = currSeq;
+        expParam.data(seqi).seq.outAudio = [];
 
         % save all the taps for this sequence
-        datalog.data(seqi).taps = currTapOnsets;
+        expParam.data(seqi).taps = currTapOnsets;
 
 
 
@@ -153,9 +220,12 @@ try
 
 
     % save everything into .mat file
-    saveOutput(datalog, cfg, expParam, 'savemat');
-    saveOutput(datalog, cfg, expParam, 'close');
+    saveOutput(cfg, expParam, 'savemat');
+    saveOutput(cfg, expParam, 'close');
 
+    % Close the logfiles  - BIDS
+    saveEventsFile('close', expParam, logFile);
+    
     % clean the workspace
     cleanUp(cfg);
 
@@ -164,8 +234,10 @@ try
 catch
 
     % save everything into .mat file
-    saveOutput(datalog, cfg, expParam, 'savemat');
-    saveOutput(datalog, cfg, expParam, 'close');
+    saveOutput(cfg, expParam, 'savemat');
+    saveOutput(cfg, expParam, 'close');
+    % Close the logfiles - BIDS
+    saveEventsFile('close', expParam, logFile);
 
     % clean the workspace
     cleanUp(cfg);
