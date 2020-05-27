@@ -31,7 +31,7 @@ seq.gridIOI = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPer
 seq.segmCateg = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
 % onset time of each pattern
-seq.onsetTime = nan(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
+seq.onset = nan(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
 % put together all the patterns from both categories, we will pick from
 % this using the unique ID of each pattern (we know which IDs we want from
@@ -53,9 +53,12 @@ patterns2choose = [cfg.patternSimple,cfg.patternComplex];
 
 seq.patternID = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
-% cell array, each element is a grid representation of the chosen pattern
-% (successively as the sequence unfolds)
-seq.outPatterns = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence);
+% % THIS IS UNUSED
+% % cell array, each element is a grid representation of the chosen pattern
+% % (successively as the sequence unfolds)
+% seq.outPatterns = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence);
+% % % 
+
 
 % audio waveform of the sequence
 seq.outAudio = zeros(1,round(cfg.SequenceDur*cfg.fs)); 
@@ -213,7 +216,7 @@ for stepi=1:cfg.nStepsPerSequence
             [patternAudio,~] = makeStimMainExp(currPattern, cfg, currGridIOI, currF0); 
             
             % tune it down
-            patternAudio    = 1/5 * patternAudio;
+%            patternAudio    = 1/5 * patternAudio;
 
 %             % create a vector for the envelopes 
 %             % seq.patternEnv{cPat} = currEnv;
@@ -229,7 +232,7 @@ for stepi=1:cfg.nStepsPerSequence
 %            seq.patternID{cPat} = currPatternID; 
             seq.patternID{cPat}     = currPatternID; 
             seq.segmCateg{cPat}     = currCategLabel; 
-            seq.onsetTime(cPat)     = currTimePoint; 
+            seq.onset(cPat)     = currTimePoint; 
             seq.pattern{1,cPat}     = currPattern; 
             seq.F0(cPat)            = currF0;
             seq.gridIOI(cPat)       = currGridIOI;

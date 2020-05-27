@@ -24,7 +24,8 @@ cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and wa
 expParameters = struct;
 expParameters.task = task; 
 
-
+% assuming that participant will do the task with headphones:
+expParameters.soundAmp = 0.2;
 
 %% BIDS compatible logfile folder
 % by default the data will be stored in an output folder created where the
@@ -35,8 +36,8 @@ expParameters.outputDir = fullfile(...
     'output');
 
 %% Debug mode settings
-cfg.debug               = 0 ;  % To test the script
-cfg.testingTranspScreen = 0 ;  % To test with trasparent full size screen 
+cfg.debug               = 1 ;  % To test the script
+cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
 
 
 %% set the type of your computer
