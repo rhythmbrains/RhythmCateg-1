@@ -21,8 +21,6 @@ end
 % make sure we got access to all the required functions and inputs
 addpath(genpath(fullfile(pwd, 'lib')))
 
-% ! ! ! for now - change before sending to ANYONE ! ! !
-addpath(genpath(fullfile('../../CPP_BIDS')))
 
 % Get parameters
 [cfg,expParam] = getParams('tapMainExp');
@@ -144,7 +142,7 @@ try
         
         % response save for BIDS
         
-        if ~isempty(responseEvents(1).onset)
+        if ~isempty(currTapOnsets)
             responseEvents.eventLogFile = logFile.eventLogFile;
             
             

@@ -36,8 +36,8 @@ expParameters.outputDir = fullfile(...
     'output');
 
 %% Debug mode settings
-cfg.debug               = 1 ;  % To test the script
-cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
+cfg.debug               = 0 ;  % To test the script
+cfg.testingTranspScreen = 0 ;  % To test with trasparent full size screen 
 
 
 %% set the type of your computer

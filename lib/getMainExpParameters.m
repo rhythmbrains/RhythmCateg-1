@@ -107,7 +107,7 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 %% construct whole sequence
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
-cfg.nStepsPerSequence = 1;
+cfg.nStepsPerSequence = 5;
 
 
 % calculate trial duration (min)
