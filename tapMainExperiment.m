@@ -14,6 +14,8 @@
 if ~ismac
     close all;
     clear Screen;
+else 
+    clc; clear;
 end
 
 % make sure we got access to all the required functions and inputs
@@ -43,10 +45,12 @@ try
     % Prepare for the output logfiles
     expParam = saveOutput(cfg, expParam, 'open');
     
+    % Prepare for the output logfiles - BIDS
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
         'patternID','category','F0','gridIOI');
     
-
+    % add a keypress to wait to check the monitor - for fMRI exp
+    
     % task instructions
     displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
     % more instructions
@@ -58,7 +62,9 @@ try
     %% play sequences
     for seqi = 1:expParam.numSequences
 
-
+        currSeqEvent = struct();
+        responseEvents = struct();
+        
         % change screen to "TAP" instruction
         displayInstr('TAP',cfg,'instrAndQuitOption');
 
@@ -97,15 +103,16 @@ try
         currSeqEvent.eventLogFile = logFile.eventLogFile;
         
         % converting currSeq into column-structure for BIDS format
-        for i=1:length(currSeq.patternID)
-            currSeqEvent(i).trial_type  = 'dummy';
-            currSeqEvent(i).duration    = 0;
-            currSeqEvent(i).sequenceNum = seqi;
-            currSeqEvent(i).patternID   = currSeq.patternID{i};
-            currSeqEvent(i).segmCateg   = currSeq.segmCateg{i};
-            currSeqEvent(i).onset       = currSeq.onset(i);
-            currSeqEvent(i).F0          = currSeq.F0(i);
-            currSeqEvent(i).gridIOI     = currSeq.gridIOI(i);
+        for iPattern=1:length(currSeq.patternID)
+            currSeqEvent(iPattern,1).trial_type  = 'dummy';
+            currSeqEvent(iPattern,1).duration    = 0;
+            currSeqEvent(iPattern,1).sequenceNum = seqi;
+            currSeqEvent(iPattern,1).patternID   = currSeq.patternID{iPattern};
+            currSeqEvent(iPattern,1).segmCateg   = currSeq.segmCateg{iPattern};
+            currSeqEvent(iPattern,1).onset       = currSeq.onset(iPattern);
+            currSeqEvent(iPattern,1).F0          = currSeq.F0(iPattern);
+            currSeqEvent(iPattern,1).gridIOI     = currSeq.gridIOI(iPattern);
+
         end
         
         
@@ -117,12 +124,12 @@ try
         %% record tapping (fast looop)
 
         currTapOnsets = mb_getResponse(cfg, currSeqStartTime);
-
+        
         
         % ===========================================
         % log tapping into text file
         % ===========================================
-
+        
         % each tap on one row
         % subjectID, seqi, tapOnset
         for i=1:length(currTapOnsets)
@@ -133,46 +140,32 @@ try
                 currTapOnsets(i));
         end
         
+        
+        
         % response save for BIDS
-        for i=1:length(currTapOnsets)
-            responseEvents(i).sequenceNum = seqi;
-            responseEvents(i).onset = currTapOnsets(i);
-            responseEvents(i).duration = 0;
-            responseEvents(i).trial_type = 'response';
-            responseEvents(i).patternID   = currSeq.patternID{i};
-            responseEvents(i).segmCateg   = currSeq.segmCateg{i};
-            responseEvents(i).F0          = currSeq.F0(i);
-            responseEvents(i).gridIOI     = currSeq.gridIOI(i);
+        
+        if ~isempty(responseEvents(1).onset)
+            responseEvents.eventLogFile = logFile.eventLogFile;
+            
+            
+            for iResp=1:length(currTapOnsets)
+                responseEvents(iResp,1).sequenceNum = seqi;
+                responseEvents(iResp,1).onset = currTapOnsets(iResp);
+                responseEvents(iResp,1).duration = 0;
+                responseEvents(iResp,1).trial_type = 'response';
+                responseEvents(iResp,1).patternID   = currSeq.patternID{iResp};
+                responseEvents(iResp,1).segmCateg   = currSeq.segmCateg{iResp};
+                responseEvents(iResp,1).F0          = currSeq.F0(iResp);
+                responseEvents(iResp,1).gridIOI     = currSeq.gridIOI(iResp);
+                
+            end
+            
+            
+            
+            saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
+                'patternID','segmCateg','F0','gridIOI');
             
         end
-
-        responseEvents.eventLogFile = logFile.eventLogFile;
-        
-        saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
-            'patternID','segmCateg','F0','gridIOI');
-            
-%             
-%             responseEvents = getResponse('check', cfg, expParameters);
-%             
-%             if ~isempty(responseEvents(1).onset)
-%                 
-%                 responseEvents.eventLogFile = logFile.eventLogFile;
-%                 
-%                 for iResp = 1:size(responseEvents, 1)
-%                     responseEvents(iResp).onset = ...
-%                         responseEvents(iResp).onset - cfg.experimentStart;
-%                     responseEvents(iResp).target = expParameters.designFixationTargets(iBlock,iEvent);
-%                     responseEvents(iResp).event = iEvent;
-%                     responseEvents(iResp).block = iBlock;
-%                 end
-%                 
-%                 saveEventsFile('save', expParameters, responseEvents, ...
-%                     'direction', 'speed', 'target', 'event', 'block');
-%             end
-            
-            
-            
-        
         % ===========================================
         % log everything into matlab structure
         % ===========================================
@@ -223,8 +216,18 @@ try
     saveOutput(cfg, expParam, 'savemat');
     saveOutput(cfg, expParam, 'close');
 
-    % Close the logfiles  - BIDS
+    % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', expParam, logFile);
+    
+    
+    % save the whole workspace 
+    matFile = fullfile(expParam.outputDir, strrep(expParam.fileName.events,'tsv', 'mat'));
+    if IsOctave
+        save(matFile, '-mat7-binary');
+    else
+        save(matFile, '-v7.3');
+    end
+    
     
     % clean the workspace
     cleanUp(cfg);

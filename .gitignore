@@ -3,14 +3,11 @@
 ..*
 .DS_Store
 
-.DS_Store
 
 *.mp3
 
 *.wav
-!Kick8.wav
-!tone440Hz_10-50ramp.wav
-!Perc5_cut.wav
+
 
 logfiles/
 *.mat
