@@ -20,6 +20,7 @@ cfg.device = 'PC'; % PC for behav, scanner for fMRI,
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 
+
 % general configuration
 expParameters = struct;
 expParameters.task = task; 
