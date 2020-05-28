@@ -29,9 +29,9 @@ expParameters.task = task;
 expParameters.soundAmp = 0.2;
 
 %% BIDS compatible logfile folder
-% by default the data will be stored in an output folder created where the
-% setParamters.m file is
-% change that if you want the data to be saved somewhere else
+% by default the data will be stored in an output folder created 
+% outside of the scripts folder
+% change that if you do not want BIDS formatting output
 expParameters.outputDir = fullfile(...
     fileparts(mfilename('fullpath')), '..', ...
     'output');

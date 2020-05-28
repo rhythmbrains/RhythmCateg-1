@@ -19,7 +19,7 @@ expParam.pauseSeq = 1;
 
 % define ideal number of sequences to be made
 if cfg.debug
-    expParam.numSequences = 3; % multiples of 3
+    expParam.numSequences = 2; % multiples of 3
 else
     expParam.numSequences = 6;
 end
@@ -107,7 +107,11 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 %% construct whole sequence
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
-cfg.nStepsPerSequence = 1;
+if cfg.debug
+    cfg.nStepsPerSequence = 1;
+else
+    cfg.nStepsPerSequence = 5;
+end
 
 
 % calculate trial duration (min)
