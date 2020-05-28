@@ -16,7 +16,7 @@ function [cfg,expParameters] = getParams(task)
 
 % parameters
 cfg = struct; 
-cfg.device = 'PC'; % PC for behav, scanner for fMRI, 
+cfg.device = 'PC';              % PC for behav, scanner for fMRI, 
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 
@@ -25,8 +25,13 @@ cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and wa
 expParameters = struct;
 expParameters.task = task; 
 
-% assuming that participant will do the task with headphones:
-expParameters.soundAmp = 0.2;
+
+%  boolean for equating the dB across different tones
+expParameters.equateSoundAmp = 1;
+
+% assuming that participant will do the task with headphones
+cfg.baseAmp = 0.5; 
+
 
 %% BIDS compatible logfile folder
 % by default the data will be stored in an output folder created 
