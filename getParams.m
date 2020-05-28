@@ -16,12 +16,24 @@ function [cfg,expParameters] = getParams(task)
 
 % parameters
 cfg = struct; 
+cfg.device = 'PC'; % PC for behav, scanner for fMRI, 
+cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
+
 
 % general configuration
 expParameters = struct;
-
 expParameters.task = task; 
 
+% assuming that participant will do the task with headphones:
+expParameters.soundAmp = 0.2;
+
+%% BIDS compatible logfile folder
+% by default the data will be stored in an output folder created where the
+% setParamters.m file is
+% change that if you want the data to be saved somewhere else
+expParameters.outputDir = fullfile(...
+    fileparts(mfilename('fullpath')), '..', ...
+    'output');
 
 %% Debug mode settings
 cfg.debug               = 0 ;  % To test the script
@@ -30,11 +42,11 @@ cfg.testingTranspScreen = 0 ;  % To test with trasparent full size screen
 
 %% set the type of your computer
 if IsWin
-    cfg.device='windows';
+    cfg.stimComp='windows';
 elseif ismac
-    cfg.device = 'mac';
+    cfg.stimComp = 'mac';
 elseif IsLinux
-    cfg.device = 'linux';
+    cfg.stimComp = 'linux';
 end
 
 %% other parameters
@@ -66,10 +78,41 @@ end
 % Using empty vectors should work for linux when to select the "main"
 %   keyboard. You might have to try some other values for MacOS or Windows
 % TL: I think -1 should work? 
-cfg.keyboard = []; 
-cfg.responseBox = []; 
+% CB: I do not know, feel free to add that
 
 
+[cfg.keyboardNumbers, cfg.keyboardNames] = GetKeyboardIndices;
+cfg.keyboardNumbers
+cfg.keyboardNames
+
+
+switch lower(cfg.device)
+    
+    
+    % this part might need to be adapted because the "default" device
+    % number might be different for different OS or set up
+    
+    case 'pc'
+        
+        cfg.keyboard = [];
+        cfg.responseBox = [];
+        
+        if ismac
+            cfg.keyboard = [];
+            cfg.responseBox = [];
+        end
+        
+    case 'scanner'
+        
+    otherwise
+        
+        cfg.keyboard = [];
+        cfg.responseBox = [];
+        
+end
+
+
+%%
 if cfg.debug
     fprintf('\n\n\n\n')
     fprintf('######################################## \n')
@@ -77,7 +120,5 @@ if cfg.debug
     fprintf('######################################## \n\n')
 end
 
-%% create a function for linux/octave
-% 
-% status = system(command)
+
 

@@ -102,7 +102,7 @@ AssertOpenGL;
 
     InitializePsychSound(1);
     
-    if any(strcmp(cfg.device,{'mac','linux'}))
+    if any(strcmp(cfg.stimComp,{'mac','linux'}))
         
         % CHANNELS is 1 for mono sound or 2 for stereo sound
         cfg.audio.channels = 2;

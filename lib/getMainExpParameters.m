@@ -2,12 +2,6 @@ function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % this function generates audio sequences to be played in the man
 % experiment
 
-% % % 
-% should be considered exp.parameter structure for experiment/sequence related
-% parameters
-% > later on for fMRI, I'll separate exp from cfg (all make stim == exp,
-% all fmri parameters - cfg)
-% % %
 
 % % %
 % start the sequence with one B-category segment that will be discarded during analysis
@@ -173,7 +167,7 @@ cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cf
 
 
 %% extract below numbers for preallocation in logFile
-
+% CB: do we need this? ? ?
 
 %% generate example audio for volume setting
 cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg, cfg.gridIOIs(end), cfg.F0s(end)), 2,1); 
