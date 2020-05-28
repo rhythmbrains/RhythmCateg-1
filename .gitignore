@@ -1,10 +1,14 @@
-*.wav
-*.mp3
-*.mat
+
 *~*
 ..*
-*.tsv
-./logfiles/*
+.DS_Store
+
+
+*.mp3
+
+*.wav
 
 
 logfiles/
+*.mat
+*.tsv

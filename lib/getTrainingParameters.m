@@ -22,7 +22,7 @@ cfg.nPatterns   = length(cfg.patterns);
 cfg.cuePeriod    = [4,3,4,3]; % each pattern needs a metronome period assigned (units: N-grid-ticks)
 
 % decreasing the DB along with the high accuracy of tapping 
-cfg.cueDB       = [0, -25, -Inf]; % [0, -14, -25, -Inf] SNRs between rhythm and metronome audio (to be used across levels)
+cfg.cueDB       = [0, -19, -Inf]; % [0, -14, -25, -Inf] SNRs between rhythm and metronome audio (to be used across levels)
 
 % to calculate how many difficulty levels there (in dB)
 % or number of SNR-levels
@@ -61,6 +61,37 @@ cfg.nWinUp_lastLevel = 3;
 
 % duration (secs) for which real-time feedback will be displayed on screen during tapping 
 cfg.fbkOnScreenMaxtime = 5; 
+
+
+
+
+%% load wav files to make sounds
+
+% load audio samples
+soundPattern    = audioread(fullfile('.','stimuli','tone440Hz_10-50ramp.wav')); % rimshot_015
+soundPattern    = 1/3 * soundPattern; % set amplitude to 1/3 to prevent clipping after adding pattern+metronome
+
+soundBeat       = audioread(fullfile('.','stimuli','Kick8.wav')); 
+soundBeat       = mean(soundBeat,2); % average L and R channels
+soundBeat       = 1/3 * soundBeat; % set amplitude to 1/3 to prevent clipping after adding pattern+metronome
+
+soundGrid       = audioread(fullfile('.','stimuli','Perc5_cut.wav')); 
+soundGrid       = mean(soundGrid,2); % average L and R channels
+soundGrid       = 1/3 * soundGrid; % set amplitude to 1/3 to prevent clipping after adding pattern+metronome
+
+% equalize RMS
+rmsPat          = rms(soundPattern); 
+rmsBeat         = rms(soundBeat); 
+rmsGrid         = rms(soundGrid); 
+maxAllowedRms   = min([rmsPat, rmsBeat, rmsGrid]); 
+
+cfg.soundPattern    = soundPattern/rmsPat * maxAllowedRms; 
+cfg.soundBeat       = soundBeat/rmsBeat * maxAllowedRms; 
+cfg.soundGrid       = soundGrid/rmsGrid * maxAllowedRms; 
+
+
+
+
 
 %% generate example stimulus/sequence for only volume setting
 
@@ -105,17 +136,4 @@ for pati=1:length(cfg.patterns)
 end
 
 
-
-
-
-
-% expParameters.taskInstruction = ['Welcome!\n\n', ...
-%     'You will hear a repeated rhythm played by a tone.\n', ...
-%     'There will also be a "bass sound", playing a regular pulse.\n\n', ...
-%     'Tap in synchrony with the bass sound on SPACEBAR.\n', ...
-%     'If your tapping is precise, the bass sound will get softer and softer.\n', ...
-%     'Eventually (if you are tapping well), the bass sound will disappear.\n', ...
-%     'Keep your internal pulse as the bass drum fades out.\n', ...
-%     'Keep tapping at the positions where the bass drum was before...\n\n\n', ...
-%     'Good luck!\n\n'];
 end

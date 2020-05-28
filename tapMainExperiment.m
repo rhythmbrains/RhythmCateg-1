@@ -1,9 +1,10 @@
 
-% 
-% !!! TL: I SOMETIMES HAVE CRACKS IN THE SOUND WHEN I TAP... !!!
+%
+% SOMETIMES THERE ARE CRACKS IN THE AUDIO
 % (maybe there's too much in the audio buffer at the same time?)
-% 
-% CB: I do not hear any cracks in the main exp.
+% > ask participants switch off all the other apps
+%
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -13,23 +14,24 @@
 if ~ismac
     close all;
     clear Screen;
+else 
+    clc; clear;
 end
 
 % make sure we got access to all the required functions and inputs
 addpath(genpath(fullfile(pwd, 'lib')))
 
+
 % Get parameters
 [cfg,expParam] = getParams('tapMainExp');
 
-% datalogging structure
-datalog = []; 
+% set and load all the subject input to run the experiment
+expParam = userInputs(cfg,expParam);
+expParam = createFilename(cfg,expParam);
+
 
 % get time point at the beginning of the experiment (machine time)
-datalog.experimentStartTime = GetSecs();
-
-% set and load all the subject input to run the experiment
-[datalog] = getSubjectID(cfg);
-
+expParam.experimentStartTime = GetSecs();
 
 %% Experiment
 
@@ -37,10 +39,16 @@ datalog.experimentStartTime = GetSecs();
 try
     % Init the experiment
     [cfg] = initPTB(cfg);
-        
+
     % Prepare for the output logfiles
-    datalog = saveOutput(datalog, cfg, expParam, 'open'); 
-        
+    expParam = saveOutput(cfg, expParam, 'open');
+    
+    % Prepare for the output logfiles - BIDS
+    logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
+        'patternID','category','F0','gridIOI');
+    
+    % add a keypress to wait to check the monitor - for fMRI exp
+    
     % task instructions
     displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
     % more instructions
@@ -51,158 +59,189 @@ try
 
     %% play sequences
     for seqi = 1:expParam.numSequences
+
+        currSeqEvent = struct();
+        responseEvents = struct();
         
-        
-        % change screen to "TAP" instruction 
-        displayInstr('TAP',cfg,'instrAndQuitOption');   
-        
-        % construct sequence 
-        currSeq = makeSequence(cfg,seqi); 
+        % change screen to "TAP" instruction
+        displayInstr('TAP',cfg,'instrAndQuitOption');
+
+        % construct sequence
+        % % % BIDS concerns below:
+        % % % DO WE NEED LINE_STRUCTURE FIELds specifically?
+        % % % Or is its ok to convert the structure column-wise?
+        % % % do we need cell array or character would suffice? 
+        currSeq = makeSequence(cfg,seqi);
 
         % fill the buffer
         PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
-                
+
         % start playing
         currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
             cfg.PTBstartCue, cfg.PTBwaitForDevice);
+
+        % ===========================================
+        % log sequence into text file
+        % ===========================================
+        % each pattern on one row
+        for i=1:length(currSeq.patternID)
+            fprintf(expParam.fidStim,'%d\t%d\t%s\t%s\t%f\t%f\t%f\n', ...
+                expParam.subjectNb, ...
+                expParam.runNb, ...
+                currSeq.patternID{i}, ...
+                currSeq.segmCateg{i}, ...
+                currSeq.onset(i), ...
+                currSeq.F0(i), ...
+                currSeq.gridIOI(i));
+        end
+
+        
+        % stimulus save for BIDS
+        % we save sequence by sequence so we clear this variable every loop
+        currSeqEvent.eventLogFile = logFile.eventLogFile;
+        
+        % converting currSeq into column-structure for BIDS format
+        for iPattern=1:length(currSeq.patternID)
+            currSeqEvent(iPattern,1).trial_type  = 'dummy';
+            currSeqEvent(iPattern,1).duration    = 0;
+            currSeqEvent(iPattern,1).sequenceNum = seqi;
+            currSeqEvent(iPattern,1).patternID   = currSeq.patternID{iPattern};
+            currSeqEvent(iPattern,1).segmCateg   = currSeq.segmCateg{iPattern};
+            currSeqEvent(iPattern,1).onset       = currSeq.onset(iPattern);
+            currSeqEvent(iPattern,1).F0          = currSeq.F0(iPattern);
+            currSeqEvent(iPattern,1).gridIOI     = currSeq.gridIOI(iPattern);
+
+        end
+        
+        
+        saveEventsFile('save', expParam, currSeqEvent,'sequenceNum',...
+                'patternID','segmCateg','F0','gridIOI');
+            
         
         
         %% record tapping (fast looop)
 
-        % allocate vector of tap times
-        currTapOnsets = []; 
+        currTapOnsets = mb_getResponse(cfg, currSeqStartTime);
         
-        % boolean helper variable used to determine if the button was just
-        % pressed (and not held down from previous loop iteration)
-        istap = false;
-
-        % stay in the loop until the sequence ends
-        while GetSecs < (currSeqStartTime+cfg.SequenceDur)
-
-                % check if key is pressed
-                [~, tapOnset, keyCode] = KbCheck(cfg.keyboard);
-                
-                % terminate if quit-button pressed
-                if find(keyCode)==cfg.keyquit
-                    error('Experiment terminated by user...'); 
-                end
-                
-                % check if tap and save time (it counts as tap if
-                % reponse buttons were released initially)
-                if ~istap && any(keyCode)
-                    % tap onset time is saved wrt sequence start time
-                    currTapOnsets = [currTapOnsets,tapOnset-currSeqStartTime];
-                    istap = true;
-                end
-                if istap && ~any(keyCode)
-                    istap = false;
-                end
-
-        end
-
-        
-        %% log
-        
-        
-        % ===========================================
-        % log sequence into text file
-        % ===========================================
-        
-        % each pattern on one row
-        for i=1:length(currSeq.patternID)
-            fprintf(datalog.fidStim,'%s\t%s\t%s\t%s\t%f\t%f\t%f\n', ... 
-                datalog.subjectNumber, ...
-                datalog.runNumber, ...
-                currSeq.patternID{i}, ...
-                currSeq.segmCateg{i}, ...
-                currSeq.onsetTime(i), ...
-                currSeq.F0(i), ...
-                currSeq.gridIOI(i)); 
-        end
         
         % ===========================================
         % log tapping into text file
         % ===========================================
-                
+        
         % each tap on one row
         % subjectID, seqi, tapOnset
-        for i=1:length(currTapOnsets)                        
-            fprintf(datalog.fidTap, '%s\t%s\t%d\t%f\n', ...
-                datalog.subjectNumber, ...
-                datalog.runNumber, ...
+        for i=1:length(currTapOnsets)
+            fprintf(expParam.fidTap, '%d\t%d\t%d\t%f\n', ...
+                expParam.subjectNb, ...
+                expParam.runNb, ...
                 seqi, ...
-                currTapOnsets(i)); 
+                currTapOnsets(i));
         end
         
+        
+        
+        % response save for BIDS
+        
+        if ~isempty(currTapOnsets)
+            responseEvents.eventLogFile = logFile.eventLogFile;
+            
+            
+            for iResp=1:length(currTapOnsets)
+                responseEvents(iResp,1).sequenceNum = seqi;
+                responseEvents(iResp,1).onset = currTapOnsets(iResp);
+                responseEvents(iResp,1).duration = 0;
+                responseEvents(iResp,1).trial_type = 'response';
+                responseEvents(iResp,1).patternID   = currSeq.patternID{iResp};
+                responseEvents(iResp,1).segmCateg   = currSeq.segmCateg{iResp};
+                responseEvents(iResp,1).F0          = currSeq.F0(iResp);
+                responseEvents(iResp,1).gridIOI     = currSeq.gridIOI(iResp);
+                
+            end
+            
+            
+            
+            saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
+                'patternID','segmCateg','F0','gridIOI');
+            
+        end
         % ===========================================
         % log everything into matlab structure
         % ===========================================
-        
+
         % save (machine) onset time for the current sequence
-        datalog.data(seqi).currSeqStartTime = currSeqStartTime; 
-        
+        expParam.data(seqi).currSeqStartTime = currSeqStartTime;
+
         % save PTB volume
-        datalog.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle); 
+        expParam.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
 
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
-        datalog.data(seqi).seq = currSeq; 
-        datalog.data(seqi).seq.outAudio = []; 
-        
+        expParam.data(seqi).seq = currSeq;
+        expParam.data(seqi).seq.outAudio = [];
+
         % save all the taps for this sequence
-        datalog.data(seqi).taps = currTapOnsets; 
+        expParam.data(seqi).taps = currTapOnsets;
 
 
-            
-        
-         
-        
-        
+
+
+
+
+
         %% Pause
 
         if seqi<expParam.numSequences
             % pause (before next sequence starts, wait for key to continue)
             if expParam.sequenceDelay
-                fbkToDisp = sprintf(expParam.delayInstruction, seqi, expParam.numSequences);            
+                fbkToDisp = sprintf(expParam.delayInstruction, seqi, expParam.numSequences);
                 displayInstr(fbkToDisp,cfg,'setVolume');
                 WaitSecs(expParam.pauseSeq);
-            end  
+            end
 
         else
             % end of experient
-            displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);  
+            displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);
             % wait 3 seconds and end the experiment
-            WaitSecs(3); 
+            WaitSecs(3);
         end
-        
+
     end % sequence loop
-    
-     
-    
-    
+
+
+
+
     % save everything into .mat file
-    saveOutput(datalog, cfg, expParam, 'savemat'); 
-    saveOutput(datalog, cfg, expParam, 'close'); 
-        
+    saveOutput(cfg, expParam, 'savemat');
+    saveOutput(cfg, expParam, 'close');
+
+    % Close the logfiles (tsv)   - BIDS
+    saveEventsFile('close', expParam, logFile);
+    
+    
+    % save the whole workspace 
+    matFile = fullfile(expParam.outputDir, strrep(expParam.fileName.events,'tsv', 'mat'));
+    if IsOctave
+        save(matFile, '-mat7-binary');
+    else
+        save(matFile, '-v7.3');
+    end
+    
+    
     % clean the workspace
-    cleanUp(cfg); 
-    
-    
-    
+    cleanUp(cfg);
+
+
+
 catch
-    
+
     % save everything into .mat file
-    saveOutput(datalog, cfg, expParam, 'savemat'); 
-    saveOutput(datalog, cfg, expParam, 'close'); 
-    
+    saveOutput(cfg, expParam, 'savemat');
+    saveOutput(cfg, expParam, 'close');
+    % Close the logfiles - BIDS
+    saveEventsFile('close', expParam, logFile);
+
     % clean the workspace
-    cleanUp(cfg); 
-    
+    cleanUp(cfg);
+
     psychrethrow(psychlasterror);
 end
-
-
-
-
-
-

@@ -1,6 +1,17 @@
-
 function cfg = initPTB(cfg)
 
+
+% check for octave:
+if IsOctave
+    checkOctave()
+end
+
+
+% check for OpenGL compatibility, abort otherwise:
+AssertOpenGL;
+
+
+%%
     PsychJavaTrouble;
 
     
@@ -27,9 +38,7 @@ function cfg = initPTB(cfg)
     HideCursor;
     
     %% init Visual
-    
-    %PsychDebugWindowConfiguration
-    %Screen('Preference', 'SkipSyncTests', 1);
+
     
     cfg.screen              = [];
     cfg.screen.i            = max(Screen('Screens'));
@@ -56,8 +65,8 @@ function cfg = initPTB(cfg)
         
     else       
        % we do not need high accuracy for the screen atm
-       % Screen('Preference', 'SkipSyncTests', 1); 
-        Screen('Preference', 'SkipSyncTests', 0); 
+       % Screen('Preference', 'SkipSyncTests', 0); 
+        Screen('Preference', 'SkipSyncTests', 1); 
         cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
         
     end
@@ -93,14 +102,18 @@ function cfg = initPTB(cfg)
 
     InitializePsychSound(1);
     
-    if any(strcmp(cfg.device,{'mac','linux'}))
+    if any(strcmp(cfg.stimComp,{'mac','linux'}))
         
         % CHANNELS is 1 for mono sound or 2 for stereo sound
         cfg.audio.channels = 2;
         
         % pahandle = PsychPortAudio('Open' [, deviceid][, mode][, reqlatencyclass][, freq] ...
             %       [, channels][, buffersize][, suggestedLatency][, selectchannels][, specialFlags=0]);
-        cfg.pahandle = PsychPortAudio('Open', [], [], 3, cfg.fs, cfg.audio.channels);
+        % cfg.pahandle = PsychPortAudio('Open', [], [], 3, cfg.fs, cfg.audio.channels);
+        % change the latency to:
+        % Try to get the lowest latency that is possible under the constraint of reliable playback
+        cfg.pahandle = PsychPortAudio('Open', [], [], 1, cfg.fs, cfg.audio.channels);
+
         
     else
         
