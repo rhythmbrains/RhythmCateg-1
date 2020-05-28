@@ -89,6 +89,7 @@ try
             currSeq(iPattern,1).duration    = 0;
             currSeq(iPattern,1).sequenceNum = seqi;            
         end
+        
         saveEventsFile('save', expParam, currSeq,'sequenceNum',...
                 'patternID','segmCateg','F0','gridIOI','patternAmp');
             
