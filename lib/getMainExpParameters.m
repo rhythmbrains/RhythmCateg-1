@@ -173,7 +173,11 @@ cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cf
 %% extract below numbers for preallocation in logFile
 % CB: do we need this? ? ?
 
-%% generate example audio for volume setting
+%% volume
+
+cfg.toneAmplitude = 1/5; % max 1, but let's set it lower for comfort with earphones
+
+% generate example audio for volume setting
 cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg, cfg.gridIOIs(end), cfg.F0s(end)), 2,1); 
 
 

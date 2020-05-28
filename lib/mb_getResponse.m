@@ -48,11 +48,7 @@ while GetSecs < (currSeqStartTime+cfg.SequenceDur)
             % ------ bids -------
             % Find latest pattern for which current tap time is larger 
             % than it's onset. 
-            for i =1:length(currSeq)
-                patternOnset(i) = currSeq(i).onset;
-            end
-            
-            currPatIdx = max( find(tapTime > patternOnset) ); 
+            currPatIdx = max( find(tapTime > [currSeq.onset]) ); 
 
             responseEvents(cTap,1).sequenceNum     = expParam.seqi;
             responseEvents(cTap,1).onset           = tapTime;

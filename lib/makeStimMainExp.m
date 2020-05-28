@@ -67,7 +67,7 @@ for cyclei=1:nCycles
     end
 end
 % create carrier 
-s = sin(2*pi*currF0*t); 
+s = cfg.toneAmplitude * sin(2*pi*currF0*t); 
 
 
 % apply envelope to the carrier

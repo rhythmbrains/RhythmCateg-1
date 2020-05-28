@@ -135,7 +135,7 @@ try
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
         expParam.data(seqi).seq = currSeq;
-        expParam.data.seq(seqi).outAudio = [];
+        expParam.data(seqi).seq(1).outAudio = [];
 
         % save all the taps for this sequence
         expParam.data(seqi).taps = tapOnsets;

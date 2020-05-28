@@ -216,13 +216,14 @@ for stepi=1:cfg.nStepsPerSequence
             
             % make audio 
             [patternAudio,~] = makeStimMainExp(currPattern, cfg, currGridIOI, currF0); 
-            
-            % tune it down
-%            patternAudio    = 1/5 * patternAudio;
-            
+                        
             % get current audio index in the sequence, and append the audio
             currAudioIdx = round(currTimePoint*cfg.fs); 
-           % seq.outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
+            
+            % seq.outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
+           
+            % we only put the audio data in the first structure in the
+            % array of structures to save memory...
             seq(1).outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
 
                         
