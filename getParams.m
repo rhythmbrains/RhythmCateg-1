@@ -32,8 +32,7 @@ expParameters.soundAmp = 0.2;
 % setParamters.m file is
 % change that if you want the data to be saved somewhere else
 expParameters.outputDir = fullfile(...
-    fileparts(mfilename('fullpath')), '..', ...
-    'output');
+    fileparts(mfilename('fullpath')), 'logfiles','bids');
 
 %% Debug mode settings
 cfg.debug               = 0 ;  % To test the script

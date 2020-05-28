@@ -31,7 +31,7 @@ seq.gridIOI = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPer
 seq.segmCateg = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
 % onset time of each pattern
-seq.onset = nan(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
+seq.patternOnset = nan(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
 % put together all the patterns from both categories, we will pick from
 % this using the unique ID of each pattern (we know which IDs we want from
@@ -232,7 +232,7 @@ for stepi=1:cfg.nStepsPerSequence
 %            seq.patternID{cPat} = currPatternID; 
             seq.patternID{cPat}     = currPatternID; 
             seq.segmCateg{cPat}     = currCategLabel; 
-            seq.onset(cPat)     = currTimePoint; 
+            seq.patternOnset(cPat)  = currTimePoint; 
             seq.pattern{1,cPat}     = currPattern; 
             seq.F0(cPat)            = currF0;
             seq.gridIOI(cPat)       = currGridIOI;

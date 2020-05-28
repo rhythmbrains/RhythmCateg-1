@@ -73,12 +73,6 @@ try
         % % % do we need cell array or character would suffice? 
         currSeq = makeSequence(cfg,seqi);
 
-        % fill the buffer
-        PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
-
-        % start playing
-        currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
-            cfg.PTBstartCue, cfg.PTBwaitForDevice);
 
         % ===========================================
         % log sequence into text file
@@ -90,13 +84,15 @@ try
                 expParam.runNb, ...
                 currSeq.patternID{i}, ...
                 currSeq.segmCateg{i}, ...
-                currSeq.onset(i), ...
+                currSeq.patternOnset(i), ...
                 currSeq.F0(i), ...
                 currSeq.gridIOI(i));
         end
 
         
+        % ===========================================
         % stimulus save for BIDS
+        % ===========================================
         % we save sequence by sequence so we clear this variable every loop
         currSeqEvent.eventLogFile = logFile.eventLogFile;
         
@@ -107,63 +103,44 @@ try
             currSeqEvent(iPattern,1).sequenceNum = seqi;
             currSeqEvent(iPattern,1).patternID   = currSeq.patternID{iPattern};
             currSeqEvent(iPattern,1).segmCateg   = currSeq.segmCateg{iPattern};
-            currSeqEvent(iPattern,1).onset       = currSeq.onset(iPattern);
+            currSeqEvent(iPattern,1).onset       = currSeq.patternOnset(iPattern);
             currSeqEvent(iPattern,1).F0          = currSeq.F0(iPattern);
             currSeqEvent(iPattern,1).gridIOI     = currSeq.gridIOI(iPattern);
 
         end
         
-        
         saveEventsFile('save', expParam, currSeqEvent,'sequenceNum',...
                 'patternID','segmCateg','F0','gridIOI');
             
         
-        
-        %% record tapping (fast looop)
 
-        currTapOnsets = mb_getResponse(cfg, currSeqStartTime);
+        %% present stimulus, record tapping
+
+        % response save for BIDS (set up)
+        responseEvents.eventLogFile = logFile.eventLogFile;            
+
+        % fill the buffer
+        PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
+
+        % start playing
+        currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
+            cfg.PTBstartCue, cfg.PTBwaitForDevice);
+
         
+        % keep collecting tapping until sound stops (log as you go)
+        [tapOnsets, responseEvents] = mb_getResponse(cfg, ...
+                                                     expParam, ...
+                                                     responseEvents, ...
+                                                     currSeq, ...
+                                                     seqi, ...
+                                                     currSeqStartTime);
         
-        % ===========================================
-        % log tapping into text file
-        % ===========================================
-        
-        % each tap on one row
-        % subjectID, seqi, tapOnset
-        for i=1:length(currTapOnsets)
-            fprintf(expParam.fidTap, '%d\t%d\t%d\t%f\n', ...
-                expParam.subjectNb, ...
-                expParam.runNb, ...
-                seqi, ...
-                currTapOnsets(i));
-        end
-        
-        
-        
-        % response save for BIDS
-        
-        if ~isempty(currTapOnsets)
-            responseEvents.eventLogFile = logFile.eventLogFile;
+        % response save for BIDS (write)
+        saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
+            'patternID','segmCateg','F0','gridIOI');
             
-            
-            for iResp=1:length(currTapOnsets)
-                responseEvents(iResp,1).sequenceNum = seqi;
-                responseEvents(iResp,1).onset = currTapOnsets(iResp);
-                responseEvents(iResp,1).duration = 0;
-                responseEvents(iResp,1).trial_type = 'response';
-                responseEvents(iResp,1).patternID   = currSeq.patternID{iResp};
-                responseEvents(iResp,1).segmCateg   = currSeq.segmCateg{iResp};
-                responseEvents(iResp,1).F0          = currSeq.F0(iResp);
-                responseEvents(iResp,1).gridIOI     = currSeq.gridIOI(iResp);
-                
-            end
-            
-            
-            
-            saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
-                'patternID','segmCateg','F0','gridIOI');
-            
-        end
+        
+        
         % ===========================================
         % log everything into matlab structure
         % ===========================================
@@ -180,7 +157,7 @@ try
         expParam.data(seqi).seq.outAudio = [];
 
         % save all the taps for this sequence
-        expParam.data(seqi).taps = currTapOnsets;
+        expParam.data(seqi).taps = tapOnsets;
 
 
 
