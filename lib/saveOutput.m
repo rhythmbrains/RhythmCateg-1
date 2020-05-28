@@ -1,4 +1,4 @@
-function expParam = saveOutput(cfg, expParam, action)
+function expParam = saveOutput(cfg, expParam, action,varargin)
 
 
 % make sure logiles directory exists 
@@ -49,8 +49,32 @@ if strcmp(expParam.task,'tapMainExp')
             fprintf(expParam.fidTap, 'subjectID\trunNumber\tseqi\ttapOnset\n'); 
 
         % ==================================================================================
-        case 'update'
-
+        case 'updateStim'
+            
+            currSeq = varargin{1};
+            
+            % each pattern on one row
+            for iPattern=1:length(currSeq)
+                fprintf(expParam.fidStim,'%d\t%d\t%s\t%s\t%f\t%f\t%f\n', ...
+                    expParam.subjectNb, ...
+                    expParam.runNb, ...
+                    currSeq(iPattern).patternID, ...
+                    currSeq(iPattern).segmCateg, ...
+                    currSeq(iPattern).onset, ...
+                    currSeq(iPattern).F0, ...
+                    currSeq(iPattern).gridIOI);
+            end
+            
+        % ==================================================================================     
+        case 'updateTap'
+            
+            % each tap on one row
+            fprintf(expParam.fidTap, '%d\t%d\t%d\t%f\n', ...
+                expParam.subjectNb, ...
+                expParam.runNb, ...
+                expParam.seqi, ...
+                varargin{1});
+            
         % ==================================================================================
         case 'savemat'
 

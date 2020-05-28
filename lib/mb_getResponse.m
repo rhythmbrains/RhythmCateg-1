@@ -1,4 +1,4 @@
-function [tapOnsets, responseEvents] = mb_getResponse(cfg, expParam, responseEvents, currSeq, seqi, currSeqStartTime)
+function [tapOnsets, responseEvents] = mb_getResponse(cfg, expParam, responseEvents, currSeq)
 
 % allocate vector of tap times
 tapOnsets = [];
@@ -9,6 +9,10 @@ cTap = 1;
 % boolean helper variable used to determine if the button was just
 % pressed (and not held down from previous loop iteration)
 istap = false;
+
+
+currSeqStartTime = expParam.currSeqStartTime;
+
 
 % stay in the loop until the sequence ends
 while GetSecs < (currSeqStartTime+cfg.SequenceDur)
@@ -36,25 +40,28 @@ while GetSecs < (currSeqStartTime+cfg.SequenceDur)
             % ----- log tsv -----
             % now we have some time before the subject taps again so let's
             % write to the log file            
-            % each tap on one row (colum names: subjectNum, runNum, seqi, tapOnset)
-            fprintf(expParam.fidTap, '%d\t%d\t%d\t%f\n', ...
-                                    expParam.subjectNb, ...
-                                    expParam.runNb, ...
-                                    seqi, ...
-                                    tapTime);
+            % each tap on one row (colum names: subjectNum, runNum, expParam.seqi, tapOnset)
+            saveOutput(cfg, expParam, 'updateTap',tapTime);
+           
+            
+
             % ------ bids -------
             % Find latest pattern for which current tap time is larger 
             % than it's onset. 
-            currPatIdx = max( find(tapTime > currSeq.patternOnset) ); 
+            for i =1:length(currSeq)
+                patternOnset(i) = currSeq(i).onset;
+            end
+            
+            currPatIdx = max( find(tapTime > patternOnset) ); 
 
-            responseEvents(cTap,1).sequenceNum     = seqi;
+            responseEvents(cTap,1).sequenceNum     = expParam.seqi;
             responseEvents(cTap,1).onset           = tapTime;
             responseEvents(cTap,1).duration        = 0;
             responseEvents(cTap,1).trial_type      = 'response';
-            responseEvents(cTap,1).patternID       = currSeq.patternID{currPatIdx};
-            responseEvents(cTap,1).segmCateg       = currSeq.segmCateg{currPatIdx};
-            responseEvents(cTap,1).F0              = currSeq.F0(currPatIdx);
-            responseEvents(cTap,1).gridIOI         = currSeq.gridIOI(currPatIdx);
+            responseEvents(cTap,1).patternID       = currSeq(currPatIdx).patternID;
+            responseEvents(cTap,1).segmCateg       = currSeq(currPatIdx).segmCateg;
+            responseEvents(cTap,1).F0              = currSeq(currPatIdx).F0;
+            responseEvents(cTap,1).gridIOI         = currSeq(currPatIdx).gridIOI;
             % -----------------
             
             % increase tap counter
