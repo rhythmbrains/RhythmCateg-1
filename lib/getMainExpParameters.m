@@ -172,11 +172,13 @@ cfg.labelCategB = 'complex';
 %%%%%%%%%%%%
 cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam); 
 
+
 %% generate example audio for volume setting
 % added F0s-amplitude because the relative dB set in volume adjustment in
 % PychPortAudio will be used in the mainExp
 cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
     cfg.gridIOIs(end), cfg.F0s(end),cfg.F0sAmp(end)), 2,1); 
+
 
 
 
