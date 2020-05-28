@@ -191,7 +191,7 @@ for stepi=1:cfg.nStepsPerSequence
             end
             
             currF0 = cfg.F0s(currF0idx); 
-            
+            currAmp = cfg.F0sAmp(currF0idx);
             
             
             % --------------------------------------------------
@@ -215,7 +215,7 @@ for stepi=1:cfg.nStepsPerSequence
             currPattern = patterns2choose(currPatternIdx).pattern;
             
             % make audio 
-            [patternAudio,~] = makeStimMainExp(currPattern, cfg, currGridIOI, currF0); 
+            [patternAudio,~] = makeStimMainExp(currPattern, cfg, currGridIOI, currF0,currAmp); 
             
             % tune it down
 %            patternAudio    = 1/5 * patternAudio;
