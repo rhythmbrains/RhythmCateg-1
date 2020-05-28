@@ -240,16 +240,7 @@ for stepi=1:cfg.nStepsPerSequence
             seq(cPat,1).pattern     = currPattern; 
             seq(cPat,1).F0          = currF0;
             seq(cPat,1).gridIOI     = currGridIOI;
-
-
-            
-%             seqA(cPat,1).patternID   = currPatternID;
-%             seqA(cPat,1).segmCateg   = currCategLabel;
-%             seqA(cPat,1).onset       = currTimePoint;
-%             seqA(cPat,1).pattern     = currPattern; 
-%             seqA(cPat,1).F0          = currF0;
-%             seqA(cPat,1).gridIOI     = currGridIOI;
-%             seqA(1).outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
+            seq(cPat,1).patternAmp  = currAmp;
 
 
             % --------------------------------------------------
