@@ -31,6 +31,8 @@ seq.gridIOI = zeros(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPer
 seq.segmCateg = cell(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
 % onset time of each pattern
+% i'm still conflicting how to make this onset both BIDS compatible &
+% explicit that it's PATTERN ONSET WE ARE RECORDING
 seq.onset = nan(1, cfg.nPatternPerSegment * cfg.nSegmPerStep * cfg.nStepsPerSequence); 
 
 % put together all the patterns from both categories, we will pick from
@@ -189,7 +191,7 @@ for stepi=1:cfg.nStepsPerSequence
             end
             
             currF0 = cfg.F0s(currF0idx); 
-            
+            currAmp = cfg.F0sAmp(currF0idx);
             
             
             % --------------------------------------------------
@@ -213,29 +215,36 @@ for stepi=1:cfg.nStepsPerSequence
             currPattern = patterns2choose(currPatternIdx).pattern;
             
             % make audio 
-            [patternAudio,~] = makeStimMainExp(currPattern, cfg, currGridIOI, currF0); 
-            
-            % tune it down
-%            patternAudio    = 1/5 * patternAudio;
 
-%             % create a vector for the envelopes 
-%             % seq.patternEnv{cPat} = currEnv;
-%             % the indices are currEnvIdx == currAudioIdx
-%             currEnvIdx = round(currTimePoint*cfg.fs); 
-%             seq.outEnvelop(currEnvIdx+1:currEnvIdx+length(currEnv)) = currEnv;
+            [patternAudio,~] = makeStimMainExp(currPattern, cfg, currGridIOI, currF0,currAmp); 
             
+
             % get current audio index in the sequence, and append the audio
             currAudioIdx = round(currTimePoint*cfg.fs); 
-            seq.outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
+            
+            % seq.outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
+           
+            % we only put the audio data in the first structure in the
+            % array of structures to save memory...
+            seq(1).outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
+
                         
             % save info about the selected pattern
-%            seq.patternID{cPat} = currPatternID; 
-            seq.patternID{cPat}     = currPatternID; 
-            seq.segmCateg{cPat}     = currCategLabel; 
-            seq.onset(cPat)     = currTimePoint; 
-            seq.pattern{1,cPat}     = currPattern; 
-            seq.F0(cPat)            = currF0;
-            seq.gridIOI(cPat)       = currGridIOI;
+%             seq.patternID{cPat}     = currPatternID; 
+%             seq.segmCateg{cPat}     = currCategLabel; 
+%             seq.patternOnset(cPat)  = currTimePoint; 
+%             seq.pattern{1,cPat}     = currPattern; 
+%             seq.F0(cPat)            = currF0;
+%             seq.gridIOI(cPat)       = currGridIOI;
+%             
+            seq(cPat,1).patternID   = currPatternID;
+            seq(cPat,1).segmCateg   = currCategLabel;
+            seq(cPat,1).onset       = currTimePoint;
+            seq(cPat,1).pattern     = currPattern; 
+            seq(cPat,1).F0          = currF0;
+            seq(cPat,1).gridIOI     = currGridIOI;
+            seq(cPat,1).patternAmp  = currAmp;
+
 
             % --------------------------------------------------
             % update current time point
