@@ -16,21 +16,27 @@ function [cfg,expParameters] = getParams(task)
 
 % parameters
 cfg = struct; 
-cfg.device = 'PC'; % PC for behav, scanner for fMRI, 
+cfg.device = 'PC';              % PC for behav, scanner for fMRI, 
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
+
 
 
 % general configuration
 expParameters = struct;
 expParameters.task = task; 
 
-% assuming that participant will do the task with headphones:
-expParameters.soundAmp = 0.2;
+
+%  boolean for equating the dB across different tones
+expParameters.equateSoundAmp = 1;
+
+% assuming that participant will do the task with headphones
+cfg.baseAmp = 0.5; 
+
 
 %% BIDS compatible logfile folder
-% by default the data will be stored in an output folder created where the
-% setParamters.m file is
-% change that if you want the data to be saved somewhere else
+% by default the data will be stored in an output folder created 
+% outside of the scripts folder
+% change that if you do not want BIDS formatting output
 expParameters.outputDir = fullfile(...
     fileparts(mfilename('fullpath')), '..', ...
     'output');

@@ -19,7 +19,7 @@ expParam.pauseSeq = 1;
 
 % define ideal number of sequences to be made
 if cfg.debug
-    expParam.numSequences = 3; % multiples of 3
+    expParam.numSequences = 2; % multiples of 3
 else
     expParam.numSequences = 6;
 end
@@ -64,8 +64,7 @@ cfg.changeGridIOIStep       = 0;
 %% construct segment
 
 % % how many times the pattern will be repeated/cycle through
-% % % % it's inserted in makeStimMainExp.m as cfg.nCyclesPerPattern
-% % % %
+% it set by default = 1 in makeStimMainExp.m
 % cfg.nCyclesPerPattern = 1;
 
 % how many pattern cycles are within each step of [ABBB]
@@ -107,7 +106,11 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 %% construct whole sequence
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
-cfg.nStepsPerSequence = 1;
+if cfg.debug
+    cfg.nStepsPerSequence = 1;
+else
+    cfg.nStepsPerSequence = 5;
+end
 
 
 % calculate trial duration (min)
@@ -124,6 +127,11 @@ cfg.maxF0 	= 900; % maximum possible F0
 cfg.nF0 	= 5; % number of unique F0-values between the limits
 cfg.F0s 	= logspace(log10(cfg.minF0),log10(cfg.maxF0),cfg.nF0); 
 
+if expParam.equateSoundAmp
+    cfg.F0sAmp     = equalizePureTones(cfg.F0s,[], []);
+else
+    cfg.F0sAmp = ones(1,cfg.nF0);
+end
 %================================================================
 % The pitch changes are controlled by the Boolean variables below. 
 % NOTE: the parameters work together hierarchically, i.e. if you set
@@ -161,16 +169,16 @@ cfg.labelCategA = 'simple';
 cfg.labelCategB = 'complex'; 
 %%%%%%%%%%%%
 % ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
-% CB: BECAUSE simple26 is the brother of complex26 ???
 %%%%%%%%%%%%
 cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam); 
 
 
-%% extract below numbers for preallocation in logFile
-% CB: do we need this? ? ?
-
 %% generate example audio for volume setting
-cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg, cfg.gridIOIs(end), cfg.F0s(end)), 2,1); 
+% added F0s-amplitude because the relative dB set in volume adjustment in
+% PychPortAudio will be used in the mainExp
+cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
+    cfg.gridIOIs(end), cfg.F0s(end),cfg.F0sAmp(end)), 2,1); 
+
 
 
 
