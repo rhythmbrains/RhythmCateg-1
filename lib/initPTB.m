@@ -127,6 +127,9 @@ AssertOpenGL;
         cfg.pahandle    = PsychPortAudio('Open',cfg.audio.i,1,1,cfg.fs,cfg.audio.channels);
     end
     
+    % set initial PTB volume for safety (participants can adjust this manually
+    % at the begining of the experiment)
+    PsychPortAudio('Volume', cfg.pahandle, cfg.PTBInitVolume); 
     
     cfg.audio.pushsize  = cfg.fs*0.010; %! push N ms only
     cfg.requestoffsettime = 1; % offset 1 sec

@@ -127,11 +127,17 @@ cfg.maxF0 	= 900; % maximum possible F0
 cfg.nF0 	= 5; % number of unique F0-values between the limits
 cfg.F0s 	= logspace(log10(cfg.minF0),log10(cfg.maxF0),cfg.nF0); 
 
+% calculate required amplitude gain
 if expParam.equateSoundAmp
-    cfg.F0sAmp     = equalizePureTones(cfg.F0s,[], []);
+    cfg.F0sAmpGain = equalizePureTones(cfg.F0s,[], []);
 else
-    cfg.F0sAmp = ones(1,cfg.nF0);
+    cfg.F0sAmpGain = ones(1,cfg.nF0);
 end
+
+% use the requested gain of each tone to adjust the base amplitude
+cfg.F0sAmps = cfg.baseAmp * cfg.F0sAmpGain; 
+
+
 %================================================================
 % The pitch changes are controlled by the Boolean variables below. 
 % NOTE: the parameters work together hierarchically, i.e. if you set
@@ -177,7 +183,7 @@ cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cf
 % added F0s-amplitude because the relative dB set in volume adjustment in
 % PychPortAudio will be used in the mainExp
 cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
-    cfg.gridIOIs(end), cfg.F0s(end),cfg.F0sAmp(end)), 2,1); 
+    cfg.gridIOIs(end), cfg.F0s(end), cfg.F0sAmps(end) ), 2,1); 
 
 
 
