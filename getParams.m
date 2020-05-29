@@ -31,6 +31,8 @@ expParameters.equateSoundAmp = 1;
 
 % assuming that participant will do the task with headphones
 cfg.baseAmp = 0.5; 
+
+% i think this cannot be smaller than cfg.Amp! ! !
 cfg.PTBInitVolume = 0.3; 
 
 %% BIDS compatible logfile folder
@@ -40,6 +42,8 @@ cfg.PTBInitVolume = 0.3;
 expParameters.outputDir = fullfile(...
     fileparts(mfilename('fullpath')), '..', ...
     'output');
+
+
 
 %% Debug mode settings
 cfg.debug               = 1 ;  % To test the script
