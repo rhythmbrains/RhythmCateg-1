@@ -10,7 +10,6 @@
 
 
 % Clear all the previous stuff
-% clc; clear;
 if ~ismac
     close all;
     clear Screen;
@@ -64,7 +63,7 @@ try
     %% play sequences
     for seqi = 1:expParam.numSequences
 
-        currSeqEvent = struct();
+        currSeq = struct();
         responseEvents = struct();
         
         % change screen to "TAP" instruction
@@ -85,7 +84,7 @@ try
         % stimulus save for BIDS
         % ===========================================
         % we save sequence by sequence so we clear this variable every loop
-        currSeq(1).eventLogFile = logFile.eventLogFile;
+        currSeq(1).fileID = logFile.fileID;
         
         % adding columns in currSeq for BIDS format
         for iPattern=1:length(currSeq)
@@ -102,7 +101,7 @@ try
         %% present stimulus, record tapping
 
         % response save for BIDS (set up)
-        responseEvents.eventLogFile = logFile.eventLogFile;            
+        responseEvents.fileID = logFile.fileID;            
 
         % fill the buffer
         PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
