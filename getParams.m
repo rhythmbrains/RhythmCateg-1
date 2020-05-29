@@ -31,6 +31,8 @@ expParameters.equateSoundAmp = 1;
 
 % assuming that participant will do the task with headphones
 cfg.baseAmp = 0.5; 
+
+% i think this cannot be smaller than cfg.Amp! ! !
 cfg.PTBInitVolume = 0.3; 
 
 %% BIDS compatible logfile folder
