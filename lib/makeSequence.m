@@ -191,7 +191,7 @@ for stepi=1:cfg.nStepsPerSequence
             end
             
             currF0 = cfg.F0s(currF0idx); 
-            currAmp = cfg.F0sAmpGain(currF0idx) * cfg.baseAmp;
+            currAmp = cfg.F0sAmps(currF0idx);
             
             
             % --------------------------------------------------
