@@ -58,6 +58,7 @@ while GetSecs < (currSeqStartTime+cfg.SequenceDur)
             responseEvents(cTap,1).segmCateg       = currSeq(currPatIdx).segmCateg;
             responseEvents(cTap,1).F0              = currSeq(currPatIdx).F0;
             responseEvents(cTap,1).gridIOI         = currSeq(currPatIdx).gridIOI;
+            responseEvents(cTap,1).patternAmp      = currSeq(currPatIdx).patternAmp;
             % -----------------
             
             % increase tap counter

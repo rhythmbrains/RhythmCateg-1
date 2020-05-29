@@ -1,4 +1,4 @@
-function [s,env] = makeStimMainExp(pattern, cfg, currGridIOI, currF0)
+function [s,env] = makeStimMainExp(pattern, cfg, currGridIOI, currF0,varargin)
 % this function creates pattern cycles according to the grid that was
 % provided 
 % if nCycles = 1, it will create only 1 time repeated pattern
@@ -16,7 +16,13 @@ function [s,env] = makeStimMainExp(pattern, cfg, currGridIOI, currF0)
 %   s:             audio waveform of the output
 %   env:           envelope of the output
 
-
+% I added as varargin in case you are using this function somewhere else
+% than the tapMainExperiment
+if nargin<5
+    currAmp = 1* cfg.baseAmp;
+else 
+    currAmp = varargin{1} * cfg.baseAmp;
+end
 
 
 %% make envelope for the individual sound event 
@@ -72,6 +78,10 @@ s = cfg.toneAmplitude * sin(2*pi*currF0*t);
 
 % apply envelope to the carrier
 s = s.* env;
+
+% apply the amplitude
+s = s.* currAmp;
+
 
 % % to visualise 1 pattern
 % figure; plot(t,s);

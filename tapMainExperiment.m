@@ -45,7 +45,7 @@ try
     
     % Prepare for the output logfiles - BIDS
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
-        'patternID','category','F0','gridIOI');
+        'patternID','category','F0','gridIOI','patternAmp');
     
     % add a keypress to wait to check the monitor - for fMRI exp
     
@@ -89,8 +89,9 @@ try
             currSeq(iPattern,1).duration    = 0;
             currSeq(iPattern,1).sequenceNum = seqi;            
         end
+        
         saveEventsFile('save', expParam, currSeq,'sequenceNum',...
-                'patternID','segmCateg','F0','gridIOI');
+                'patternID','segmCateg','F0','gridIOI','patternAmp');
             
         
 
@@ -112,15 +113,19 @@ try
         expParam.currSeqStartTime = currSeqStartTime;
         
         [tapOnsets, responseEvents] = mb_getResponse(cfg, ...
-                                                     expParam, ...
-                                                     responseEvents, ...
-                                                     currSeq);
+            expParam, ...
+            responseEvents, ...
+            currSeq);
+        
         
         % response save for BIDS (write)
-        saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
-            'patternID','segmCateg','F0','gridIOI');
+        if isfield(responseEvents,'onset')
             
-        
+            
+            saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
+                'patternID','segmCateg','F0','gridIOI','patternAmp');
+            
+        end
         
         % ===========================================
         % log everything into matlab structure
