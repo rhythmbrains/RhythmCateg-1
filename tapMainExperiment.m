@@ -26,8 +26,12 @@ addpath(genpath(fullfile(pwd, 'lib')))
 [cfg,expParam] = getParams('tapMainExp');
 
 % set and load all the subject input to run the experiment
-expParam = userInputs(cfg,expParam);
+%it won't ask you about group or session
+askGrpSess = [0 0];
+
+expParam = userInputs(cfg,expParam,askGrpSess);
 expParam = createFilename(cfg,expParam);
+
 
 
 % get time point at the beginning of the experiment (machine time)
