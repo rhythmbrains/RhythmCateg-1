@@ -19,9 +19,9 @@ function [s,env] = makeStimMainExp(pattern, cfg, currGridIOI, currF0,varargin)
 % I added as varargin in case you are using this function somewhere else
 % than the tapMainExperiment
 if nargin<5
-    currAmp = 1* cfg.baseAmp;
+    currAmp = 1;
 else 
-    currAmp = varargin{1} * cfg.baseAmp;
+    currAmp = varargin{1};
 end
 
 
@@ -73,7 +73,7 @@ for cyclei=1:nCycles
     end
 end
 % create carrier 
-s = cfg.toneAmplitude * sin(2*pi*currF0*t); 
+s = sin(2*pi*currF0*t); 
 
 
 % apply envelope to the carrier
