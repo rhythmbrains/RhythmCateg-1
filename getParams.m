@@ -41,6 +41,8 @@ expParameters.outputDir = fullfile(...
     fileparts(mfilename('fullpath')), '..', ...
     'output');
 
+
+
 %% Debug mode settings
 cfg.debug               = 1 ;  % To test the script
 cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 

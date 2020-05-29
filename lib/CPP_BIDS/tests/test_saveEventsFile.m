@@ -19,20 +19,20 @@ expParameters.outputDir = outputDir;
 expParameters = checkCFG(cfg,expParameters);
 expParameters = createFilename(cfg,expParameters);
 
-
-
-%% create the file
+%% create the events and stim files
 
 logFile = saveEventsFile('open', expParameters, [], 'Speed', 'is_Fixation');
 
+stimFile = saveEventsFile('open_stim', expParameters, []);
 
-% ---- test section
+%%% test section
 
 fileName = fullfile(expParameters.outputDir, expParameters.modality, expParameters.fileName.events);
+stimFileName = fullfile(expParameters.outputDir, expParameters.modality, expParameters.fileName.stim);
 
 % check that the file has the right path and name
 assert(exist(fileName, 'file')==2)
-
+assert(exist(stimFileName, 'file')==2)
 
 
 %%  write things in it
@@ -44,7 +44,6 @@ logFile(1).speed = [];
 logFile(1).is_fixation = 'true';
 
 saveEventsFile('save', expParameters, logFile, 'speed', 'is_fixation');
-
 
 logFile(1,1).onset = 2;
 logFile(1,1).trial_type = 'motion_up';
@@ -59,21 +58,27 @@ logFile(2,1).is_fixation = 3;
 
 saveEventsFile('save', expParameters, logFile, 'speed', 'is_fixation');
 
-
 % close the file
 saveEventsFile('close', expParameters, logFile);
 
-
-% ---- test section
+%%% test section
 
 % check the extra columns of the header and some of the content
 
 FID = fopen(fileName, 'r');
 C = textscan(FID,'%s%s%s%s%s','Delimiter', '\t', 'EndOfLine', '\n');
 
-assert(isequal(C{4}{1}, 'speed')); % check header
+% check header
+assert(isequal(C{4}{1}, 'speed')); 
 
-assert(isequal(C{4}{2}, 'NaN')); % check that empty values are entered as NaN
-assert(isequal(C{4}{4}, 'NaN')); % check that missing fields are entered as NaN
+% check that empty values are entered as NaN
+assert(isequal(C{4}{2}, 'NaN')); 
 
-assert(isequal(str2double(C{5}{4}), 3)); % check values entered properly
+% check that missing fields are entered as NaN
+assert(isequal(C{4}{4}, 'NaN')); 
+
+% check values entered properly
+assert(isequal(str2double(C{4}{3}), 2)); 
+
+% check values entered properly
+assert(isequal(str2double(C{5}{4}), 3)); 

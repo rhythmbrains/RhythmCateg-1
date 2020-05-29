@@ -1,4 +1,4 @@
-function expParameters = createFilename(cfg,expParameters)
+function expParameters = createFilename(cfg, expParameters)
 % create the BIDS compliant directories and filenames for the behavioral output for this subject /
 % session / run using the information from cfg and expParameters.
 % Will also create the right filename for the eyetracking data file.
@@ -92,7 +92,7 @@ end
 [~, ~, ~] = mkdir(expParameters.outputDir);
 [~, ~, ~] = mkdir(fullfile(expParameters.outputDir, modality));
 
-if isfield(cfg,'eyeTracker')
+if cfg.eyeTracker
     [~, ~, ~] = mkdir(fullfile(expParameters.outputDir, 'eyetracker'));
 end
 

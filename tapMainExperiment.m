@@ -10,7 +10,6 @@
 
 
 % Clear all the previous stuff
-% clc; clear;
 if ~ismac
     close all;
     clear Screen;
@@ -26,8 +25,12 @@ addpath(genpath(fullfile(pwd, 'lib')))
 [cfg,expParam] = getParams('tapMainExp');
 
 % set and load all the subject input to run the experiment
-expParam = userInputs(cfg,expParam);
+%it won't ask you about group or session
+askGrpSess = [0 0];
+
+expParam = userInputs(cfg,expParam,askGrpSess);
 expParam = createFilename(cfg,expParam);
+
 
 
 % get time point at the beginning of the experiment (machine time)
@@ -60,7 +63,7 @@ try
     %% play sequences
     for seqi = 1:expParam.numSequences
 
-        currSeqEvent = struct();
+        currSeq = struct();
         responseEvents = struct();
         
         % change screen to "TAP" instruction
@@ -81,7 +84,7 @@ try
         % stimulus save for BIDS
         % ===========================================
         % we save sequence by sequence so we clear this variable every loop
-        currSeq(1).eventLogFile = logFile.eventLogFile;
+        currSeq(1).fileID = logFile.fileID;
         
         % adding columns in currSeq for BIDS format
         for iPattern=1:length(currSeq)
@@ -98,7 +101,7 @@ try
         %% present stimulus, record tapping
 
         % response save for BIDS (set up)
-        responseEvents.eventLogFile = logFile.eventLogFile;            
+        responseEvents.fileID = logFile.fileID;            
 
         % fill the buffer
         PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
