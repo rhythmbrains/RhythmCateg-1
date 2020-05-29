@@ -31,7 +31,7 @@ expParameters.equateSoundAmp = 1;
 
 % assuming that participant will do the task with headphones
 cfg.baseAmp = 0.5; 
-
+cfg.PTBInitVolume = 0.3; 
 
 %% BIDS compatible logfile folder
 % by default the data will be stored in an output folder created 
