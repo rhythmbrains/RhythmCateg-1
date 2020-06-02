@@ -25,10 +25,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 [cfg,expParam] = getParams('tapMainExp');
 
 % set and load all the subject input to run the experiment
-%it won't ask you about group or session
-askGrpSess = [0 0];
-
-expParam = userInputs(cfg,expParam,askGrpSess);
+expParam = userInputs(cfg,expParam);
 expParam = createFilename(cfg,expParam);
 
 
