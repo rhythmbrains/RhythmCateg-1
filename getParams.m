@@ -24,7 +24,8 @@ cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and wa
 % general configuration
 expParameters = struct;
 expParameters.task = task; 
-
+%it won't ask you about group or session
+expParameters.askGrpSess = [0 0];
 
 %  boolean for equating the dB across different tones
 expParameters.equateSoundAmp = 1;
