@@ -23,6 +23,14 @@ cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and wa
 cfg.debug               = 1 ;  % To test the script
 cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
 
+
+%% general configuration
+expParameters = struct;
+expParameters.task = task; 
+%it won't ask you about group or session
+expParameters.askGrpSess = [0 0];
+
+
 %% sound levels
 % assuming that participant will do the task with headphones
 cfg.baseAmp = 0.5; 
@@ -30,10 +38,6 @@ cfg.baseAmp = 0.5;
 % i think this cannot be smaller than cfg.Amp! ! !
 cfg.PTBInitVolume = 0.3; 
 
-
-%% general configuration
-expParameters = struct;
-expParameters.task = task; 
 
 % BIDS compatible logfile folder
 % by default the data will be stored in an output folder created 
