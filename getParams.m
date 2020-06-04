@@ -125,7 +125,7 @@ if cfg.debug
     fprintf('\n\n\n\n')
     fprintf('######################################## \n')
     fprintf('##  DEBUG MODE, NOT THE ACTUAL EXP CODE  ## \n')
-    fprintf('######################################## \n\n')
+    fprintf('######################################## \n\n')    
 end
 
 

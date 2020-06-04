@@ -34,13 +34,16 @@ datalog.experimentStartTime = GetSecs();
 
 % set and load all the subject input to run the experiment
 [datalog] = getSubjectID(cfg);
+expParam.subjectNb = datalog.subjectNb; 
+expParam.runNb = datalog.runNb; 
+
 
 
 try
     [cfg] = initPTB(cfg);
     
     % Prepare for the output logfiles
-    datalog = saveOutput(datalog, cfg, expParam, 'open'); 
+    datalog = saveOutput(cfg, expParam, 'open'); 
 
 
     % show instructions and do initial volume setting
@@ -74,17 +77,17 @@ try
         %number of grip points between two tapping cue sounds
         %convert the grip interval to target inter-tap-interval in seconds.
         % every 800ms there'll be a cue sound to tap along
-        cuePeriod = cfg.cuePeriod(currPatterni)*cfg.gridIOI;
-        
+        cuePeriodTime = cfg.cuePeriodGrid(currPatterni) * cfg.gridIOI(currPatterni);
+         
         % total duration of the analysis window (4 x pattern) in seconds
-        winDur = cfg.nCyclesPerWin * length(cfg.patterns{currPatterni}) * cfg.gridIOI; 
+        winDur = cfg.winDur(currPatterni); 
         
         % time from the start of the analysis window (in secs) taken to analyse the tapping
         taketapDur = winDur - 0.200; 
         
         %to be used later on to calculate the min number that participant
         %has to tap - 
-        maxPossibleNtaps = floor(taketapDur/cuePeriod);
+        maxPossibleNtaps = floor(taketapDur/cuePeriodTime);
         
         % minimum required number of taps in an analysis window 
         % (70% of max possible taps in the window)
@@ -95,6 +98,9 @@ try
         taps = []; 
         istap = false;
 
+        % counter for audio-track index (used only for tracks, but we can
+        % pass it to makeStimTrain all the time)
+        soundIdx = 0; 
         
         %% allocate datalog variables
          winIdxs            = []; 
@@ -105,8 +111,10 @@ try
          
         %% make stimuli
         % get audio for the first step/window (4 x pattern)
-        [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli);  
+        [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli, soundIdx);  
 
+        % update audio index (only relevant for audio tracks)
+        soundIdx = seq.idxEnd; 
         
         %% fill the buffer 
         % first, fill the buffer with 60s silence
@@ -171,10 +179,10 @@ try
                     % now we have some time before they tap again so let's
                     % write to the log file            
                     fprintf(datalog.fidTapTrainer, '%s\t%d\t%f\t%f\t%f\t%d\t%f\t%f\n', ...
-                        datalog.subjectNumber,...                 % subject id
+                        datalog.subjectNb,...                 % subject id
                         currPatterni, ...                 % pattern 
                         currSeqStartTime,...                          % machine time of sequence audio start
-                        cuePeriod,...             % cue (i.e. metronome) period (N of grid-points)
+                        cuePeriodTime,...             % cue (i.e. metronome) period (N of grid-points)
                         cfg.cueDB(cueDBleveli),... % cue (i.e. metronome) level in dB (SNR)
                         currWini, ...                          % index (count) of this analysis window (for this sequence)
                         currWinStartTime-currSeqStartTime,...     % analysis window start time wrt sequence start
@@ -238,7 +246,7 @@ try
             % a tap and still be good in synch. round the mto the closest
             % beat positions. that will give you the target position. and
             % you calculate the how far your target + your current taps
-            targetTapTimes = round(currTaps/cuePeriod)*cuePeriod; 
+            targetTapTimes = round(currTaps/cuePeriodTime)*cuePeriodTime; 
 
             % calculate asynchronies
             tapAsynch = currTaps - targetTapTimes; 
@@ -246,7 +254,7 @@ try
             %is proportional to the legnth of the interval (equalise across
             %different time interval/tempi)
             %then std it 
-            tapCvAsynch = std(tapAsynch/cuePeriod); 
+            tapCvAsynch = std(tapAsynch/cuePeriodTime); 
             
             
 
@@ -283,9 +291,20 @@ try
             %% update next window parameters
             % staircase here to adapt
             
+            % if we've used all samples in the audio track
+            if isfield(seq,'AUDIO_END')
+
+                % stop the audio
+                PsychPortAudio('Stop',cfg.pahandle,1);
+                
+                % end the loop over pattern windows (we will continue with
+                % the following pattern after participant has a break)
+                break 
+
+            
             % if this window was the last dB level, and the last-dB-level
             % counter is equal to the goal number
-            if (cueDBleveli==cfg.nCueDB) && (performStatus==cfg.nWinUp_lastLevel)
+            elseif (cueDBleveli==cfg.nCueDB) && (performStatus==cfg.nWinUp_lastLevel)
                 
                 % stop the audio
                 PsychPortAudio('Stop',cfg.pahandle,1);
@@ -355,8 +374,17 @@ try
 
             
             %% create audio with the new dB level for the next step/window
-            [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli); 
+            [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli, soundIdx); 
            
+            % update audio index (only relevant for audio tracks)
+            soundIdx = seq.idxEnd; 
+
+            % check if we're pushing tha last samples in the audio track
+            if isfield(seq,'AUDIO_END')
+                % if yes, update the window length so we end the  tapping while loop on time 
+                taketapDur = length(seq.s) / seq.fs; 
+            end
+            
             %update the push variable
             audio2push = [seq.s;seq.s];   
             nSamplesAudio2push = size(audio2push,2); 
@@ -369,7 +397,7 @@ try
             % This will be used as the start time of the following window
             currWinStartTime = currWinStartTime + winDur; 
             
-        end
+        end % end of tapping loop
 
         %====================== update datalog =============================
 
@@ -415,20 +443,21 @@ try
         % we will move on to the next pattern in the following loop iteration 
         currPatterni = currPatterni+1; 
 
-    end
+    end % end of loop over patterns
     
-    saveOutput(datalog, cfg, expParam, 'savemat'); 
-    saveOutput(datalog, cfg, expParam, 'close'); 
+    saveOutput(cfg, expParam, 'savemat'); 
+    saveOutput(cfg, expParam, 'close'); 
 
     cleanUp(cfg)
 
     
 catch 
     
-    saveOutput(datalog, cfg, expParam, 'savemat'); 
-    saveOutput(datalog, cfg, expParam, 'close'); 
-
     cleanUp(cfg)
+
+    saveOutput(cfg, expParam, 'savemat'); 
+    saveOutput(cfg, expParam, 'close'); 
+
     
     psychrethrow(psychlasterror);
 end
