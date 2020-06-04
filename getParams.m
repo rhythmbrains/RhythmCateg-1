@@ -64,11 +64,22 @@ cfg.fs = 44100;
 
 %% more parameters to get according to thetype of experiment
 if strcmp(expParameters.task,'tapTraining')
+    
     % get tapping training parameters
     [cfg,expParameters] = getTrainingParameters(cfg,expParameters);
 
+    if ~cfg.debug
+        % download missing audiofiles from Dropbox
+        url = 'https://www.dropbox.com/sh/20hgit6xoqxsbt0/AABnGrj6XDH08zQ5ilICLARVa?dl=1'; 
+        disp('downloading audio files from Dropbox...'); 
+        urlwrite(url,'stimuli.zip'); 
+        unzip('stimuli.zip','stimuli'); 
+        delete('stimuli.zip')
+        disp('audio downloaded successfully'); 
+    end
     
 elseif strcmp(expParameters.task,'tapMainExp')
+    
     % get main experiment parameters
     [cfg,expParameters] = getMainExpParameters(cfg,expParameters);
     

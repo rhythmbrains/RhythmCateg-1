@@ -28,18 +28,18 @@ cfg.cuePeriodGrid = [4,4,3]; % each pattern needs a metronome period assigned (u
 % time-interval of one grid-tick (IOI between events)
 % it's not necessarily the duration of the sound. 
 % This needs to be set separately for each pattern (or track)
-cfg.gridIOI       = [0.200, 0.125, 0.200]; 
+cfg.gridIOI = [0.125, 0.200, 0.200]; 
 
 % decreasing the DB along with the high accuracy of tapping 
-cfg.cueDB       = [0, -15, -Inf]; % [0, -14, -25, -Inf] SNRs between rhythm and metronome audio (to be used across levels)
+cfg.cueDB = [0, -15, -Inf]; % [0, -14, -25, -Inf] SNRs between rhythm and metronome audio (to be used across levels)
 
 % to calculate how many difficulty levels there (in dB)
 % or number of SNR-levels
-cfg.nCueDB       = length(cfg.cueDB); 
+cfg.nCueDB = length(cfg.cueDB); 
 
 % number of pattern cycles in each step/window of pattern: how many cycles
 % of the pattern will be repeated
-cfg.nCyclesPerWin   = 4; 
+cfg.nCyclesPerWin = 4; 
 
 % duration (in seconds) of the each step/window of pattern
 cfg.winDur = cfg.nCyclesPerWin * ( cellfun(@length, cfg.patterns) .* cfg.gridIOI ); 
@@ -48,20 +48,20 @@ cfg.winDur = cfg.nCyclesPerWin * ( cellfun(@length, cfg.patterns) .* cfg.gridIOI
 % the taps to be registered as correct "it" should be below the threshold
 % within the 4 cycle of pattern representation the error is calculated and 
 % this is the shift of tapping variation should be in the range of 10%
-cfg.tapCvAsynchThr   = 0.160; 
+cfg.tapCvAsynchThr = 0.160; 
 
 % minimum N taps for the step/cycle/window to be valid (units: proportion of max. possible N taps considering the beat period)
 % if they tapped less than 70% of the maximum possible number of taps
 % it would be a bad trial below this point (70%)
-cfg.minNtapsProp     = 0.7; 
+cfg.minNtapsProp = 0.7; 
 
 %% staircase parameters 
 % how many trials/windows do you need to go through staircase procedure
 % N successive steps that need to be "good tapping" to move one SNR level up
-cfg.nWinUp          = 2; 
+cfg.nWinUp = 2; 
 
 % N successive steps that need to be "bad tapping" to move one SNR level down
-cfg.nWinDown        = 1;
+cfg.nWinDown = 1;
 
 % N successive steps/windows that need to be "good tapping" for the final level to finish
 % this is in the  last level (level cfg.nCueDB)
@@ -143,7 +143,7 @@ end
 
 %% generate example stimulus/sequence for only volume setting
 
-volTestSound = makeStimTrain(cfg,1,1); 
+volTestSound = makeStimTrain(cfg,1,1,0); 
 % make sequence for 2 channels
 cfg.volumeSettingSound = repmat(volTestSound.s,2,1); 
 
