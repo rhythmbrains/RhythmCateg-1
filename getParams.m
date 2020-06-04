@@ -14,29 +14,32 @@ function [cfg,expParameters] = getParams(task)
 
 
 
-% parameters
+%% cfg parameters
 cfg = struct; 
 cfg.device = 'PC';              % PC for behav, scanner for fMRI, 
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
+%% Debug mode settings
+cfg.debug               = 1 ;  % To test the script
+cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
 
 
-% general configuration
+%% general configuration
 expParameters = struct;
 expParameters.task = task; 
 %it won't ask you about group or session
 expParameters.askGrpSess = [0 0];
 
-%  boolean for equating the dB across different tones
-expParameters.equateSoundAmp = 1;
 
+%% sound levels
 % assuming that participant will do the task with headphones
 cfg.baseAmp = 0.5; 
 
 % i think this cannot be smaller than cfg.Amp! ! !
 cfg.PTBInitVolume = 0.3; 
 
-%% BIDS compatible logfile folder
+
+% BIDS compatible logfile folder
 % by default the data will be stored in an output folder created 
 % outside of the scripts folder
 % change that if you do not want BIDS formatting output
@@ -45,10 +48,13 @@ expParameters.outputDir = fullfile(...
     'output');
 
 
-
-%% Debug mode settings
-cfg.debug               = 1 ;  % To test the script
-cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
+%  boolean for equating the dB across different tones for behavioral exp
+if strcmp(lowercase(cfg.device), 'scanner')
+    expParameters.equateSoundAmp = 0;
+else
+    expParameters.equateSoundAmp = 1;
+    
+end
 
 
 %% set the type of your computer
