@@ -97,7 +97,7 @@ try
         
         saveEventsFile('save', expParam, currSeq,'sequenceNum',...
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-        'category','F0','gridIOI','patternAmp');
+        'segmCateg','F0','gridIOI','patternAmp');
             
         
 
@@ -130,7 +130,7 @@ try
             
             saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
                 'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-                'category','F0','gridIOI','patternAmp');
+                'segmCateg','F0','gridIOI','patternAmp');
 
     
         end
