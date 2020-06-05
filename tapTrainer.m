@@ -58,11 +58,15 @@ try
 
     
     
-    %% loop over patterns (atm, n pattern = 2)
+    %% loop over patterns (atm, n pattern = $)
     while 1
+            
         
-        % change screen to "TAP" instruction 
-        displayInstr('TAP',cfg,'instrAndQuitOption');   
+        if ischar(cfg.patterns{currPatterni})
+            currPatternStr = cfg.patterns{currPatterni}; 
+        else
+            currPatternStr = num2str(cfg.patterns{currPatterni},'%d'); 
+        end
         
         % once the pattern is repeated 4 times, the script looks back in
         % this time window, this is an index (counter) of analysis windows
@@ -107,11 +111,11 @@ try
          cueDBs             = []; 
          winStartTimes      = []; 
          feedbacks          = {}; 
-
+         instructions       = {}; 
          
         %% make stimuli
         % get audio for the first step/window (4 x pattern)
-        [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli, soundIdx);  
+        [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli, currWini, soundIdx);  
 
         % update audio index (only relevant for audio tracks)
         soundIdx = seq.idxEnd; 
@@ -129,6 +133,17 @@ try
         
         
         %% start playback
+
+        if currWini <= cfg.nWinNoCue(currPatterni)
+            % change screen to "LISTEN" instruction 
+            displayInstr('LISTEN',cfg,'instrAndQuitOption');   
+            currInstr = 'listen'; 
+        else
+            % change screen to "TAP" instruction 
+            displayInstr('TAP',cfg,'instrAndQuitOption');   
+            currInstr = 'tap'; 
+        end
+        
         % start playback (note: set repetitions=0, otherwise it will not allow you to seamlessly push more data into the buffer once the sound is playing)  
         % starts to play whats in the buffer and play on whatever is in on
         % a seamlessly in the loop
@@ -178,15 +193,17 @@ try
                     % -------------------- log ----------------------------
                     % now we have some time before they tap again so let's
                     % write to the log file            
-                    fprintf(datalog.fidTapTrainer, '%s\t%d\t%f\t%f\t%f\t%d\t%f\t%f\n', ...
-                        datalog.subjectNb,...                 % subject id
-                        currPatterni, ...                 % pattern 
-                        currSeqStartTime,...                          % machine time of sequence audio start
-                        cuePeriodTime,...             % cue (i.e. metronome) period (N of grid-points)
-                        cfg.cueDB(cueDBleveli),... % cue (i.e. metronome) level in dB (SNR)
-                        currWini, ...                          % index (count) of this analysis window (for this sequence)
-                        currWinStartTime-currSeqStartTime,...     % analysis window start time wrt sequence start
-                        taps(end));                             % tap onset time relative to sequence start time
+                    fprintf(datalog.fidTapTrainer, '%s\t%d\t%s\t%s\t%f\t%f\t%f\t%d\t%f\t%f\n', ...
+                        datalog.subjectNb,...               % subject id
+                        currPatterni, ...                   % pattern 
+                        currPatternStr, ...                 % name of the current pattern/track
+                        currInstr, ...                      % instruction 
+                        currSeqStartTime,...                % machine time of sequence audio start
+                        cuePeriodTime,...                   % cue (i.e. metronome) period (N of grid-points)
+                        seq.cueDB,...                       % cue (i.e. metronome) level in dB (SNR)
+                        currWini, ...                       % index (count) of this analysis window (for this sequence)
+                        currWinStartTime-currSeqStartTime,...  % analysis window start time wrt sequence start
+                        taps(end));                         % tap onset time relative to sequence start time
                     % -----------------------------------------------------
                 end
                 
@@ -213,8 +230,13 @@ try
                 if fbkOnScreen
                     if (GetSecs-fbkOnScreenTime)>cfg.fbkOnScreenMaxtime
                         fbkOnScreen = false; 
-                        % change screen back to "TAP" instruction 
-                        displayInstr('TAP',cfg,'instrAndQuitOption');   
+                        if currWini <= cfg.nWinNoCue(currPatterni)
+                            % change screen to "LISTEN" instruction 
+                            displayInstr('LISTEN',cfg,'instrAndQuitOption');   
+                        else
+                            % change screen to "TAP" instruction 
+                            displayInstr('TAP',cfg,'instrAndQuitOption');   
+                        end
                     end
                 end       
                 
@@ -262,14 +284,20 @@ try
             % (wrt cvASY threshold and n-taps)
             % tap_perform_status = -1, 0, 1, 2, 3, ...(correctness)
             
-            if (tapCvAsynch < cfg.tapCvAsynchThr) && currTapsN>=minNtaps
+            if currWini <= cfg.nWinNoCue(currPatterni)
+                % this was a listening-only window, don't evalueate
+                % performance
+                currPerform = 'NA'; 
+                performStatus = 0; 
+                
+            elseif (tapCvAsynch < cfg.tapCvAsynchThr) && currTapsN>=minNtaps
                 % good performance, one up!
-                currPerform       = 'good'; 
+                currPerform = 'good'; 
                 performStatus = max(0,performStatus); % if negative make 0
                 performStatus = performStatus+1; 
             else
                 % bad performance, one down...
-                currPerform       = 'bad'; 
+                currPerform = 'bad'; 
                 performStatus = min(0,performStatus); % if positive make 0
                 performStatus = performStatus-1; 
             end
@@ -279,14 +307,15 @@ try
             %% update datalog variables
 
             % index (count) of the current analysis window
-            winIdxs           = [winIdxs, currWini]; 
+            winIdxs            = [winIdxs, currWini]; 
             % cue dB level (SNR)
             cueDBs             = [cueDBs, cfg.cueDB(cueDBleveli)]; 
             % start time of the analysis window (wrt sequence start time)
             winStartTimes      = [winStartTimes, currWinStartTime-currSeqStartTime]; 
             % feedback for the current window (good/bad)
             feedbacks          = [feedbacks, currPerform]; 
-
+            % instructions for the current window (listen/tap) 
+            instructions       = [instructions, currInstr]; 
 
             %% update next window parameters
             % staircase here to adapt
@@ -301,7 +330,23 @@ try
                 % the following pattern after participant has a break)
                 break 
 
+                
+            % this was a listening-only window, don't evalueate performance
+            elseif currWini <= cfg.nWinNoCue(currPatterni)
             
+                % change the instruction on the screen for the following
+                % window
+                if currWini+1 <= cfg.nWinNoCue(currPatterni)
+                    % change screen to "LISTEN" instruction 
+                    displayInstr('LISTEN',cfg,'instrAndQuitOption');   
+                    currInstr = 'listen'; 
+                else
+                    % change screen to "TAP" instruction 
+                    displayInstr('TAP',cfg,'instrAndQuitOption');   
+                    currInstr = 'tap'; 
+                end
+                
+                
             % if this window was the last dB level, and the last-dB-level
             % counter is equal to the goal number
             elseif (cueDBleveli==cfg.nCueDB) && (performStatus==cfg.nWinUp_lastLevel)
@@ -312,8 +357,7 @@ try
                 % end the loop over pattern windows (we will continue with
                 % the following pattern after participant has a break)
                 break 
-            
-                
+
                 
             % if we are not yet in the last level, and we have enough good
             % successive windows, we need to move one db-level up
@@ -362,7 +406,6 @@ try
                 displayInstr(txt,cfg);
                 fbkOnScreenTime = GetSecs; 
                 fbkOnScreen = 1; 
-
             end
             
             
@@ -371,12 +414,20 @@ try
             
             
             
-
-            
             %% create audio with the new dB level for the next step/window
-            [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli, soundIdx); 
+
+            % Update current time! 
+            % This will be used as the start time of the following window
+            currWinStartTime = currWinStartTime + winDur; 
+
+            % update step counter (because we're already constructing for
+            % the next window)
+            currWini = currWini+1; 
+
+            % get a new audio sequence for the next window
+            [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli, currWini, soundIdx); 
            
-            % update audio index (only relevant for audio tracks)
+            % update audio index (only relevant for audio tracks, dummy for patterns)
             soundIdx = seq.idxEnd; 
 
             % check if we're pushing tha last samples in the audio track
@@ -389,16 +440,11 @@ try
             audio2push = [seq.s;seq.s];   
             nSamplesAudio2push = size(audio2push,2); 
             idx2push = 1; 
-
-            % update step counter
-            currWini = currWini+1; 
             
-            % Update current time! 
-            % This will be used as the start time of the following window
-            currWinStartTime = currWinStartTime + winDur; 
             
         end % end of tapping loop
 
+        
         %====================== update datalog =============================
 
         % save (machine) onset time for the current sequence
@@ -406,8 +452,8 @@ try
 
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
-        datalog.data(currPatterni).seq = seq; 
-        datalog.data(currPatterni).seq.s = []; 
+        datalog.data(currPatterni).seq      = seq; 
+        datalog.data(currPatterni).seq.s    = []; 
 
         % save all the taps for this sequence
         datalog.data(currPatterni).taps = taps; 
@@ -416,10 +462,11 @@ try
         datalog.data(currPatterni).ptbVolume = PsychPortAudio('Volume',cfg.pahandle); 
 
         % save other window-level variables
-        datalog.data(currPatterni).wini = winIdxs; 
-        datalog.data(currPatterni).cueDBs = cueDBs; 
-        datalog.data(currPatterni).winStartTimes = winStartTimes; 
-        datalog.data(currPatterni).feedbacks = feedbacks; 
+        datalog.data(currPatterni).wini             = winIdxs; 
+        datalog.data(currPatterni).cueDBs           = cueDBs; 
+        datalog.data(currPatterni).winStartTimes    = winStartTimes; 
+        datalog.data(currPatterni).feedbacks        = feedbacks; 
+        datalog.data(currPatterni).instructions     = instructions; 
         
         %========================= instructions ===============================
         
