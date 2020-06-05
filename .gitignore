@@ -7,7 +7,10 @@
 *.mp3
 
 *.wav
-
+!Kick8.wav
+!Perc5_cut.wav
+!tone440Hz_10-50ramp.wav
+!clap_005.wav
 
 logfiles/
 *.mat
