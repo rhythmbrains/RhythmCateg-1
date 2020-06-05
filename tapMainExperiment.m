@@ -25,10 +25,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 [cfg,expParam] = getParams('tapMainExp');
 
 % set and load all the subject input to run the experiment
-%it won't ask you about group or session
-askGrpSess = [0 0];
-
-expParam = userInputs(cfg,expParam,askGrpSess);
+expParam = userInputs(cfg,expParam);
 expParam = createFilename(cfg,expParam);
 
 
@@ -48,9 +45,14 @@ try
     
     % Prepare for the output logfiles - BIDS
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
-        'patternID','category','F0','gridIOI','patternAmp');
+        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+        'category','F0','gridIOI','patternAmp');
     
+ 
+            
     % add a keypress to wait to check the monitor - for fMRI exp
+    
+    
     
     % task instructions
     displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
@@ -94,7 +96,8 @@ try
         end
         
         saveEventsFile('save', expParam, currSeq,'sequenceNum',...
-                'patternID','segmCateg','F0','gridIOI','patternAmp');
+        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+        'segmCateg','F0','gridIOI','patternAmp');
             
         
 
@@ -126,8 +129,10 @@ try
             
             
             saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
-                'patternID','segmCateg','F0','gridIOI','patternAmp');
-            
+                'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+                'segmCateg','F0','gridIOI','patternAmp');
+
+    
         end
         
         % ===========================================

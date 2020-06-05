@@ -36,15 +36,8 @@ while GetSecs < (currSeqStartTime+cfg.SequenceDur)
             
             % set flag
             istap = true;
-            
-            % ----- log tsv -----
-            % now we have some time before the subject taps again so let's
-            % write to the log file            
-            % each tap on one row (colum names: subjectNum, runNum, expParam.seqi, tapOnset)
-            saveOutput(cfg, expParam, 'updateTap',tapTime);
-           
-            
 
+            
             % ------ bids -------
             % Find latest pattern for which current tap time is larger 
             % than it's onset. 
@@ -56,9 +49,23 @@ while GetSecs < (currSeqStartTime+cfg.SequenceDur)
             responseEvents(cTap,1).trial_type      = 'response';
             responseEvents(cTap,1).patternID       = currSeq(currPatIdx).patternID;
             responseEvents(cTap,1).segmCateg       = currSeq(currPatIdx).segmCateg;
+            responseEvents(cTap,1).segmentNum      = currSeq(currPatIdx).segmentNum;
+            responseEvents(cTap,1).segmentOnset    = currSeq(currPatIdx).segmentOnset;
+            responseEvents(cTap,1).stepNum         = currSeq(currPatIdx).stepNum;
+            responseEvents(cTap,1).stepOnset       = currSeq(currPatIdx).stepOnset;
+            
             responseEvents(cTap,1).F0              = currSeq(currPatIdx).F0;
             responseEvents(cTap,1).gridIOI         = currSeq(currPatIdx).gridIOI;
             responseEvents(cTap,1).patternAmp      = currSeq(currPatIdx).patternAmp;
+            
+            
+            % ----- log tsv -----
+            % now we have some time before the subject taps again so let's
+            % write to the log file            
+            % each tap on one row (colum names: subjectNum, runNum, expParam.seqi, tapOnset)
+            saveOutput(cfg, expParam, 'updateTap',tapTime);
+            %saveOutput(cfg, expParam, 'updateTap',responseEvents);
+            
             % -----------------
             
             % increase tap counter
