@@ -45,9 +45,14 @@ try
     
     % Prepare for the output logfiles - BIDS
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
-        'patternID','category','F0','gridIOI','patternAmp');
+        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+        'category','F0','gridIOI','patternAmp');
     
+ 
+            
     % add a keypress to wait to check the monitor - for fMRI exp
+    
+    
     
     % task instructions
     displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
@@ -91,7 +96,8 @@ try
         end
         
         saveEventsFile('save', expParam, currSeq,'sequenceNum',...
-                'patternID','segmCateg','F0','gridIOI','patternAmp');
+        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+        'category','F0','gridIOI','patternAmp');
             
         
 
@@ -123,8 +129,10 @@ try
             
             
             saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
-                'patternID','segmCateg','F0','gridIOI','patternAmp');
-            
+                'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+                'category','F0','gridIOI','patternAmp');
+
+    
         end
         
         % ===========================================

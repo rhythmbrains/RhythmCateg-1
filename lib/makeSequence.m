@@ -89,13 +89,16 @@ currTimePoint = 0;
 for stepi=1:cfg.nStepsPerSequence
     
     
-   
+    % take the timestamp for logging the current step time
+    stepOnset  = currTimePoint;
     
     
     %% loop over segments in 1 sequence
     % to make 
     for segmi=1:cfg.nSegmPerStep
         
+        % take the  timestamp for logging the current segment time
+        segmentOnset  = currTimePoint;
         
         % Determine which segment category this is (A or B), 
         % the first 'cfg.nSegmentA' segments will be category A, 
@@ -240,6 +243,11 @@ for stepi=1:cfg.nStepsPerSequence
             seq(cPat,1).patternID   = currPatternID;
             seq(cPat,1).segmCateg   = currCategLabel;
             seq(cPat,1).onset       = currTimePoint;
+            seq(cPat,1).segmentNum  = segmi;
+            seq(cPat,1).segmentOnset = segmentOnset;
+            seq(cPat,1).stepNum    = stepi;
+            seq(cPat,1).stepOnset  = stepOnset;
+            
             seq(cPat,1).pattern     = currPattern; 
             seq(cPat,1).F0          = currF0;
             seq(cPat,1).gridIOI     = currGridIOI;
@@ -255,7 +263,7 @@ for stepi=1:cfg.nStepsPerSequence
             
                        
             
-        end
+        end % segment loop 
         
         
         % add delay after each category (if applicable)
@@ -266,10 +274,10 @@ for stepi=1:cfg.nStepsPerSequence
             currTimePoint = currTimePoint + cfg.delayAfterB;         
         end
         
-        
+
     end
     
-    
+
 end
 
 

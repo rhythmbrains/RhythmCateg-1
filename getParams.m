@@ -49,7 +49,7 @@ expParameters.outputDir = fullfile(...
 
 
 %  boolean for equating the dB across different tones for behavioral exp
-if strcmp(lowercase(cfg.device), 'scanner')
+if strcmpi(cfg.device, 'scanner')
     expParameters.equateSoundAmp = 0;
 else
     expParameters.equateSoundAmp = 1;

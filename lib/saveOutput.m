@@ -68,7 +68,7 @@ if strcmp(expParam.task,'tapMainExp')
             
         % ==================================================================================     
         case 'updateTap'
-            
+                        
             % each tap on one row
             fprintf(expParam.fidTap, '%d\t%d\t%d\t%f\n', ...
                 expParam.subjectNb, ...
