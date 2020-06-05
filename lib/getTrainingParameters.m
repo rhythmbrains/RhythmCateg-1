@@ -10,6 +10,7 @@ function [cfg,expParam] = getTrainingParameters(cfg,expParam)
 % patterns/tracks to be played - will be tried from the first to the last
 % rhythmic patterns
 cfg.patterns            = {'Bugz_4_Hugz_Dub(120BPM).wav', ...
+                           'Bugz_4_Hugz_Dub(120BPM).wav', ...
                             [1 1 1 1 0 1 1 1 0 0 1 0 ],...                             
                             [1 1 1 1 0 1 1 1 0 0 1 0 ]}; 
                        
@@ -23,12 +24,16 @@ nTracks = length(cfg.isTrackIdx);
 
 %% tapping training parameters
 % tapping cue sounds (metronome)
-cfg.cuePeriodGrid = [4,4,3]; % each pattern needs a metronome period assigned (units: N-grid-ticks)
+cfg.cuePeriodGrid = [4,4,4,3]; % each pattern needs a metronome period assigned (units: N-grid-ticks)
+
+% number of windows from the begining of each pattern/track, where no cue
+% is presented and no tapping expected (equivalent to "listen-only" instruction)
+cfg.nWinNoCue = [2, 0, 0, 0]; 
 
 % time-interval of one grid-tick (IOI between events)
 % it's not necessarily the duration of the sound. 
 % This needs to be set separately for each pattern (or track)
-cfg.gridIOI = [0.125, 0.200, 0.200]; 
+cfg.gridIOI = [0.125, 0.125, 0.200, 0.200]; 
 
 % decreasing the DB along with the high accuracy of tapping 
 cfg.cueDB = [0, -15, -Inf]; % [0, -14, -25, -Inf] SNRs between rhythm and metronome audio (to be used across levels)
@@ -143,7 +148,7 @@ end
 
 %% generate example stimulus/sequence for only volume setting
 
-volTestSound = makeStimTrain(cfg,1,1,0); 
+volTestSound = makeStimTrain(cfg,1,1,0,0); 
 % make sequence for 2 channels
 cfg.volumeSettingSound = repmat(volTestSound.s,2,1); 
 
@@ -180,6 +185,7 @@ for pati=1:length(cfg.patterns)
     else
         % if not, just write empty text
         expParam.afterSeqInstruction{pati} = ''; 
+        warning(sprintf('no instructions found for pattern %d',pati)); 
     end    
 end
 

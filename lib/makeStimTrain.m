@@ -1,4 +1,4 @@
-function [seq] = makeStimTrain(cfg,currPatterni,cueDBleveli,soundIdx)
+function [seq] = makeStimTrain(cfg, currPatterni, cueDBleveli, currWini, soundIdx)
 % 
 % Input
 % -----
@@ -8,6 +8,9 @@ function [seq] = makeStimTrain(cfg,currPatterni,cueDBleveli,soundIdx)
 %     index of the currently played pattern (or track)
 % cueDBleveli: int
 %     index of the currently used cue dB level
+% currWini: int
+%     index of the current analysis window (for the current sequence)
+%     if currWini <= cfg.nWinNoCue, the cue will be silenced
 % audioIdx: int
 %     optional, current index position direclty after the audio that's been already 
 %     pushed to buffer and played
@@ -19,6 +22,14 @@ function [seq] = makeStimTrain(cfg,currPatterni,cueDBleveli,soundIdx)
 % 
 %============================================================================================
 
+seq                 = []; 
+seq.fs              = cfg.fs; 
+
+if currWini <= cfg.nWinNoCue(currPatterni)
+    seq.cueDB = -Inf; 
+else
+    seq.cueDB = cfg.cueDB(cueDBleveli); 
+end
 
 %% this is an audio track that has been loaded
 if ismember(currPatterni, cfg.isTrackIdx)
@@ -28,11 +39,8 @@ if ismember(currPatterni, cfg.isTrackIdx)
         error('you need to supply audioIdx when calling makeStimTrain with audio track!')
     end
         
-    seq                 = []; 
-    seq.fs              = cfg.fs; 
-    seq.cueDB           = cfg.cueDB(cueDBleveli); 
-    seq.idxEnd          = min(soundIdx + round(cfg.winDur(currPatterni)*cfg.fs), ...
-                              length(cfg.soundTracks{currPatterni}) ); 
+    seq.idxEnd = min(soundIdx + round(cfg.winDur(currPatterni)*cfg.fs), ...
+                     length(cfg.soundTracks{currPatterni}) ); 
     
     % scale beat track rms
     soundBeat = cfg.soundTrackBeat{currPatterni}(soundIdx+1 : seq.idxEnd); 
@@ -51,10 +59,7 @@ if ismember(currPatterni, cfg.isTrackIdx)
 else
 
     % add parameters to output structure 
-    seq                 = []; 
-    seq.fs              = cfg.fs; 
     seq.pattern         = cfg.patterns{currPatterni}; 
-    seq.cueDB           = cfg.cueDB(cueDBleveli); 
     seq.cue             = repmat([1,zeros(1,cfg.cuePeriodGrid(currPatterni)-1)],...
                                     1,floor(length(seq.pattern)/cfg.cuePeriodGrid(currPatterni))); 
     seq.nCycles         = cfg.nCyclesPerWin; 
