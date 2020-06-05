@@ -27,8 +27,8 @@ end
 
 
 %assign them into its structure to carry around
-datalog.subjectNumber = subjectNumber;
-datalog.runNumber = runNumber;
+datalog.subjectNb = subjectNumber;
+datalog.runNb = runNumber;
 
 
 

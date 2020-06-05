@@ -122,6 +122,10 @@ elseif strcmp(expParam.task,'tapTraining')
 
         % ==================================================================================
         case 'savemat'
+            
+            % remove the big audiofiles so the file is not massive
+            cfg.soundTrackBeat = []; 
+            cfg.soundTracks = []; 
 
             % save all config structures and datalog to .mat file
             save(fullfile([Filename,'_tapTraining.mat']),'cfg', 'expParam')
