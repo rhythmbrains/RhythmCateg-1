@@ -1,39 +1,111 @@
 function [cfg,expParam] = getTrainingParameters(cfg,expParam)
 
-% % % 
-
+% % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% 
 % check if some parameters could be inserted  into
 % getParams.m script instead
+% 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
-% % %
 
-% patterns/tracks to be played - will be tried from the first to the last
-% rhythmic patterns
-cfg.patterns            = {'Bugz_4_Hugz_Dub(120BPM).wav', ...
-                           'Bugz_4_Hugz_Dub(120BPM).wav', ...
-                            [1 1 1 1 0 1 1 1 0 0 1 0 ],...                             
-                            [1 1 1 1 0 1 1 1 0 0 1 0 ]}; 
-                       
+% there are 3 types is "sequence" that can be used (specified in cfg.patterns): 
+% 
+%     1) pattern:               1 cycle specified as a vector of ones (sounds) and zeros (silences)
+% 
+%     2) audio track:           provide name of the audio file as string (must be saved in "stimuli" 
+%                               folder
+% 
+%     3) nonrepeating sequence: use string 'GrahnComplex' to use complex patterns,
+%                               or 'GrahnSimple' to use simple patterns
+%     
+% patterns/ audio tracks will be tried from the first to the last
+cfg.patterns = {'Flabaire-Alpha2(120BPM).wav', ...
+                'YCreate-IDontWantToBe(1.364Hz-cut3min).wav',...  
+                'Bugz_4_Hugz_Dub.wav', ...
+                'GrahnComplex', ...
+                'GrahnComplex'}; 
+                
+            
 % number of patterns
 cfg.nPatterns   = length(cfg.patterns);   
 
 % find which items are audio tracks
 cfg.isTrackIdx = find( cellfun(@(x)strcmp(class(x),'char'), cfg.patterns) ); 
 
+% grahn-like sequences are not audio tracks!
+cfg.isTrackIdx(find(~cellfun(@isempty, regexpi(cfg.patterns(cfg.isTrackIdx),'grahn')))) = []; 
+
 nTracks = length(cfg.isTrackIdx); 
 
 %% tapping training parameters
-% tapping cue sounds (metronome)
-cfg.cuePeriodGrid = [4,4,4,3]; % each pattern needs a metronome period assigned (units: N-grid-ticks)
 
-% number of windows from the begining of each pattern/track, where no cue
-% is presented and no tapping expected (equivalent to "listen-only" instruction)
-cfg.nWinNoCue = [2, 0, 0, 0]; 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ---------
+% IMPORTANT:    Below are pattern/track-specific parameters!
+% ---------     Make sure you change all of them accordingly, after
+%               changing the track or pattern order above!!!
+% 
+
+% number of pattern cycles in each step/window of pattern: how many cycles
+% of the pattern will be repeated before tapping performance is evaluated
+% !!! for audio tracks, there are no cycles defined so  instead, 
+% this is the number of beats in a window (beat duration = cuePeriodGrid *
+% gridIOI) !!!
+cfg.nCyclesPerWin = [8,8,8,4,4]; 
+
+% tapping cue sounds (metronome)
+cfg.cuePeriodGrid = [4,4,4,4,3]; % each pattern needs a metronome period assigned (units: N-grid-ticks)
 
 % time-interval of one grid-tick (IOI between events)
 % it's not necessarily the duration of the sound. 
 % This needs to be set separately for each pattern (or track)
-cfg.gridIOI = [0.125, 0.125, 0.200, 0.200]; 
+cfg.gridIOI = [0.125, 1/(1.364)/4, 0.125, 0.190, 0.190]; 
+
+% max number of seconds the subject can spend on one pattern/track. If the
+% tapping is still not good after this time, the sequence will terminate
+% and continue to the next pattern/track. 
+% Important: this defines duration of listen-only tracks! (otherwise
+% they would never end). 
+cfg.timeOut = [180, 180, 180, 180, 180]; 
+
+% Each sequence (either pattern or audio track) has two parts. 
+% ------ PART 1 ------ 
+% No metronome cue is presented. 
+% Tapping is recorded, but not evalueated, and no feedback is 
+% provided to the participant. 
+
+% The duration of part 1 is defined by the parameter nWinNoCue, as the
+% number of windows from the begining of each pattern/track, where no cue
+% is presented 
+cfg.nWinNoCue = [4, 4, 4, 4, 0]; 
+
+% instruction for logging only for part 1 (if empty, default is
+% used: 'listen')
+cfg.taskPart1 = {'tap_alone', ...
+                 'tap_alone', ...
+                 'tap_alone', ...
+                 'tap_alone', ...
+                 'tap_with_bass'}; 
+
+% ------ PART 2 ------ 
+% Metronome cue is presented at the dB level defined by participants prior
+% tapping performance. Feedback about tapping is provided at the end of
+% each analysis window. 
+% The duraion of part 2 is till the end of the current sequence. 
+
+% instruction for logging only for part 2 (if empty, default is
+% used: 'tap')
+cfg.taskPart2 = {'tap_with_claps', ...
+                 'tap_with_claps', ...
+                 'tap_with_claps', ...
+                 'tap_with_bass', ...
+                 'tap_with_bass'}; 
+
+             
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 % decreasing the DB along with the high accuracy of tapping 
 cfg.cueDB = [0, -15, -Inf]; % [0, -14, -25, -Inf] SNRs between rhythm and metronome audio (to be used across levels)
@@ -42,12 +114,10 @@ cfg.cueDB = [0, -15, -Inf]; % [0, -14, -25, -Inf] SNRs between rhythm and metron
 % or number of SNR-levels
 cfg.nCueDB = length(cfg.cueDB); 
 
-% number of pattern cycles in each step/window of pattern: how many cycles
-% of the pattern will be repeated
-cfg.nCyclesPerWin = 4; 
-
 % duration (in seconds) of the each step/window of pattern
-cfg.winDur = cfg.nCyclesPerWin * ( cellfun(@length, cfg.patterns) .* cfg.gridIOI ); 
+% (note: the window duration for audio tracks will be changed later in this
+% script, the vale assigned here is not valid)
+cfg.winDur = cfg.nCyclesPerWin .* cellfun(@length, cfg.patterns) .* cfg.gridIOI; 
 
 % threshold for coefficient of variation (cv) of tap-beat asynchronies (defines good/bad tapping performance in each step)
 % the taps to be registered as correct "it" should be below the threshold
@@ -59,6 +129,8 @@ cfg.tapCvAsynchThr = 0.160;
 % if they tapped less than 70% of the maximum possible number of taps
 % it would be a bad trial below this point (70%)
 cfg.minNtapsProp = 0.7; 
+
+
 
 %% staircase parameters 
 % how many trials/windows do you need to go through staircase procedure
@@ -128,7 +200,7 @@ for tracki=1:nTracks
     seqDur      = round(length(sTrack) / cfg.fs); 
     nBeatsInSeq = floor(seqDur/beatPeriod); 
     beatTimes   = beatPeriod * [0 : nBeatsInSeq-1]; 
-    seqBeat       = zeros(1,length(sTrack)); 
+    seqBeat     = zeros(1,length(sTrack)); 
 
     sBeatIdx = round( beatTimes * cfg.fs ); 
     for i=1:length(sBeatIdx)   
@@ -138,11 +210,52 @@ for tracki=1:nTracks
     cfg.soundTrackBeat{cfg.isTrackIdx(tracki)} = seqBeat; 
 
     % get window duration in seconds
-    cfg.winDur(cfg.isTrackIdx(tracki)) = cfg.nCyclesPerWin * ...
-                                         cfg.cuePeriodGrid(cfg.isTrackIdx(tracki)) * ...
-                                         beatPeriod; 
+    cfg.winDur(cfg.isTrackIdx(tracki)) = cfg.nCyclesPerWin(cfg.isTrackIdx(tracki)) * beatPeriod; 
     
 end
+
+%% Grahn(2007) patterns
+
+cfg.grahn.fs = cfg.fs; 
+
+% read from txt files
+grahnPatSimple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
+grahnPatComplex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
+
+% get different metrics of the patterns
+cfg.grahn.patternSimple = getPatternInfo(grahnPatSimple, 'simple',cfg); 
+cfg.grahn.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg); 
+
+% total sound duration proportion to gridIOI _/```\_  
+cfg.grahn.soundDurProp = 1; % 100% of gridIOI
+% onset ramp duration                       _/     
+cfg.grahn.eventRampon = 0.05; % 5% of gridIOI 
+% offset ramp duration                             \_ 
+cfg.grahn.eventRampoff  = 0.020; % 10% of gridIOI
+
+% the grid interval can vary across steps or segments (gridIOI selected 
+% randomly from a set of possible values for each new step or segment) 
+cfg.grahn.gridIOI = 0.190; 
+
+% construct pattern (smallest item in sequence)
+cfg.grahn.nGridPoints = 12; % length(pat_complex(1).pattern)
+
+cfg.grahn.interPatternInterval = cfg.grahn.nGridPoints * cfg.grahn.gridIOI; 
+
+% construct pitch features of the stimulus 
+% the pitch (F0) of the tones making up the patterns can vary 
+% (it can be selected randomly from a set of possible values)
+cfg.grahn.minF0 	= 350; % minimum possible F0
+cfg.grahn.maxF0 	= 900; % maximum possible F0
+cfg.grahn.nF0       = 5; % number of unique F0-values between the limits
+cfg.grahn.F0s       = logspace(log10(cfg.grahn.minF0),log10(cfg.grahn.maxF0),cfg.grahn.nF0); 
+
+% use the requested gain of each tone to adjust the base amplitude
+cfg.grahn.F0sAmpGain = equalizePureTones(cfg.grahn.F0s,[], []);
+cfg.grahn.F0sAmps = 1/sqrt(2) * maxAllowedRms * cfg.grahn.F0sAmpGain; 
+
+
+
 
 
 
@@ -155,39 +268,110 @@ cfg.volumeSettingSound = repmat(volTestSound.s,2,1);
 
 
 %% Instructions
+% !!! NOTE: use UTF-8 encoding, otherwise there will be problem with quotation marks
 
+% -----------------------------------
 % general task instructions and intro
-instrFid = fopen(fullfile('lib','instr','instrTrainingIntro1'),'r'); 
-expParam.taskInstruction = []; 
-while ~feof(instrFid)
-    expParam.taskInstruction = [expParam.taskInstruction, fgets(instrFid)]; 
+% -----------------------------------
+% These need to be saved in separate files, named: 'instrTrainingIntro#'
+% The text in each file will be succesively displayed on the screen at the
+% begining of the experiment. Every time, the script will wait for
+% keypress. 
+
+dirInstr = dir(fullfile('lib','instr','tapTrainer','instrTrainingIntro*')); 
+expParam.taskInstruction = cell(1,length(dirInstr)); 
+for i=1:length(dirInstr)
+    instrFid = fopen(fullfile(dirInstr(i).folder, dirInstr(i).name),'r','n','UTF-8'); 
+    while ~feof(instrFid)
+        expParam.taskInstruction{i} = [expParam.taskInstruction{i}, fgets(instrFid)]; 
+    end
+    fclose(instrFid); 
 end
-fclose(instrFid); 
 
-
-% after each pattern (each sequence), these can be specific instruction
-% that explains some important concepts that should be learned by the
+% ------------------------------
+% sequence-specific instructions
+% ------------------------------
+% for each pattern/track (each sequence), there can be specific
+% instructions, which explains some important concepts that should be learned by the
 % participants. 
+expParam.beforeSeqInstruction = cell(1,length(cfg.patterns)); 
 expParam.afterSeqInstruction = cell(1,length(cfg.patterns)); 
 
-% loop through each pattern to present instr for each level
+% also, for each sequence, we can specify unique instructions to be
+% displayed during sound presentation
+expParam.duringSeqInstruction_part1 = cell(1,length(cfg.patterns)); 
+expParam.duringSeqInstruction_part2 = cell(1,length(cfg.patterns)); 
+
+
+% loop to load the instructions for each pattern/track
 for pati=1:length(cfg.patterns)
-    % look in the instr folder
-    if exist(fullfile('lib','instr',sprintf('instrTrainingAfterRhythm%d',pati)))
+    
+    % BEFORE each sequence
+    if exist(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingBeforeSeq%d',pati)))
         % if you can find a text file, load it
-        instrFid = fopen(fullfile('lib','instr',sprintf('instrTrainingAfterRhythm%d',pati)),'r'); 
+        instrFid = fopen(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingBeforeSeq%d',pati)),'r','n','UTF-8'); 
         tmptxt = []; 
-        while ~feof(instrFid)
-            tmptxt = [tmptxt, fgets(instrFid)]; 
-        end
+        while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
+        fclose(instrFid); 
+        expParam.beforeSeqInstruction{pati} = tmptxt; 
+    else
+        % if not, just write empty text
+        expParam.beforeSeqInstruction{pati} = ''; 
+        warning(sprintf('no instructions found before pattern %d',pati)); 
+    end    
+    
+    % AFTER each sequence
+    if exist(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingAfterSeq%d',pati)))
+        % if you can find a text file, load it
+        instrFid = fopen(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingAfterSeq%d',pati)),'r','n','UTF-8'); 
+        tmptxt = []; 
+        while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
         fclose(instrFid); 
         expParam.afterSeqInstruction{pati} = tmptxt; 
     else
         % if not, just write empty text
         expParam.afterSeqInstruction{pati} = ''; 
-        warning(sprintf('no instructions found for pattern %d',pati)); 
+        warning(sprintf('no instructions found after pattern %d',pati)); 
     end    
+    
+    % during each sequence (part 1)
+    if exist(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingDuringSeq%d_part1',pati)))
+        % if you can find a text file, load it
+        instrFid = fopen(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingDuringSeq%d_part1',pati)),'r','n','UTF-8'); 
+        tmptxt = []; 
+        while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
+        fclose(instrFid); 
+        expParam.duringSeqInstruction_part1{pati} = tmptxt; 
+    else
+        % if not, just write empty text
+        expParam.duringSeqInstruction_part1{pati} = ''; 
+        warning(sprintf('no instructions found during pattern %d (part 1)',pati)); 
+    end   
+    
+    % during each sequence (part 2)
+    if exist(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingDuringSeq%d_part2',pati)))
+        % if you can find a text file, load it
+        instrFid = fopen(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingDuringSeq%d_part2',pati)),'r','n','UTF-8'); 
+        tmptxt = []; 
+        while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
+        fclose(instrFid); 
+        expParam.duringSeqInstruction_part2{pati} = tmptxt; 
+    else
+        % if not, just write empty text
+        expParam.duringSeqInstruction_part2{pati} = ''; 
+        warning(sprintf('no instructions found during pattern %d (part 2)',pati)); 
+    end    
+    
+    
+    
+    
 end
+
+
+
+
+
+
 
 
 end
