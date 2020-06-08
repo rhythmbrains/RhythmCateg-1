@@ -190,22 +190,80 @@ cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
 
 %% Task Instructions
 
-instrFid = fopen(fullfile('lib','instr','instrMainExpIntro1'),'r'); 
-expParam.taskInstruction = []; 
+loadPathInstr = fullfile('lib','instr','mainExp'); 
+
+% -------------------
+% intro instructions
+% -------------------
+% These need to be saved in separate files, named: 'instrMainExpIntro#'
+% The text in each file will be succesively (based on #) displayed on 
+% the screen at the begining of the experiment. Every time, the script 
+% will wait for a keypress. 
+
+dirInstr = dir(fullfile(loadPathInstr,'instrMainExpIntro*')); 
+expParam.introInstruction = cell(1,length(dirInstr)); 
+for i=1:length(dirInstr)
+    instrFid = fopen(fullfile(loadPathInstr, dirInstr(i).name),'r','n','UTF-8'); 
+    while ~feof(instrFid)
+        expParam.introInstruction{i} = [expParam.introInstruction{i}, fgets(instrFid)]; 
+    end
+    fclose(instrFid); 
+end
+
+% ------------------------
+% general task instructions
+% ------------------------
+% This is a general summary of the instructions. Participants can toggle
+% these on the screen between sequences if they forget, or want to make
+% sure they understand their task. 
+
+dirInstr = dir(fullfile(loadPathInstr,'instrMainExpGeneral')); 
+expParam.generalInstruction = ''; 
+instrFid = fopen(fullfile(loadPathInstr, dirInstr.name),'r','n','UTF-8'); 
 while ~feof(instrFid)
-    expParam.taskInstruction = [expParam.taskInstruction, fgets(instrFid)]; 
+    expParam.generalInstruction = [expParam.generalInstruction, fgets(instrFid)]; 
 end
 fclose(instrFid); 
 
 
+
+% ------------------------------------------------
+% instruction showing info about sequence curation 
+% ------------------------------------------------
+
 expParam.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.SequenceDur/60), ...
                             'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n']; 
-                           
+    
 
+                        
+% ------------------------------
+% sequence-specific instructions
+% ------------------------------
 
-expParam.delayInstruction = ['The %d out of %d is over!\n\n', ...
+% this is general instruction displayed after each sequence
+expParam.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
                             'You can have a break. \n\n',...
                             'Good luck!\n\n']; 
+
+
+% For each sequence, there can be additional instructions. 
+% Save as text file with name: 'instrMainExpDelay#', 
+% where # is the index of the sequence after which the
+% instruction should appear. 
+
+dirInstr = dir(fullfile(loadPathInstr,'instrMainExpDelay*')); 
+expParam.seqSpecificDelayInstruction = cell(1, expParam.numSequences); 
+for i=1:length(dirInstr)
+    
+    targetSeqi = regexp(dirInstr(i).name, '(?<=instrMainExpDelay)\d*', 'match'); 
+    targetSeqi = str2num(targetSeqi{1}); 
+    instrFid = fopen(fullfile(loadPathInstr, dirInstr(i).name),'r','n','UTF-8'); 
+    while ~feof(instrFid)
+        expParam.seqSpecificDelayInstruction{targetSeqi} = [expParam.seqSpecificDelayInstruction{i}, fgets(instrFid)]; 
+    end
+    fclose(instrFid); 
+end
+
 
 
     

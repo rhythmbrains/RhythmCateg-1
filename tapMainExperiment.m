@@ -53,9 +53,11 @@ try
     % add a keypress to wait to check the monitor - for fMRI exp
     
     
+    % show instructions and do initial volume setting
+    for instri=1:length(expParam.introInstruction)
+        displayInstr(expParam.introInstruction{instri},cfg,'setVolume');         
+    end
     
-    % task instructions
-    displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
     % more instructions
     displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
 
@@ -162,18 +164,38 @@ try
         %% Pause
 
         if seqi<expParam.numSequences
+            
             % pause (before next sequence starts, wait for key to continue)
             if expParam.sequenceDelay
-                fbkToDisp = sprintf(expParam.delayInstruction, seqi, expParam.numSequences);
-                displayInstr(fbkToDisp,cfg,'setVolume');
+                
+                % show sequence-specific instruction if there is some
+                % defined
+                if ~isempty(expParam.seqSpecificDelayInstruction{seqi})
+                    displayInstr(expParam.seqSpecificDelayInstruction{seqi}, ...
+                                 cfg, ...
+                                 'setVolumeAndGeneralInstrOption', ...
+                                 'generalInstrTxt', expParam.generalInstruction);
+                end
+                
+                % show general instruction after each sequence
+                fbkToDisp = sprintf(expParam.generalDelayInstruction, seqi, expParam.numSequences);
+                displayInstr(fbkToDisp, ...
+                             cfg, ...
+                             'setVolumeAndGeneralInstrOption', ...
+                             'generalInstrTxt', expParam.generalInstruction);
+                
+                % pause for N secs before starting next sequence
                 WaitSecs(expParam.pauseSeq);
             end
-
+            
         else
+            
             % end of experient
             displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);
+            
             % wait 3 seconds and end the experiment
             WaitSecs(3);
+            
         end
 
     end % sequence loop
