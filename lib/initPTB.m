@@ -59,9 +59,10 @@ AssertOpenGL;
         if cfg.testingTranspScreen
             PsychDebugWindowConfiguration
             Screen('Preference', 'SkipSyncTests', 1);
-            cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
-            
         end
+        
+        cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
+            
         
         
     else       

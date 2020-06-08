@@ -45,10 +45,12 @@ try
     % Prepare for the output logfiles
     datalog = saveOutput(cfg, expParam, 'open'); 
 
-
     % show instructions and do initial volume setting
-    displayInstr(expParam.taskInstruction,cfg,'setVolume');         
+    for instri=1:length(expParam.taskInstruction)
+        displayInstr(expParam.taskInstruction{instri},cfg,'setVolume');         
+    end
     
+        
     % simultenaous feedback 
     fbkOnScreen = false; 
     
@@ -120,6 +122,44 @@ try
         % update audio index (only relevant for audio tracks)
         soundIdx = seq.idxEnd; 
         
+        
+        %% display sequence-specific instructions
+        
+        % before the sequence
+        txt = expParam.beforeSeqInstruction{currPatterni}; 
+        displayInstr(txt,cfg,'setVolume');  
+
+        % during sequence (part 1)
+        if currWini <= cfg.nWinNoCue(currPatterni)
+                    % if part 1 of the sequence
+                    % look for specific instructions and task
+                    instr2disp = expParam.duringSeqInstruction_part1{currPatterni}; 
+                    currTask = cfg.taskPart1{currPatterni};                 
+                    % if not available, use default
+                    if isempty(instr2disp)
+                        instr2disp = 'LISTEN'; 
+                    end
+                    if isempty(currTask)
+                        currTask = 'listen'; 
+                    end
+                else            
+                    % if part 2 of the sequence
+                    % look for specific instructions and task
+                    instr2disp = expParam.duringSeqInstruction_part2{currPatterni}; 
+                    currTask = cfg.taskPart2{currPatterni};                 
+                    % if not available, use default
+                    if isempty(instr2disp)
+                        instr2disp = 'TAP'; 
+                    end
+                    if isempty(currTask)
+                        currTask = 'tap'; 
+                    end
+        end
+       
+        % display the instruction on the screen
+        displayInstr(instr2disp,cfg,'instrAndQuitOption');   
+               
+        
         %% fill the buffer 
         % first, fill the buffer with 60s silence
         
@@ -131,18 +171,7 @@ try
         % buffer to allocate
         PsychPortAudio('FillBuffer', cfg.pahandle, zeros(2, 60*cfg.fs)); 
         
-        
         %% start playback
-
-        if currWini <= cfg.nWinNoCue(currPatterni)
-            % change screen to "LISTEN" instruction 
-            displayInstr('LISTEN',cfg,'instrAndQuitOption');   
-            currInstr = 'listen'; 
-        else
-            % change screen to "TAP" instruction 
-            displayInstr('TAP',cfg,'instrAndQuitOption');   
-            currInstr = 'tap'; 
-        end
         
         % start playback (note: set repetitions=0, otherwise it will not allow you to seamlessly push more data into the buffer once the sound is playing)  
         % starts to play whats in the buffer and play on whatever is in on
@@ -197,7 +226,7 @@ try
                         datalog.subjectNb,...               % subject id
                         currPatterni, ...                   % pattern 
                         currPatternStr, ...                 % name of the current pattern/track
-                        currInstr, ...                      % instruction 
+                        currTask, ...                      % instruction 
                         currSeqStartTime,...                % machine time of sequence audio start
                         cuePeriodTime,...                   % cue (i.e. metronome) period (N of grid-points)
                         seq.cueDB,...                       % cue (i.e. metronome) level in dB (SNR)
@@ -231,17 +260,37 @@ try
                     if (GetSecs-fbkOnScreenTime)>cfg.fbkOnScreenMaxtime
                         fbkOnScreen = false; 
                         if currWini <= cfg.nWinNoCue(currPatterni)
-                            % change screen to "LISTEN" instruction 
-                            displayInstr('LISTEN',cfg,'instrAndQuitOption');   
-                        else
-                            % change screen to "TAP" instruction 
-                            displayInstr('TAP',cfg,'instrAndQuitOption');   
+                            % if part 1 of the sequence
+                            % look for specific instructions and task
+                            instr2disp = expParam.duringSeqInstruction_part1{currPatterni}; 
+                            currTask = cfg.taskPart1{currPatterni};                 
+                            % if not available, use default
+                            if isempty(instr2disp)
+                                instr2disp = 'LISTEN'; 
+                            end
+                            if isempty(currTask)
+                                currTask = 'listen'; 
+                            end
+                        else            
+                            % if part 2 of the sequence
+                            % look for specific instructions and task
+                            instr2disp = expParam.duringSeqInstruction_part2{currPatterni}; 
+                            currTask = cfg.taskPart2{currPatterni};                 
+                            % if not available, use default
+                            if isempty(instr2disp)
+                                instr2disp = 'TAP'; 
+                            end
+                            if isempty(currTask)
+                                currTask = 'tap'; 
+                            end
                         end
+                        % display the instruction on the screen
+                        displayInstr(instr2disp,cfg,'instrAndQuitOption');   
                     end
                 end       
                 
                 
-            end      
+            end % end of tapping while loop
 
 
             %% 
@@ -315,13 +364,14 @@ try
             % feedback for the current window (good/bad)
             feedbacks          = [feedbacks, currPerform]; 
             % instructions for the current window (listen/tap) 
-            instructions       = [instructions, currInstr]; 
+            instructions       = [instructions, currTask]; 
 
             %% update next window parameters
             % staircase here to adapt
             
             % if we've used all samples in the audio track
-            if isfield(seq,'AUDIO_END')
+            % of we have reached time out 
+            if isfield(seq,'AUDIO_END') | (GetSecs-currSeqStartTime)>cfg.timeOut(currPatterni)
 
                 % stop the audio
                 PsychPortAudio('Stop',cfg.pahandle,1);
@@ -333,18 +383,34 @@ try
                 
             % this was a listening-only window, don't evalueate performance
             elseif currWini <= cfg.nWinNoCue(currPatterni)
-            
-                % change the instruction on the screen for the following
-                % window
+
                 if currWini+1 <= cfg.nWinNoCue(currPatterni)
-                    % change screen to "LISTEN" instruction 
-                    displayInstr('LISTEN',cfg,'instrAndQuitOption');   
-                    currInstr = 'listen'; 
-                else
-                    % change screen to "TAP" instruction 
-                    displayInstr('TAP',cfg,'instrAndQuitOption');   
-                    currInstr = 'tap'; 
+                    % if part 1 of the sequence
+                    % look for specific instructions and task
+                    instr2disp = expParam.duringSeqInstruction_part1{currPatterni}; 
+                    currTask = cfg.taskPart1{currPatterni};                 
+                    % if not available, use default
+                    if isempty(instr2disp)
+                        instr2disp = 'LISTEN'; 
+                    end
+                    if isempty(currTask)
+                        currTask = 'listen'; 
+                    end
+                else            
+                    % if part 2 of the sequence
+                    % look for specific instructions and task
+                    instr2disp = expParam.duringSeqInstruction_part2{currPatterni}; 
+                    currTask = cfg.taskPart2{currPatterni};                 
+                    % if not available, use default
+                    if isempty(instr2disp)
+                        instr2disp = 'TAP'; 
+                    end
+                    if isempty(currTask)
+                        currTask = 'tap'; 
+                    end
                 end
+                % display the instruction on the screen
+                displayInstr(instr2disp,cfg,'instrAndQuitOption');   
                 
                 
             % if this window was the last dB level, and the last-dB-level
@@ -475,7 +541,7 @@ try
             txt = expParam.afterSeqInstruction{currPatterni}; 
             displayInstr(txt,cfg,'waitForKeypress');  
             % end of experient
-            displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);  
+            displayInstr('The training is over now. \n\n\nTHANK YOU!\n\n\nPlease continue to the Main Experiment.',cfg);  
             % wait 3 seconds and end the experiment
             WaitSecs(3); 
             break
