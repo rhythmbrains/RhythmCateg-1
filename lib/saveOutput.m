@@ -68,7 +68,7 @@ if strcmp(expParam.task,'tapMainExp')
             
         % ==================================================================================     
         case 'updateTap'
-            
+                        
             % each tap on one row
             fprintf(expParam.fidTap, '%d\t%d\t%d\t%f\n', ...
                 expParam.subjectNb, ...
@@ -107,9 +107,11 @@ elseif strcmp(expParam.task,'tapTraining')
             expParam.fidTapTrainer = fopen([Filename,'_tapTraining.tsv'], 'w'); %'a'
 
             % print header
-            fprintf(expParam.fidTapTrainer, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', ...
+            fprintf(expParam.fidTapTrainer, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', ...
             'subjectID',...             % subject id
-            'pattern',...               % pattern 
+            'pattern',...               % cuurent pattern index
+            'patternName', ...          % name of the current pattern/track
+            'instruction',...           % listen or tap 
             'seqStartTime',...          % machine time of sequence audio start
             'cuePeriod',...             % cue (i.e. metronome) period (N of grid-points)
             'cueLeveldB',...            % cue (i.e. metronome) level in dB 

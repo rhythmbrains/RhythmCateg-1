@@ -45,12 +45,19 @@ try
     
     % Prepare for the output logfiles - BIDS
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
-        'patternID','category','F0','gridIOI','patternAmp');
+        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+        'category','F0','gridIOI','patternAmp');
     
+ 
+            
     % add a keypress to wait to check the monitor - for fMRI exp
     
-    % task instructions
-    displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
+    
+    % show instructions and do initial volume setting
+    for instri=1:length(expParam.introInstruction)
+        displayInstr(expParam.introInstruction{instri},cfg,'setVolume');         
+    end
+    
     % more instructions
     displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
 
@@ -91,7 +98,8 @@ try
         end
         
         saveEventsFile('save', expParam, currSeq,'sequenceNum',...
-                'patternID','segmCateg','F0','gridIOI','patternAmp');
+        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+        'segmCateg','F0','gridIOI','patternAmp');
             
         
 
@@ -123,8 +131,10 @@ try
             
             
             saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
-                'patternID','segmCateg','F0','gridIOI','patternAmp');
-            
+                'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+                'segmCateg','F0','gridIOI','patternAmp');
+
+    
         end
         
         % ===========================================
@@ -154,18 +164,38 @@ try
         %% Pause
 
         if seqi<expParam.numSequences
+            
             % pause (before next sequence starts, wait for key to continue)
             if expParam.sequenceDelay
-                fbkToDisp = sprintf(expParam.delayInstruction, seqi, expParam.numSequences);
-                displayInstr(fbkToDisp,cfg,'setVolume');
+                
+                % show sequence-specific instruction if there is some
+                % defined
+                if ~isempty(expParam.seqSpecificDelayInstruction{seqi})
+                    displayInstr(expParam.seqSpecificDelayInstruction{seqi}, ...
+                                 cfg, ...
+                                 'setVolumeAndGeneralInstrOption', ...
+                                 'generalInstrTxt', expParam.generalInstruction);
+                end
+                
+                % show general instruction after each sequence
+                fbkToDisp = sprintf(expParam.generalDelayInstruction, seqi, expParam.numSequences);
+                displayInstr(fbkToDisp, ...
+                             cfg, ...
+                             'setVolumeAndGeneralInstrOption', ...
+                             'generalInstrTxt', expParam.generalInstruction);
+                
+                % pause for N secs before starting next sequence
                 WaitSecs(expParam.pauseSeq);
             end
-
+            
         else
+            
             % end of experient
             displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);
+            
             % wait 3 seconds and end the experiment
             WaitSecs(3);
+            
         end
 
     end % sequence loop

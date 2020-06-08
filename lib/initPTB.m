@@ -18,6 +18,7 @@ AssertOpenGL;
     
     KbName('UnifyKeyNames');
     cfg.keywait         = KbName({'RETURN'}); % press enter to start bloc
+    cfg.keyToggleInstr  = KbName({'I'}); % press I to show/remove general instructions from the screen
     cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit 
     cfg.keytap          = KbName('SPACE'); 
     cfg.keyVolUp        = KbName('UpArrow'); 
@@ -58,9 +59,10 @@ AssertOpenGL;
         if cfg.testingTranspScreen
             PsychDebugWindowConfiguration
             Screen('Preference', 'SkipSyncTests', 1);
-            cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
-            
         end
+        
+        cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
+            
         
         
     else       
