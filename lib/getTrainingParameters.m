@@ -270,6 +270,8 @@ cfg.volumeSettingSound = repmat(volTestSound.s,2,1);
 %% Instructions
 % !!! NOTE: use UTF-8 encoding, otherwise there will be problem with quotation marks
 
+loadPathInstr = fullfile('lib','instr','tapTrainer'); 
+
 % -----------------------------------
 % general task instructions and intro
 % -----------------------------------
@@ -278,10 +280,10 @@ cfg.volumeSettingSound = repmat(volTestSound.s,2,1);
 % begining of the experiment. Every time, the script will wait for
 % keypress. 
 
-dirInstr = dir(fullfile('lib','instr','tapTrainer','instrTrainingIntro*')); 
+dirInstr = dir(fullfile(loadPathInstr,'instrTrainingIntro*')); 
 expParam.taskInstruction = cell(1,length(dirInstr)); 
 for i=1:length(dirInstr)
-    instrFid = fopen(fullfile(dirInstr(i).folder, dirInstr(i).name),'r','n','UTF-8'); 
+    instrFid = fopen(fullfile(loadPathInstr, dirInstr(i).name),'r','n','UTF-8'); 
     while ~feof(instrFid)
         expParam.taskInstruction{i} = [expParam.taskInstruction{i}, fgets(instrFid)]; 
     end
@@ -307,9 +309,9 @@ expParam.duringSeqInstruction_part2 = cell(1,length(cfg.patterns));
 for pati=1:length(cfg.patterns)
     
     % BEFORE each sequence
-    if exist(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingBeforeSeq%d',pati)))
+    if exist(fullfile(loadPathInstr,sprintf('instrTrainingBeforeSeq%d',pati)))
         % if you can find a text file, load it
-        instrFid = fopen(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingBeforeSeq%d',pati)),'r','n','UTF-8'); 
+        instrFid = fopen(fullfile(loadPathInstr,sprintf('instrTrainingBeforeSeq%d',pati)),'r','n','UTF-8'); 
         tmptxt = []; 
         while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
         fclose(instrFid); 
@@ -321,9 +323,9 @@ for pati=1:length(cfg.patterns)
     end    
     
     % AFTER each sequence
-    if exist(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingAfterSeq%d',pati)))
+    if exist(fullfile(loadPathInstr,sprintf('instrTrainingAfterSeq%d',pati)))
         % if you can find a text file, load it
-        instrFid = fopen(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingAfterSeq%d',pati)),'r','n','UTF-8'); 
+        instrFid = fopen(fullfile(loadPathInstr,sprintf('instrTrainingAfterSeq%d',pati)),'r','n','UTF-8'); 
         tmptxt = []; 
         while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
         fclose(instrFid); 
@@ -335,9 +337,9 @@ for pati=1:length(cfg.patterns)
     end    
     
     % during each sequence (part 1)
-    if exist(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingDuringSeq%d_part1',pati)))
+    if exist(fullfile(loadPathInstr,sprintf('instrTrainingDuringSeq%d_part1',pati)))
         % if you can find a text file, load it
-        instrFid = fopen(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingDuringSeq%d_part1',pati)),'r','n','UTF-8'); 
+        instrFid = fopen(fullfile(loadPathInstr,sprintf('instrTrainingDuringSeq%d_part1',pati)),'r','n','UTF-8'); 
         tmptxt = []; 
         while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
         fclose(instrFid); 
@@ -349,9 +351,9 @@ for pati=1:length(cfg.patterns)
     end   
     
     % during each sequence (part 2)
-    if exist(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingDuringSeq%d_part2',pati)))
+    if exist(fullfile(loadPathInstr,sprintf('instrTrainingDuringSeq%d_part2',pati)))
         % if you can find a text file, load it
-        instrFid = fopen(fullfile('lib','instr','tapTrainer',sprintf('instrTrainingDuringSeq%d_part2',pati)),'r','n','UTF-8'); 
+        instrFid = fopen(fullfile(loadPathInstr,sprintf('instrTrainingDuringSeq%d_part2',pati)),'r','n','UTF-8'); 
         tmptxt = []; 
         while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
         fclose(instrFid); 

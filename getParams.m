@@ -21,7 +21,7 @@ cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and wa
 
 %% Debug mode settings
 cfg.debug               = 1 ;  % To test the script
-cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
+cfg.testingTranspScreen = 0 ;  % To test with trasparent full size screen 
 
 
 %% general configuration
@@ -71,19 +71,6 @@ end
 cfg.fs = 44100; 
 
 
-%% more parameters to get according to thetype of experiment
-if strcmp(expParameters.task,'tapTraining')
-    
-    % get tapping training parameters
-    [cfg,expParameters] = getTrainingParameters(cfg,expParameters);
-    
-elseif strcmp(expParameters.task,'tapMainExp')
-    
-    % get main experiment parameters
-    [cfg,expParameters] = getMainExpParameters(cfg,expParameters);
-    
-end
-
 %% download missing stimuli
 
 
@@ -112,6 +99,21 @@ if DOWNLOAD_STIM
     unzip('stimuli.zip','stimuli'); 
     delete('stimuli.zip')
     disp('audio downloaded successfully'); 
+end
+
+
+
+%% more parameters to get according to thetype of experiment
+if strcmp(expParameters.task,'tapTraining')
+    
+    % get tapping training parameters
+    [cfg,expParameters] = getTrainingParameters(cfg,expParameters);
+    
+elseif strcmp(expParameters.task,'tapMainExp')
+    
+    % get main experiment parameters
+    [cfg,expParameters] = getMainExpParameters(cfg,expParameters);
+    
 end
 
 
