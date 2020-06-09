@@ -20,7 +20,7 @@ cfg.device = 'PC';              % PC for behav, scanner for fMRI,
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 %% Debug mode settings
-cfg.debug               = 1 ;  % To test the script
+cfg.debug               = 0 ;  % To test the script
 cfg.testingTranspScreen = 0 ;  % To test with trasparent full size screen 
 
 
