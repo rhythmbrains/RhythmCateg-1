@@ -67,7 +67,7 @@ for pati=1:length(patterns)
         % phase-shifted pattern, assuming that the metric template starts
         % with the frist event in the shifted pattern
         
-        % assume pulses with periods 2 and 4 grid events 
+        % assume nested pulses with periods 2 and 4 grid events 
         LHL24_percycle = syncopationLHL(pat2use4syncop,'2_4', length(patterns{pati}), 'perbar'); 
         % get the sycnopation-score for the second cycle (this way we don't
         % assume that there is 'nothing' before the pattern, but we
@@ -75,11 +75,11 @@ for pati=1:length(patterns)
         % the pattern is periodic)
         LHL24(phasei+1) = LHL24_percycle(2); 
 
-        % assume pulses with periods 2 and 4 grid events 
+        % assume nested pulses with periods 2 and 6 grid events 
         LHL26_percycle = syncopationLHL(pat2use4syncop,'2_6', length(patterns{pati}), 'perbar'); 
         LHL26(phasei+1) = LHL26_percycle(2); 
-
         
+        % assume nested pulses with periods 3 and 6 grid events 
         LHL36_percycle = syncopationLHL(pat2use4syncop,'3_6', length(patterns{pati}), 'perbar'); 
         LHL36(phasei+1) = LHL36_percycle(2); 
     end
