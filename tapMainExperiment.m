@@ -46,16 +46,32 @@ try
     % Prepare for the output logfiles - BIDS
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-        'category','F0','gridIOI','patternAmp');
+        'category','F0','gridIOI','patternAmp','PE4','minPE4',...
+        'rangePE4','LHL24','minLHL24','rangeLHL24');
     
  
             
     % add a keypress to wait to check the monitor - for fMRI exp
     
     
-    
-    % task instructions
-    displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
+    % show instructions and do initial volume setting
+    currInstrPage = 1; 
+    nInstrPages = length(expParam.introInstruction); 
+    while 1
+        % display instructions and wait for action
+        subAction = displayInstr(expParam.introInstruction{currInstrPage}, cfg, 'setVolumePrevNext', ...
+                                 'currInstrPage', currInstrPage, ...
+                                 'nInstrPages', nInstrPages); 
+        % go one instruction page forward or backward (depending on subject's action)                      
+        if strcmp(subAction,'oneInstrPageForward')
+            currInstrPage = min(currInstrPage+1, length(expParam.introInstruction)); 
+        elseif strcmp(subAction,'oneInstrPageBack')
+            currInstrPage = max(currInstrPage-1, 1); 
+        elseif strcmp(subAction,'done')
+            break
+        end
+    end
+        
     % more instructions
     displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
 
@@ -97,9 +113,9 @@ try
         
         saveEventsFile('save', expParam, currSeq,'sequenceNum',...
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-        'segmCateg','F0','gridIOI','patternAmp');
-            
-        
+        'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
+        'rangePE4','LHL24','minLHL24','rangeLHL24');
+
 
         %% present stimulus, record tapping
 
@@ -130,7 +146,8 @@ try
             
             saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
                 'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-                'segmCateg','F0','gridIOI','patternAmp');
+                'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
+                'rangePE4','LHL24','minLHL24','rangeLHL24');
 
     
         end
@@ -162,18 +179,38 @@ try
         %% Pause
 
         if seqi<expParam.numSequences
+            
             % pause (before next sequence starts, wait for key to continue)
             if expParam.sequenceDelay
-                fbkToDisp = sprintf(expParam.delayInstruction, seqi, expParam.numSequences);
-                displayInstr(fbkToDisp,cfg,'setVolume');
+                
+                % show sequence-specific instruction if there is some
+                % defined
+                if ~isempty(expParam.seqSpecificDelayInstruction{seqi})
+                    displayInstr(expParam.seqSpecificDelayInstruction{seqi}, ...
+                                 cfg, ...
+                                 'setVolumeToggleGeneralInstr', ...
+                                 'generalInstrTxt', expParam.generalInstruction);
+                end
+                
+                % show general instruction after each sequence
+                fbkToDisp = sprintf(expParam.generalDelayInstruction, seqi, expParam.numSequences);
+                displayInstr(fbkToDisp, ...
+                             cfg, ...
+                             'setVolumeToggleGeneralInstr', ...
+                             'generalInstrTxt', expParam.generalInstruction);
+                
+                % pause for N secs before starting next sequence
                 WaitSecs(expParam.pauseSeq);
             end
-
+            
         else
+            
             % end of experient
             displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);
+            
             % wait 3 seconds and end the experiment
             WaitSecs(3);
+            
         end
 
     end % sequence loop

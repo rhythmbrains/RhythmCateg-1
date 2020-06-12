@@ -20,8 +20,8 @@ cfg.device = 'PC';              % PC for behav, scanner for fMRI,
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 %% Debug mode settings
-cfg.debug               = 1 ;  % To test the script
-cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
+cfg.debug               = 0 ;  % To test the script
+cfg.testingTranspScreen = 0 ;  % To test with trasparent full size screen 
 
 
 %% general configuration
@@ -71,21 +71,43 @@ end
 cfg.fs = 44100; 
 
 
+%% download missing stimuli
+
+
+% check if any required stimulus files are missing
+dStim = dir(fullfile('stimuli','*')); 
+fidStimList = fopen(fullfile('stimuli','REQUIRED_FILES_LIST'), 'r'); 
+DOWNLOAD_STIM = 0; 
+fprintf('checking for missing stimulus files...\n'); 
+while 1
+    
+    l = fgetl(fidStimList); 
+    if ~any(strcmp({dStim.name},l))
+        fprintf('%s \n',l); 
+        DOWNLOAD_STIM = 1; 
+    end
+    if feof(fidStimList)
+        break
+    end
+end
+
+if DOWNLOAD_STIM
+    % download missing files from Dropbox
+    url = 'https://www.dropbox.com/sh/20hgit6xoqxsbt0/AABnGrj6XDH08zQ5ilICLARVa?dl=1'; 
+    disp('downloading audio files from Dropbox...'); 
+    urlwrite(url,'stimuli.zip'); 
+    unzip('stimuli.zip','stimuli'); 
+    delete('stimuli.zip')
+    disp('audio downloaded successfully'); 
+end
+
+
+
 %% more parameters to get according to thetype of experiment
 if strcmp(expParameters.task,'tapTraining')
     
     % get tapping training parameters
     [cfg,expParameters] = getTrainingParameters(cfg,expParameters);
-
-    if ~cfg.debug
-        % download missing audiofiles from Dropbox
-        url = 'https://www.dropbox.com/sh/20hgit6xoqxsbt0/AABnGrj6XDH08zQ5ilICLARVa?dl=1'; 
-        disp('downloading audio files from Dropbox...'); 
-        urlwrite(url,'stimuli.zip'); 
-        unzip('stimuli.zip','stimuli'); 
-        delete('stimuli.zip')
-        disp('audio downloaded successfully'); 
-    end
     
 elseif strcmp(expParameters.task,'tapMainExp')
     
@@ -93,6 +115,8 @@ elseif strcmp(expParameters.task,'tapMainExp')
     [cfg,expParameters] = getMainExpParameters(cfg,expParameters);
     
 end
+
+
 
 
 %% differentiating response button (subject) from keyboard(experimenter)

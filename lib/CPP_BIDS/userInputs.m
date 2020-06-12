@@ -34,6 +34,8 @@ else
     % subject group
     if askGrpSess(1)
         subjectGrp = lower(input('Enter subject group (leave empty if none): ', 's'));
+    else
+        subjectGrp = 'ctrl';
     end
     
     % the subject number
@@ -44,6 +46,8 @@ else
     if  numel(askGrpSess)>1 && askGrpSess(2)
         sessionNb = str2double(input('Enter the session (i.e day - 1-999)) number: ', 's'));
         sessionNb = checkInput(sessionNb);
+    else
+        sessionNb = 666;
     end
     
     % the run number
