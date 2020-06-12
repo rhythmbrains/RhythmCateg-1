@@ -203,34 +203,36 @@ for stepi=1:cfg.nStepsPerSequence
             
             % find the pattern ID from the seqDesignFullExp (output of
             % getAllSeq function)
-            currPatternID = cfg.seqDesignFullExp{seqi,stepi,segmi,pati}; 
-            currPatternIdx = find(strcmp(currPatternID,{patterns2choose.ID})); 
+            currPatID = cfg.seqDesignFullExp{seqi,stepi,segmi,pati}; 
+            currPatIdx = find(strcmp(currPatID,{patterns2choose.ID})); 
             
             % do a quick check that the assigment of category labels is
             % consistent, if not, give a warning
-            currPatternCateg = regexp(patterns2choose(currPatternIdx).ID, '\D*(?=\d.*)', 'match'); 
+            currPatternCateg = regexp(patterns2choose(currPatIdx).ID, '\D*(?=\d.*)', 'match'); 
             currPatternCateg = currPatternCateg{1}; 
             if ~strcmpi(currPatternCateg,currCategLabel)
                 warning('mismatching category labels during sequence construction...'); 
             end
             
             % get the pattern
-            currPattern = patterns2choose(currPatternIdx).pattern;
-            
+            currPattern = patterns2choose(currPatIdx).pattern;
+
             % make audio 
-            [patternAudio,~] = makeStimMainExp(currPattern, cfg, currGridIOI, currF0,currAmp); 
+            [patternAudio,~] = makeStimMainExp(currPattern, ...
+                                               cfg, currGridIOI, ...
+                                               currF0,currAmp); 
             
 
             % get current audio index in the sequence, and append the audio
             currAudioIdx = round(currTimePoint*cfg.fs); 
             
-            % seq.outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
            
             % we only put the audio data in the first structure in the
             % array of structures to save memory...
-            seq(1).outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
+            seq(1).outAudio(currAudioIdx +1:currAudioIdx +...
+                length(patternAudio)) = patternAudio; 
             
-            seq(cPat,1).patternID   = currPatternID;
+            seq(cPat,1).patternID   = currPatID;
             seq(cPat,1).segmCateg   = currCategLabel;
             seq(cPat,1).onset       = currTimePoint;
             seq(cPat,1).segmentNum  = segmi;
@@ -243,7 +245,14 @@ for stepi=1:cfg.nStepsPerSequence
             seq(cPat,1).gridIOI     = currGridIOI;
             seq(cPat,1).patternAmp  = currAmp;
 
-
+            % get pattern info e.g. PE and LHL
+            seq(cPat,1).PE4        = patterns2choose(currPatIdx).PE4;
+            seq(cPat,1).minPE4     = patterns2choose(currPatIdx).minPE4;
+            seq(cPat,1).rangePE4        = patterns2choose(currPatIdx).rangePE4;
+            seq(cPat,1).LHL24      = patterns2choose(currPatIdx).LHL24;
+            seq(cPat,1).minLHL24   = patterns2choose(currPatIdx).minLHL24;
+            seq(cPat,1).rangeLHL24 = patterns2choose(currPatIdx).rangeLHL24;
+            
             % --------------------------------------------------
             % update current time point
             currTimePoint = currTimePoint + cfg.interPatternInterval;         
