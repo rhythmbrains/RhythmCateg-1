@@ -69,7 +69,7 @@ try
     
     % index (counter) of current pattern that is used in the stimulus
     % sequence
-    currPatterni = 5; 
+    currPatterni = 1; 
 
     
     
