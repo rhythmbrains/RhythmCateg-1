@@ -59,12 +59,12 @@ while GetSecs < (currSeqStartTime+cfg.SequenceDur)
             responseEvents(cTap,1).patternAmp      = currSeq(currPatIdx).patternAmp;
             
             % get pattern info
-            responseEvents(cPat,1).PE4        = currSeq(currPatIdx).PE4;
-            responseEvents(cPat,1).minPE4     = currSeq(currPatIdx).minPE4;
-            responseEvents(cPat,1).rangePE4   = currSeq(currPatIdx).rangePE4;
-            responseEvents(cPat,1).LHL24      = currSeq(currPatIdx).LHL24;
-            responseEvents(cPat,1).minLHL24   = currSeq(currPatIdx).minLHL24;
-            responseEvents(cPat,1).rangeLHL24 = currSeq(currPatIdx).rangeLHL24;
+            responseEvents(cTap,1).PE4        = currSeq(currPatIdx).PE4;
+            responseEvents(cTap,1).minPE4     = currSeq(currPatIdx).minPE4;
+            responseEvents(cTap,1).rangePE4   = currSeq(currPatIdx).rangePE4;
+            responseEvents(cTap,1).LHL24      = currSeq(currPatIdx).LHL24;
+            responseEvents(cTap,1).minLHL24   = currSeq(currPatIdx).minLHL24;
+            responseEvents(cTap,1).rangeLHL24 = currSeq(currPatIdx).rangeLHL24;
             
             % ----- log tsv -----
             % now we have some time before the subject taps again so let's
