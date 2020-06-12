@@ -218,7 +218,6 @@ for stepi=1:cfg.nStepsPerSequence
             currPattern = patterns2choose(currPatternIdx).pattern;
             
             % make audio 
-
             [patternAudio,~] = makeStimMainExp(currPattern, cfg, currGridIOI, currF0,currAmp); 
             
 
@@ -230,16 +229,7 @@ for stepi=1:cfg.nStepsPerSequence
             % we only put the audio data in the first structure in the
             % array of structures to save memory...
             seq(1).outAudio(currAudioIdx+1:currAudioIdx+length(patternAudio)) = patternAudio; 
-
-                        
-            % save info about the selected pattern
-%             seq.patternID{cPat}     = currPatternID; 
-%             seq.segmCateg{cPat}     = currCategLabel; 
-%             seq.patternOnset(cPat)  = currTimePoint; 
-%             seq.pattern{1,cPat}     = currPattern; 
-%             seq.F0(cPat)            = currF0;
-%             seq.gridIOI(cPat)       = currGridIOI;
-%             
+            
             seq(cPat,1).patternID   = currPatternID;
             seq(cPat,1).segmCateg   = currCategLabel;
             seq(cPat,1).onset       = currTimePoint;
