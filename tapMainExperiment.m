@@ -112,9 +112,9 @@ try
         
         saveEventsFile('save', expParam, currSeq,'sequenceNum',...
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-        'segmCateg','F0','gridIOI','patternAmp');
-            
-        
+        'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
+        'rangePE4','LHL24','minLHL24','rangeLHL24');
+
 
         %% present stimulus, record tapping
 
@@ -145,7 +145,8 @@ try
             
             saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
                 'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-                'segmCateg','F0','gridIOI','patternAmp');
+                'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
+                'rangePE4','LHL24','minLHL24','rangeLHL24');
 
     
         end
