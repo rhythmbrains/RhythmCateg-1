@@ -32,8 +32,8 @@ for pati=1:length(patterns)
     PE3 = zeros(1,length(patterns{pati}));     
     PE4 = zeros(1,length(patterns{pati}));     
 
-    LHL22 = zeros(1,length(patterns{pati}));     
-    LHL32 = zeros(1,length(patterns{pati})); 
+    LHL24 = zeros(1,length(patterns{pati}));     
+    LHL26 = zeros(1,length(patterns{pati})); 
     LHL36 = zeros(1,length(patterns{pati})); 
     
     shiftedPattern = cell(1,length(patterns{pati})); 
@@ -67,19 +67,19 @@ for pati=1:length(patterns)
         % phase-shifted pattern, assuming that the metric template starts
         % with the frist event in the shifted pattern
         
-        % assume pulses with periods 2 and 4 grid events 
-        LHL22_percycle = syncopationLHL(pat2use4syncop,'2_4', length(patterns{pati}), 'perbar'); 
+        % assume nested pulses with periods 2 and 4 grid events 
+        LHL24_percycle = syncopationLHL(pat2use4syncop,'2_4', length(patterns{pati}), 'perbar'); 
         % get the sycnopation-score for the second cycle (this way we don't
         % assume that there is 'nothing' before the pattern, but we
         % calculate something similar to a circular measure, assuming that
         % the pattern is periodic)
-        LHL24(phasei+1) = LHL22_percycle(2); 
+        LHL24(phasei+1) = LHL24_percycle(2); 
 
-        % assume pulses with periods 2 and 4 grid events 
+        % assume nested pulses with periods 2 and 6 grid events 
         LHL26_percycle = syncopationLHL(pat2use4syncop,'2_6', length(patterns{pati}), 'perbar'); 
         LHL26(phasei+1) = LHL26_percycle(2); 
-
         
+        % assume nested pulses with periods 3 and 6 grid events 
         LHL36_percycle = syncopationLHL(pat2use4syncop,'3_6', length(patterns{pati}), 'perbar'); 
         LHL36(phasei+1) = LHL36_percycle(2); 
     end
@@ -103,9 +103,9 @@ for pati=1:length(patterns)
     patternInfo(pati).LHL24 = LHL24; 
     patternInfo(pati).LHL26 = LHL26; 
     patternInfo(pati).LHL36 = LHL36; 
-    patternInfo(pati).rangeLHL22 = max(LHL24)-min(LHL24); 
-    patternInfo(pati).rangeLHL23 = max(LHL26)-min(LHL26); 
-    patternInfo(pati).rangeLHL32 = max(LHL36)-min(LHL36); 
+    patternInfo(pati).rangeLHL24 = max(LHL24)-min(LHL24); 
+    patternInfo(pati).rangeLHL26 = max(LHL26)-min(LHL26); 
+    patternInfo(pati).rangeLHL36 = max(LHL36)-min(LHL36); 
     patternInfo(pati).minLHL24 = min(LHL24); 
     patternInfo(pati).minLHL26 = min(LHL26); 
     patternInfo(pati).minLHL36 = min(LHL36); 
