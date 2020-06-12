@@ -46,8 +46,21 @@ try
     datalog = saveOutput(cfg, expParam, 'open'); 
 
     % show instructions and do initial volume setting
-    for instri=1:length(expParam.taskInstruction)
-        displayInstr(expParam.taskInstruction{instri},cfg,'setVolume');         
+    currInstrPage = 1; 
+    nInstrPages = length(expParam.taskInstruction); 
+    while 1
+        % display instructions and wait for action
+        subAction = displayInstr(expParam.taskInstruction{currInstrPage}, cfg, 'setVolumePrevNext', ...
+                                 'currInstrPage', currInstrPage, ...
+                                 'nInstrPages', nInstrPages); 
+        % go one instruction page forward or backward (depending on subject's action)                      
+        if strcmp(subAction,'oneInstrPageForward')
+            currInstrPage = min(currInstrPage+1, length(expParam.taskInstruction)); 
+        elseif strcmp(subAction,'oneInstrPageBack')
+            currInstrPage = max(currInstrPage-1, 1); 
+        elseif strcmp(subAction,'done')
+            break
+        end
     end
     
         
@@ -124,11 +137,25 @@ try
         
         
         %% display sequence-specific instructions
+                
+        % show instructions before the sequence
+        currInstrPage = 1; 
+        nInstrPages = length(expParam.beforeSeqInstruction{currPatterni}); 
+        while 1
+            % display instructions and wait for action
+            subAction = displayInstr(expParam.beforeSeqInstruction{currPatterni}{currInstrPage}, cfg, 'setVolumePrevNext', ...
+                                     'currInstrPage', currInstrPage, ...
+                                     'nInstrPages', nInstrPages); 
+            % go one instruction page forward or backward (depending on subject's action)                      
+            if strcmp(subAction,'oneInstrPageForward')
+                currInstrPage = min(currInstrPage+1, length(expParam.beforeSeqInstruction{currPatterni})); 
+            elseif strcmp(subAction,'oneInstrPageBack')
+                currInstrPage = max(currInstrPage-1, 1); 
+            elseif strcmp(subAction,'done')
+                break
+            end
+        end
         
-        % before the sequence
-        txt = expParam.beforeSeqInstruction{currPatterni}; 
-        displayInstr(txt,cfg,'setVolume');  
-
         % during sequence (part 1)
         if currWini <= cfg.nWinNoCue(currPatterni)
                     % if part 1 of the sequence
@@ -436,10 +463,12 @@ try
                 cueDBleveli = cueDBleveli+1; 
                 
                 % Give positive feedback. 
-                txt = [sprintf('level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
-                        sprintf('(error = %.3f)\n\n',tapCvAsynch), ...
-                       'Well done!']; 
-                displayInstr(txt,cfg);
+                errStr = getErrorStr(tapCvAsynch, cfg); 
+                fbktxt = sprintf([sprintf('level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
+                          'your performance: \n', ... 
+                          errStr, ...
+                          '\n\nWell done!']); 
+                displayInstr(instr2disp, cfg, 'fbktxt',fbktxt, 'instrAndQuitOption');
                 fbkOnScreenTime = GetSecs; 
                 fbkOnScreen = 1; 
                 
@@ -456,20 +485,24 @@ try
                 cueDBleveli = max(cueDBleveli-1, 1); 
                 
                 % Give negative feedback. 
-                txt = [sprintf('level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
-                        sprintf('(error = %.3f)\n\n',tapCvAsynch), ...
-                       'Keep trying :)']; 
-                displayInstr(txt,cfg);
+                errStr = getErrorStr(tapCvAsynch, cfg); 
+                fbktxt = [sprintf('level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
+                          'your performance: \n', ... 
+                          errStr, ...
+                          '\n\nKeep trying :)']; 
+                displayInstr(instr2disp, cfg, 'fbktxt',fbktxt, 'instrAndQuitOption');
                 fbkOnScreenTime = GetSecs; 
                 fbkOnScreen = 1; 
                 
                 
             % otherwise just give feedback and continue...
             else
-                txt = [sprintf('level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
-                       sprintf('(error = %.3f)\n\n',tapCvAsynch), ...
-                       sprintf('\n')]; 
-                displayInstr(txt,cfg);
+                errStr = getErrorStr(tapCvAsynch, cfg); 
+                fbktxt = [sprintf('level %d out of %d.\n\n',cueDBleveli,cfg.nCueDB), ...
+                          'your performance: \n', ... 
+                           errStr, ...
+                           sprintf('\n')]; 
+                displayInstr(instr2disp, cfg, 'fbktxt',fbktxt, 'instrAndQuitOption');
                 fbkOnScreenTime = GetSecs; 
                 fbkOnScreen = 1; 
             end
@@ -536,21 +569,32 @@ try
         
         %========================= instructions ===============================
         
+        % show instructions after the sequence
+        currInstrPage = 1; 
+        nInstrPages = length(expParam.afterSeqInstruction{currPatterni}); 
+        while 1
+            % display instructions and wait for action
+            subAction = displayInstr(expParam.afterSeqInstruction{currPatterni}{currInstrPage}, cfg, 'setVolumePrevNext', ...
+                                     'currInstrPage', currInstrPage, ...
+                                     'nInstrPages', nInstrPages); 
+            % go one instruction page forward or backward (depending on subject's action)                      
+            if strcmp(subAction,'oneInstrPageForward')
+                currInstrPage = min(currInstrPage+1, length(expParam.afterSeqInstruction{currPatterni})); 
+            elseif strcmp(subAction,'oneInstrPageBack')
+                currInstrPage = max(currInstrPage-1, 1); 
+            elseif strcmp(subAction,'done')
+                break
+            end
+        end 
+        
         if currPatterni==cfg.nPatterns
-            % end of last pattern
-            txt = expParam.afterSeqInstruction{currPatterni}; 
-            displayInstr(txt,cfg,'waitForKeypress');  
             % end of experient
             displayInstr('The training is over now. \n\n\nTHANK YOU!\n\n\nPlease continue to the Main Experiment.',cfg);  
             % wait 3 seconds and end the experiment
             WaitSecs(3); 
             break
-        else
-            % end of one pattern
-            txt = expParam.afterSeqInstruction{currPatterni}; 
-            displayInstr(txt,cfg,'setVolume');  
-        end        
-        
+        end
+
         %========================= update counter ===============================
 
         % we will move on to the next pattern in the following loop iteration 

@@ -66,7 +66,7 @@ cfg.gridIOI = [0.125, 1/(1.364)/4, 0.125, 0.190, 0.190];
 % and continue to the next pattern/track. 
 % Important: this defines duration of listen-only tracks! (otherwise
 % they would never end). 
-cfg.timeOut = [180, 180, 180, 180, 180]; 
+cfg.timeOut = [180, 180, 120, 180, 120]; 
 
 % Each sequence (either pattern or audio track) has two parts. 
 % ------ PART 1 ------ 
@@ -77,7 +77,7 @@ cfg.timeOut = [180, 180, 180, 180, 180];
 % The duration of part 1 is defined by the parameter nWinNoCue, as the
 % number of windows from the begining of each pattern/track, where no cue
 % is presented 
-cfg.nWinNoCue = [4, 4, 4, 4, 0]; 
+cfg.nWinNoCue = [4, 6, 4, 4, 0]; 
 
 % instruction for logging only for part 1 (if empty, default is
 % used: 'listen')
@@ -145,7 +145,7 @@ cfg.nWinDown = 1;
 cfg.nWinUp_lastLevel = 3; 
 
 % duration (secs) for which real-time feedback will be displayed on screen during tapping 
-cfg.fbkOnScreenMaxtime = 5; 
+cfg.fbkOnScreenMaxtime = Inf; 
 
 
 
@@ -308,38 +308,81 @@ expParam.duringSeqInstruction_part1 = cell(1,length(cfg.patterns));
 expParam.duringSeqInstruction_part2 = cell(1,length(cfg.patterns)); 
 
 
+% get filenames for the instruction textfiles of different categories (sort
+% them by filenames using natural sort)
+dirInstrBefore = dir(fullfile(loadPathInstr,sprintf('instrTrainingBeforeSeq*'))); 
+[~,sortNatIdx] = sortNatural({dirInstrBefore.name}); 
+dirInstrBefore = dirInstrBefore(sortNatIdx); 
+
+dirInstrDuring1 = dir(fullfile(loadPathInstr,sprintf('instrTrainingDuringSeq*_part1'))); 
+[~,sortNatIdx] = sortNatural({dirInstrDuring1.name}); 
+dirInstrDuring1 = dirInstrDuring1(sortNatIdx); 
+
+dirInstrDuring2 = dir(fullfile(loadPathInstr,sprintf('instrTrainingDuringSeq*_part2'))); 
+[~,sortNatIdx] = sortNatural({dirInstrDuring2.name}); 
+dirInstrDuring2 = dirInstrDuring2(sortNatIdx); 
+
+dirInstrAfter = dir(fullfile(loadPathInstr,sprintf('instrTrainingAfterSeq*'))); 
+[~,sortNatIdx] = sortNatural({dirInstrAfter.name}); 
+dirInstrAfter = dirInstrAfter(sortNatIdx); 
+
+
 % loop to load the instructions for each pattern/track
 for pati=1:length(cfg.patterns)
     
-    % BEFORE each sequence
-    if exist(fullfile(loadPathInstr,sprintf('instrTrainingBeforeSeq%d',pati)))
-        % if you can find a text file, load it
-        instrFid = fopen(fullfile(loadPathInstr,sprintf('instrTrainingBeforeSeq%d',pati)),'r','n','UTF-8'); 
-        tmptxt = []; 
-        while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
-        fclose(instrFid); 
-        expParam.beforeSeqInstruction{pati} = tmptxt; 
+    
+    % --- BEFORE each sequence --- 
+    
+    % find relevant text files with instructions
+    instrIdx = find(~cellfun(@isempty, regexp({dirInstrBefore.name}, ...
+                                              sprintf('instrTrainingBeforeSeq%d(($)|(-\\d*))',pati) ))); 
+    beforeSeqInstructionTmp = cell(1, length(instrIdx)); 
+    if ~isempty(instrIdx)
+        % if you can find text file(s), load it/them
+        for instri=1:length(instrIdx)
+            instrFid = fopen( fullfile(loadPathInstr, dirInstrBefore(instrIdx(instri)).name ), 'r','n','UTF-8'); 
+            tmptxt = []; 
+            while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
+            fclose(instrFid); 
+            % assign each instruction text file to temporary cell 
+            beforeSeqInstructionTmp{instri} = tmptxt; 
+        end
     else
         % if not, just write empty text
         expParam.beforeSeqInstruction{pati} = ''; 
         warning(sprintf('no instructions found before pattern %d',pati)); 
     end    
+    % assignn the resulting cell to the expParam structure
+    expParam.beforeSeqInstruction{pati} = beforeSeqInstructionTmp; 
     
-    % AFTER each sequence
-    if exist(fullfile(loadPathInstr,sprintf('instrTrainingAfterSeq%d',pati)))
-        % if you can find a text file, load it
-        instrFid = fopen(fullfile(loadPathInstr,sprintf('instrTrainingAfterSeq%d',pati)),'r','n','UTF-8'); 
-        tmptxt = []; 
-        while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
-        fclose(instrFid); 
-        expParam.afterSeqInstruction{pati} = tmptxt; 
+    
+    % --- AFTER each sequence --- 
+    
+    % find relevant text files with instructions
+    instrIdx = find(~cellfun(@isempty, regexp({dirInstrAfter.name}, ...
+                                              sprintf('instrTrainingAfterSeq%d(($)|(-\\d*))',pati) ))); 
+    afterSeqInstructionTmp = cell(1, length(instrIdx)); 
+    if ~isempty(instrIdx)
+        % if you can find text file(s), load it/them
+        for instri=1:length(instrIdx)
+            instrFid = fopen( fullfile(loadPathInstr, dirInstrAfter(instrIdx(instri)).name ), 'r','n','UTF-8'); 
+            tmptxt = []; 
+            while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
+            fclose(instrFid); 
+            % assign each instruction text file to temporary cell 
+            afterSeqInstructionTmp{instri} = tmptxt; 
+        end
     else
         % if not, just write empty text
         expParam.afterSeqInstruction{pati} = ''; 
         warning(sprintf('no instructions found after pattern %d',pati)); 
     end    
+    % assignn the resulting cell to the expParam structure
+    expParam.afterSeqInstruction{pati} = afterSeqInstructionTmp; 
     
-    % during each sequence (part 1)
+    
+    % --- DURING each sequence (part 1) ---
+    
     if exist(fullfile(loadPathInstr,sprintf('instrTrainingDuringSeq%d_part1',pati)))
         % if you can find a text file, load it
         instrFid = fopen(fullfile(loadPathInstr,sprintf('instrTrainingDuringSeq%d_part1',pati)),'r','n','UTF-8'); 
@@ -353,7 +396,8 @@ for pati=1:length(cfg.patterns)
         warning(sprintf('no instructions found during pattern %d (part 1)',pati)); 
     end   
     
-    % during each sequence (part 2)
+    % --- DURING each sequence (part 2) ---
+    
     if exist(fullfile(loadPathInstr,sprintf('instrTrainingDuringSeq%d_part2',pati)))
         % if you can find a text file, load it
         instrFid = fopen(fullfile(loadPathInstr,sprintf('instrTrainingDuringSeq%d_part2',pati)),'r','n','UTF-8'); 

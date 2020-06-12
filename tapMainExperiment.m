@@ -54,10 +54,23 @@ try
     
     
     % show instructions and do initial volume setting
-    for instri=1:length(expParam.introInstruction)
-        displayInstr(expParam.introInstruction{instri},cfg,'setVolume');         
+    currInstrPage = 1; 
+    nInstrPages = length(expParam.introInstruction); 
+    while 1
+        % display instructions and wait for action
+        subAction = displayInstr(expParam.introInstruction{currInstrPage}, cfg, 'setVolumePrevNext', ...
+                                 'currInstrPage', currInstrPage, ...
+                                 'nInstrPages', nInstrPages); 
+        % go one instruction page forward or backward (depending on subject's action)                      
+        if strcmp(subAction,'oneInstrPageForward')
+            currInstrPage = min(currInstrPage+1, length(expParam.introInstruction)); 
+        elseif strcmp(subAction,'oneInstrPageBack')
+            currInstrPage = max(currInstrPage-1, 1); 
+        elseif strcmp(subAction,'done')
+            break
+        end
     end
-    
+        
     % more instructions
     displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
 
@@ -173,7 +186,7 @@ try
                 if ~isempty(expParam.seqSpecificDelayInstruction{seqi})
                     displayInstr(expParam.seqSpecificDelayInstruction{seqi}, ...
                                  cfg, ...
-                                 'setVolumeAndGeneralInstrOption', ...
+                                 'setVolumeToggleGeneralInstr', ...
                                  'generalInstrTxt', expParam.generalInstruction);
                 end
                 
@@ -181,7 +194,7 @@ try
                 fbkToDisp = sprintf(expParam.generalDelayInstruction, seqi, expParam.numSequences);
                 displayInstr(fbkToDisp, ...
                              cfg, ...
-                             'setVolumeAndGeneralInstrOption', ...
+                             'setVolumeToggleGeneralInstr', ...
                              'generalInstrTxt', expParam.generalInstruction);
                 
                 % pause for N secs before starting next sequence

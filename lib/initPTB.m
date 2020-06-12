@@ -25,6 +25,8 @@ AssertOpenGL;
     cfg.keyVolDown      = KbName('DownArrow'); 
     cfg.keyAudioPlay    = KbName('p'); 
     cfg.keyAudioStop    = KbName('s'); 
+    cfg.keyInstrBack    = KbName('b'); 
+    cfg.keyInstrNext    = KbName('n'); 
 
     
     % Don't echo keypresses to Matlab window
@@ -39,8 +41,9 @@ AssertOpenGL;
     HideCursor;
     
     %% init Visual
-
     
+    clear Screen
+
     cfg.screen              = [];
     cfg.screen.i            = max(Screen('Screens'));
     cfg.screen.res          = Screen('Resolution',cfg.screen.i);
