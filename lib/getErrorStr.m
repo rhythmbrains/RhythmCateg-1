@@ -17,6 +17,8 @@ function outStr = getErrorStr(errProp, cfg)
 
 N = 25; 
 
+%% tap error
+
 % transform error into performance level measure by
 % 1) invert the error index to get a measure of how "good" (instead of how "bad") they tapped
 perfLevel = (1-errProp); 
@@ -27,14 +29,13 @@ perfLevel = (perfLevel-0.5) / 0.5;
 
 if isnan(errProp)
     % no taps were executed, give 0 feedback
-    lineIdx = 1; 
+    perfIdx = 1; 
 else
     % map the performance level onto the visual scale
-    lineIdx = round( perfLevel * N); 
+    perfIdx = round( perfLevel * N); 
 end
-scalePnts = repmat('_',1,N); 
-scalePnts(lineIdx) = '#'; 
 
+%% threshold
 
 % get threshold they need to achieve to success
 % 1) invert 
@@ -47,9 +48,27 @@ thrLevel = (thrLevel-0.5) / 0.5;
 thrIdx = round(thrLevel * N); 
 
 
-thrPnts = repmat(' ',1,N); 
-thrPnts(thrIdx) = 'v'; 
+%% make string
 
+% thrPnts = repmat(' ',1,N); 
+% thrPnts(thrIdx) = 'v'; 
+
+
+% display instr text above the feedback bar
+thrTxt = ' ->'; 
+
+% position it so the right end of the string is right above the threshold
+% marker
+thrTxtStartIdx = max(0, thrIdx-length(thrTxt)); 
+thrPnts = repmat(' ',1,N); 
+thrPnts(thrTxtStartIdx+1:thrTxtStartIdx+length(thrTxt)) = thrTxt; 
+
+
+scalePnts = repmat('_',1,N); 
+% place threshold marker
+scalePnts(thrIdx) = '|';
+% place performance level marker
+scalePnts(perfIdx) = '#'; 
 
 thrStr = ['   ', thrPnts , '   ']; 
 errStr = ['- |', scalePnts , '| +']; 
