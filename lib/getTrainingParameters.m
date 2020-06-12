@@ -13,15 +13,15 @@ function [cfg,expParam] = getTrainingParameters(cfg,expParam)
 %     1) pattern:               1 cycle specified as a vector of ones (sounds) and zeros (silences)
 % 
 %     2) audio track:           provide name of the audio file as string (must be saved in "stimuli" 
-%                               folder
+%                               folder in a .wav or .mp3 format)
 % 
 %     3) nonrepeating sequence: use string 'GrahnComplex' to use complex patterns,
 %                               or 'GrahnSimple' to use simple patterns
 %     
 % patterns/ audio tracks will be tried from the first to the last
-cfg.patterns = {'Flabaire-Alpha2(120BPM).wav', ...
-                'YCreate-IDontWantToBe(1.364Hz-cut3min).wav',...  
-                'Bugz_4_Hugz_Dub.wav', ...
+cfg.patterns = {'Flabaire-Alpha2(120BPM).mp3', ...
+                'YCreate-IDontWantToBe(1.364Hz-cut3min).mp3',...  
+                'Bugz_4_Hugz_Dub.mp3', ...
                 'GrahnComplex', ...
                 'GrahnComplex'}; 
                 
@@ -178,6 +178,9 @@ cfg.soundPattern    = soundPattern/rmsPat * maxAllowedRms;
 cfg.soundBeat       = soundBeat/rmsBeat * maxAllowedRms; 
 cfg.soundGrid       = soundGrid/rmsGrid * maxAllowedRms; 
 cfg.soundBeatTrack  = soundBeatTrack/rmsGrid * maxAllowedRms; 
+
+
+%% load audio tracks
 
 % prepare cell for audio tracks
 cfg.soundTracks = cell(1, length(cfg.patterns)); 
