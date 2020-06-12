@@ -46,7 +46,8 @@ try
     % Prepare for the output logfiles - BIDS
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-        'category','F0','gridIOI','patternAmp');
+        'category','F0','gridIOI','patternAmp','PE4','minPE4',...
+        'rangePE4','LHL24','minLHL24','rangeLHL24');
     
  
             
