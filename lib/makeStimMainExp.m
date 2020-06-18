@@ -28,13 +28,13 @@ end
 %% make envelope for the individual sound event 
 
 % number of samples for the onset ramp (proportion of gridIOI)
-ramponSamples   = round(currGridIOI * cfg.eventRampon * cfg.fs); 
+ramponSamples   = round(cfg.eventRampon * cfg.fs); 
 
 % number of samples for the offset ramp (proportion of gridIOI)
-rampoffSamples  = round(currGridIOI * cfg.eventRampoff * cfg.fs); 
+rampoffSamples  = round(cfg.eventRampoff * cfg.fs); 
 
 % individual sound event duration defined as proportion of gridIOI
-envEvent = ones(1, round(currGridIOI * cfg.soundDurProp * cfg.fs)); 
+envEvent = ones(1, round(cfg.soundDur * cfg.fs)); 
 
 % make the linear ramps
 envEvent(1:ramponSamples) = envEvent(1:ramponSamples) .* linspace(0,1,ramponSamples); 
