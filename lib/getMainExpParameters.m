@@ -23,21 +23,25 @@ if cfg.debug
 else
     expParam.numSequences = 6;
 end
+
 %% contruct individual sound events (that will make up each pattern)
 
-% define envelope shape of the individual sound event
-% all parameters are defined relative to the gridIOI (as proportion of gridIOI)
-% we don't use minGridIOI to keep everything proportional if the gridIOI is
-% allowed to change across cycles
-% And ramps are applied to each sound event
+% Define envelope shape of the individual sound event. 
+% All parameters are defined in seconds. 
 
-% total sound duration proportion to gridIOI _/```\_  
-cfg.soundDurProp             = 1; % 100% of gridIOI
+% total sound duration _/```\_  
+cfg.soundDur             = 0.190; % s
 % onset ramp duration  _/     
-cfg.eventRampon          = 0.05; % 5% of gridIOI 
+cfg.eventRampon          = 0.010; % s
 % offset ramp duration       \_ 
-cfg.eventRampoff         = 0.020; % 10% of gridIOI
+cfg.eventRampoff         = 0.020; % s
 
+% Make sure the total ramp durations are not longer than tone duration. 
+if (cfg.eventRampon+cfg.eventRampoff) > cfg.soundDur
+    error(sprintf('The summed duration of onset+offset ramps (%g ms) is longer than requensted tone duration (%g ms).',...
+                  (cfg.eventRampon+cfg.eventRampoff)*1e3, ...
+                  cfg.soundDur*1e3)); 
+end
 
 %% construct pattern (smallest item in sequence)
 cfg.nGridPoints = 12; % length(pat_complex(1).pattern)
@@ -60,6 +64,13 @@ cfg.changeGridIOICategory   = 0;
 % change gridIOI for each step
 cfg.changeGridIOIStep       = 0;     
 
+
+% Make sure the tone duration is not longer than smallest gridIOI. 
+if cfg.soundDur >  cfg.minGridIOI
+    error(sprintf('Requested tone duration (%g ms) is longer than shortest gridIOI (%g ms).',...
+                  cfg.soundDur*1e3, ...
+                  cfg.minGridIOI*1e3)); 
+end
 
 %% construct segment
 
