@@ -229,16 +229,33 @@ grahnPatComplex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt
 cfg.grahn.patternSimple = getPatternInfo(grahnPatSimple, 'simple',cfg); 
 cfg.grahn.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg); 
 
-% total sound duration proportion to gridIOI _/```\_  
-cfg.grahn.soundDurProp = 1; % 100% of gridIOI
-% onset ramp duration                       _/     
-cfg.grahn.eventRampon = 0.05; % 5% of gridIOI 
-% offset ramp duration                             \_ 
-cfg.grahn.eventRampoff  = 0.020; % 10% of gridIOI
-
 % the grid interval can vary across steps or segments (gridIOI selected 
 % randomly from a set of possible values for each new step or segment) 
 cfg.grahn.gridIOI = 0.190; 
+
+% Define envelope shape of the individual sound event. 
+% All parameters are defined in seconds. 
+
+% total sound duration _/```\_  
+cfg.grahn.soundDur             = 0.190; % s
+% onset ramp duration  _/     
+cfg.grahn.eventRampon          = 0.010; % s
+% offset ramp duration       \_ 
+cfg.grahn.eventRampoff         = 0.020; % s
+
+% Make sure the total ramp durations are not longer than tone duration. 
+if (cfg.grahn.eventRampon+cfg.grahn.eventRampoff) > cfg.grahn.soundDur
+    error(sprintf('The summed duration of onset+offset ramps (%g ms) is longer than requensted tone duration (%g ms).',...
+                  (cfg.grahn.eventRampon+cfg.grahn.eventRampoff)*1e3, ...
+                  cfg.grahn.soundDur*1e3)); 
+end
+% Make sure the tone duration is not longer than smallest gridIOI. 
+if cfg.grahn.soundDur >  cfg.grahn.gridIOI
+    error(sprintf('Requested tone duration (%g ms) is longer than shortest gridIOI (%g ms).',...
+                  cfg.grahn.soundDur*1e3, ...
+                  cfg.grahn.gridIOI*1e3)); 
+end
+
 
 % construct pattern (smallest item in sequence)
 cfg.grahn.nGridPoints = 12; % length(pat_complex(1).pattern)
