@@ -70,7 +70,7 @@ while GetSecs < (currSeqStartTime+cfg.SequenceDur)
             % now we have some time before the subject taps again so let's
             % write to the log file            
             % each tap on one row (colum names: subjectNum, runNum, expParam.seqi, tapOnset)
-            saveOutput(cfg, expParam, 'updateTap',tapTime);
+%             saveOutput(cfg, expParam, 'updateTap',tapTime);
             %saveOutput(cfg, expParam, 'updateTap',responseEvents);
             
             % -----------------
