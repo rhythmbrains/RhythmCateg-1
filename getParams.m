@@ -40,11 +40,11 @@ cfg.PTBInitVolume = 0.3;
 
 
 % BIDS compatible logfile folder
-% by default the data will be stored in an output folder created 
+% by default the data should be stored in an output folder created 
 % outside of the scripts folder
 % change that if you do not want BIDS formatting output
 expParameters.outputDir = fullfile(...
-    fileparts(mfilename('fullpath')), '..', ...
+    fileparts(mfilename('fullpath')), ...
     'output');
 
 
