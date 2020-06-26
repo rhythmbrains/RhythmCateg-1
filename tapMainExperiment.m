@@ -41,7 +41,7 @@ try
     [cfg] = initPTB(cfg);
 
     % Prepare for the output logfiles
-    expParam = saveOutput(cfg, expParam, 'open');
+    % expParam = saveOutput(cfg, expParam, 'open');
     
     % Prepare for the output logfiles - BIDS
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
@@ -95,7 +95,7 @@ try
         % log sequence into text file
         % ===========================================
         
-        saveOutput(cfg, expParam, 'updateStim',currSeq);
+        % saveOutput(cfg, expParam, 'updateStim',currSeq);
 
         
         % ===========================================
@@ -164,8 +164,8 @@ try
 
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
+        currSeq(1).outAudio = [];
         expParam.data(seqi).seq = currSeq;
-        expParam.data(seqi).seq(1).outAudio = [];
 
         % save all the taps for this sequence
         expParam.data(seqi).taps = tapOnsets;
@@ -219,8 +219,8 @@ try
 
 
     % save everything into .mat file
-    saveOutput(cfg, expParam, 'savemat');
-    saveOutput(cfg, expParam, 'close');
+%     saveOutput(cfg, expParam, 'savemat');
+%     saveOutput(cfg, expParam, 'close');
 
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', expParam, logFile);
@@ -243,8 +243,8 @@ try
 catch
 
     % save everything into .mat file
-    saveOutput(cfg, expParam, 'savemat');
-    saveOutput(cfg, expParam, 'close');
+%     saveOutput(cfg, expParam, 'savemat');
+%     saveOutput(cfg, expParam, 'close');
     % Close the logfiles - BIDS
     saveEventsFile('close', expParam, logFile);
 
