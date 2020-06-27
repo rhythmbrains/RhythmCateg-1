@@ -1,13 +1,4 @@
 
-%
-% SOMETIMES THERE ARE CRACKS IN THE AUDIO
-% (maybe there's too much in the audio buffer at the same time?)
-% > ask participants switch off all the other apps
-%
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
 % Clear all the previous stuff
 if ~ismac
