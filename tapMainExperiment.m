@@ -217,11 +217,6 @@ try
 
 
 
-
-    % save everything into .mat file
-%     saveOutput(cfg, expParam, 'savemat');
-%     saveOutput(cfg, expParam, 'close');
-
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', expParam, logFile);
     
@@ -243,8 +238,13 @@ try
 catch
 
     % save everything into .mat file
-%     saveOutput(cfg, expParam, 'savemat');
-%     saveOutput(cfg, expParam, 'close');
+    matFile = fullfile(expParam.outputDir, strrep(expParam.fileName.events,'tsv', 'mat'));
+    if IsOctave
+        save(matFile, '-mat7-binary');
+    else
+        save(matFile, '-v7.3');
+    end
+    
     % Close the logfiles - BIDS
     saveEventsFile('close', expParam, logFile);
 
