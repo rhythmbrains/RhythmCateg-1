@@ -107,29 +107,43 @@ AssertOpenGL;
 
     InitializePsychSound(1);
     
+    % CHANNELS is 1 for mono sound or 2 for stereo sound
+    cfg.audio.channels = 2;
+    
     if any(strcmp(cfg.stimComp,{'mac','linux'}))
         
-        % CHANNELS is 1 for mono sound or 2 for stereo sound
-        cfg.audio.channels = 2;
-        
+                
         % pahandle = PsychPortAudio('Open' [, deviceid][, mode][, reqlatencyclass][, freq] ...
             %       [, channels][, buffersize][, suggestedLatency][, selectchannels][, specialFlags=0]);
         % cfg.pahandle = PsychPortAudio('Open', [], [], 3, cfg.fs, cfg.audio.channels);
         % change the latency to:
         % Try to get the lowest latency that is possible under the constraint of reliable playback
-        cfg.pahandle = PsychPortAudio('Open', [], [], 1, cfg.fs, cfg.audio.channels);
+        cfg.pahandle = PsychPortAudio('Open', [], [], 3, cfg.fs, cfg.audio.channels);
 
         
     else
-        
+                
+        % get audio device list
         audio_dev       = PsychPortAudio('GetDevices');
-        idx             = find([audio_dev.NrInputChannels] == 0 & [audio_dev.NrOutputChannels] == 2);
-        cfg.audio       = [];
+        
+        % find output device using WASAPI deiver
+        idx             = find([audio_dev.NrInputChannels] == 0 & ...
+                               [audio_dev.NrOutputChannels] == 2 & ...
+                               ~cellfun(@isempty, regexp({audio_dev.HostAudioAPIName},'WASAPI')));
+        
+        % save device ID
         cfg.audio.i     = audio_dev(idx).DeviceIndex;
+        
+        % get device's sampling rate (must be 44100 Hz)
         cfg.fs          = audio_dev(idx).DefaultSampleRate;
-        cfg.audio.channels = audio_dev.NrOutputChannels;
-        %cfg.audio.channels = 1; % we have mono sound actually
-        cfg.pahandle    = PsychPortAudio('Open',cfg.audio.i,1,1,cfg.fs,cfg.audio.channels);
+        if cfg.fs~=44100
+            error('the audio device does not support fs = 44100 Hz'); 
+        end
+        
+        % the latency is not important - but consistent latency is! Let's try with WASAPI driver. 
+        cfg.pahandle    = PsychPortAudio('Open', cfg.audio.i, 1, 3, cfg.fs, cfg.audio.channels);
+        % cfg.pahandle = PsychPortAudio('Open', [], [], 0, cfg.fs, cfg.audio.channels);
+
     end
     
     % set initial PTB volume for safety (participants can adjust this manually
