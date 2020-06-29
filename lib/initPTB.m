@@ -107,10 +107,12 @@ AssertOpenGL;
 
     InitializePsychSound(1);
     
+    % CHANNELS is 1 for mono sound or 2 for stereo sound
+    cfg.audio.channels = 2;
+    
     if any(strcmp(cfg.stimComp,{'mac','linux'}))
         
-        % CHANNELS is 1 for mono sound or 2 for stereo sound
-        cfg.audio.channels = 2;
+        
         
         % pahandle = PsychPortAudio('Open' [, deviceid][, mode][, reqlatencyclass][, freq] ...
             %       [, channels][, buffersize][, suggestedLatency][, selectchannels][, specialFlags=0]);
@@ -122,14 +124,17 @@ AssertOpenGL;
         
     else
         
-        audio_dev       = PsychPortAudio('GetDevices');
-        idx             = find([audio_dev.NrInputChannels] == 0 & [audio_dev.NrOutputChannels] == 2);
-        cfg.audio       = [];
-        cfg.audio.i     = audio_dev(idx).DeviceIndex;
-        cfg.fs          = audio_dev(idx).DefaultSampleRate;
-        cfg.audio.channels = audio_dev.NrOutputChannels;
-        %cfg.audio.channels = 1; % we have mono sound actually
-        cfg.pahandle    = PsychPortAudio('Open',cfg.audio.i,1,1,cfg.fs,cfg.audio.channels);
+        cfg.pahandle = PsychPortAudio('Open', [], [], 0, cfg.fs, cfg.audio.channels);
+        
+%         audio_dev       = PsychPortAudio('GetDevices');
+%         idx             = find([audio_dev.NrInputChannels] == 0 & [audio_dev.NrOutputChannels] == 2);
+%         cfg.audio       = [];
+%         cfg.audio.i     = audio_dev(idx).DeviceIndex;
+%         cfg.fs          = audio_dev(idx).DefaultSampleRate;
+%         cfg.audio.channels = audio_dev.NrOutputChannels;
+%         % the latency is not important - otherwise it may not work on
+%         % windows computer
+%         cfg.pahandle    = PsychPortAudio('Open',cfg.audio.i,1,0,cfg.fs,cfg.audio.channels);
     end
     
     % set initial PTB volume for safety (participants can adjust this manually
