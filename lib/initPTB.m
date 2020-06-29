@@ -131,7 +131,7 @@ AssertOpenGL;
         cfg.audio       = [];
         cfg.audio.i     = audio_dev(idx).DeviceIndex;
         cfg.fs          = audio_dev(idx).DefaultSampleRate;
-        cfg.audio.channels = audio_dev.NrOutputChannels;
+        % cfg.audio.channels = audio_dev.NrOutputChannels;
         % the latency is not important - otherwise it may not work on
         % windows computer
         cfg.pahandle    = PsychPortAudio('Open',cfg.audio.i,1,0,cfg.fs,cfg.audio.channels);
