@@ -134,11 +134,8 @@ AssertOpenGL;
         % save device ID
         cfg.audio.i     = audio_dev(idx).DeviceIndex;
         
-        % get device's sampling rate (must be 44100 Hz)
+        % get device's sampling rate
         cfg.fs          = audio_dev(idx).DefaultSampleRate;
-        if cfg.fs~=44100
-            error('the audio device does not support fs = 44100 Hz'); 
-        end
         
         % the latency is not important - but consistent latency is! Let's try with WASAPI driver. 
         cfg.pahandle    = PsychPortAudio('Open', cfg.audio.i, 1, 3, cfg.fs, cfg.audio.channels);
