@@ -123,18 +123,20 @@ AssertOpenGL;
 
         
     else
-        
-        cfg.pahandle = PsychPortAudio('Open', [], [], 0, cfg.fs, cfg.audio.channels);
-        
-%         audio_dev       = PsychPortAudio('GetDevices');
-%         idx             = find([audio_dev.NrInputChannels] == 0 & [audio_dev.NrOutputChannels] == 2);
-%         cfg.audio       = [];
-%         cfg.audio.i     = audio_dev(idx).DeviceIndex;
-%         cfg.fs          = audio_dev(idx).DefaultSampleRate;
-%         cfg.audio.channels = audio_dev.NrOutputChannels;
-%         % the latency is not important - otherwise it may not work on
-%         % windows computer
-%         cfg.pahandle    = PsychPortAudio('Open',cfg.audio.i,1,0,cfg.fs,cfg.audio.channels);
+                
+        audio_dev       = PsychPortAudio('GetDevices');
+        idx             = find([audio_dev.NrInputChannels] == 0 & ...
+                               [audio_dev.NrOutputChannels] == 2 & ...
+                               ~cellfun(@isempty, regexp({audio_dev.HostAudioAPIName},'WASAPI')));
+        cfg.audio       = [];
+        cfg.audio.i     = audio_dev(idx).DeviceIndex;
+        cfg.fs          = audio_dev(idx).DefaultSampleRate;
+        cfg.audio.channels = audio_dev.NrOutputChannels;
+        % the latency is not important - otherwise it may not work on
+        % windows computer
+        cfg.pahandle    = PsychPortAudio('Open',cfg.audio.i,1,0,cfg.fs,cfg.audio.channels);
+        % cfg.pahandle = PsychPortAudio('Open', [], [], 0, cfg.fs, cfg.audio.channels);
+
     end
     
     % set initial PTB volume for safety (participants can adjust this manually
