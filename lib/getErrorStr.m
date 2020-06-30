@@ -35,6 +35,12 @@ else
     perfIdx = round( perfLevel * N); 
 end
 
+% if the error was < 0.5, the index is 0, we need to correct it to 1
+if perfIdx == 0
+    perfIdx = 1; 
+end
+
+
 %% threshold
 
 % get threshold they need to achieve to success
