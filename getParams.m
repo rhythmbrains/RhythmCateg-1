@@ -1,4 +1,4 @@
-function [cfg,expParameters] = getParams(task)
+function [cfg,expParam] = getParams(task)
 % Initialize the parameters variables
 % Initialize the general configuration variables
 % =======
@@ -17,6 +17,15 @@ function [cfg,expParameters] = getParams(task)
 %% cfg parameters
 cfg = struct; 
 
+%% set the type of your computer
+if IsWin
+    cfg.stimComp='windows';
+elseif ismac
+    cfg.stimComp = 'mac';
+elseif IsLinux
+    cfg.stimComp = 'linux';
+end
+
 %% Debug mode settings
 cfg.debug               = 1 ;  % To test the script
 cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
@@ -28,12 +37,33 @@ cfg.numTriggers   = 4;          % first #Triggers will be dummy scans
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 %% general configuration
-expParameters = struct;
-expParameters.task = task; 
+expParam = struct;
+expParam.fmriTask = true; % the task is behav exp or fMRI? 
+
+%it should be calling behav or fmri - important for BIDS format.
+expParam.task = task;  % change in the future
+
 %it won't ask you about group or session
-expParameters.askGrpSess = [0 0];
+expParam.askGrpSess = [0 0];
+
+%% monitor
+% Monitor parameters - fMRI 
+cfg.monitorWidth  	  = 42;  % Monitor Width in cm
+cfg.screenDistance    = 134; % Distance from the screen in cm
+cfg.diameterAperture  = 8;   % Diameter/length of side of aperture in Visual angles
+
+% Monitor parameters for PTB
+cfg.white  = [255 255 255];
+cfg.black  = [ 0   0   0 ];
+cfg.gray   = mean([cfg.black; cfg.white]);
+cfg.backgroundColor  = cfg.gray;
+cfg.textColor        = cfg.white;
+cfg.textFont         = 'Arial'; %'Courier New'
+cfg.textSize         = 30; %18
+%cfg.textStyle        = 1;
 
 
+    
 %% sound levels
 % assuming that participant will do the task with headphones
 cfg.baseAmp = 0.5; 
@@ -45,52 +75,68 @@ cfg.PTBInitVolume = 0.3;
 if strcmpi(cfg.device, 'scanner')
     
     %  boolean for equating the dB across different tones for behavioral exp
-    expParameters.equateSoundAmp = 0;
+    expParam.equateSoundAmp = 0;
     
     % BIDS compatible logfile folder
-    expParameters.outputDir = fullfile(...
+    expParam.outputDir = fullfile(...
         fileparts(mfilename('fullpath')),'..', ...
         'output');
 else
     
     %  boolean for equating the dB across different tones for behavioral exp
-    expParameters.equateSoundAmp = 1;
+    expParam.equateSoundAmp = 1;
     
     % BIDS non-compatible logfile folder
-    expParameters.outputDir = fullfile(...
+    expParam.outputDir = fullfile(...
         fileparts(mfilename('fullpath')), ...
         'output');
     
 end
 
-
-%% set the type of your computer
-if IsWin
-    cfg.stimComp='windows';
-elseif ismac
-    cfg.stimComp = 'mac';
-elseif IsLinux
-    cfg.stimComp = 'linux';
-end
-
-%% other parameters
+%% audio other parameters
 % sampling rate
 cfg.fs = 44100; 
+% channels is 1 for mono sound or 2 for stereo sound
+cfg.audio.channels = 2;
 
-
-%% download missing stimuli
+%% download missing stimuli (.wav)
 checkSoundFiles();
 
+
+
+
+
+%% fMRI 
+% if fmriTask == true, it'll display a fixation cross during the fMRI run
+
+if expParam.fmriTask
+    
+    % Used Pixels here since it really small and can be adjusted during the experiment
+    expParam.fixCrossDimPix               = 10;   % Set the length of the lines (in Pixels) of the fixation cross
+    expParam.lineWidthPix                 = 4;    % Set the line width (in Pixels) for our fixation cross
+    expParam.xDisplacementFixCross        = 0;    % Manual displacement of the fixation cross
+    expParam.yDisplacementFixCross        = 0;    % Manual displacement of the fixation cross
+    expParam.fixationCrossColor           = cfg.white;
+    
+    %calculate the location coord for cross
+    cfg.xCoords = [-expParam.fixCrossDimPix expParam.fixCrossDimPix 0 0] ...
+        + expParam.xDisplacementFixCross;
+    cfg.yCoords = [0 0 -expParam.fixCrossDimPix expParam.fixCrossDimPix] ...
+        + expParam.yDisplacementFixCross;
+    cfg.allCoords = [cfg.xCoords; cfg.yCoords];
+    
+end
+
 %% more parameters to get according to thetype of experiment
-if strcmp(expParameters.task,'tapTraining')
+if strcmp(expParam.task,'tapTraining')
     
     % get tapping training parameters
-    [cfg,expParameters] = getTrainingParameters(cfg,expParameters);
+    [cfg,expParam] = getTrainingParameters(cfg,expParam);
     
-elseif strcmp(expParameters.task,'tapMainExp')
+elseif strcmp(expParam.task,'tapMainExp')
     
     % get main experiment parameters
-    [cfg,expParameters] = getMainExpParameters(cfg,expParameters);
+    [cfg,expParam] = getMainExpParameters(cfg,expParam);
     
 end
 

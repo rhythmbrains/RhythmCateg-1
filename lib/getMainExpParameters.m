@@ -7,9 +7,10 @@ function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % start the sequence with one B-category segment that will be discarded during analysis
 % % %
 
-
 % wait before running the exp
-expParam.onsetDelay = 0;
+expParam.onsetDelay = 0; %Number of seconds before the rhythmic sequence (exp) are presented
+expParam.endDelay = 0; % Number of seconds after the end of all stimuli before ending the fmri run! 
+
 
 %wait in between sequences? y/n
 expParam.sequenceDelay = 1;
@@ -200,6 +201,14 @@ cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
 
 
 %% Task Instructions
+
+% fMRI instructions
+expParam.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
+
+
+
+
+% behavioral instructions
 
 loadPathInstr = fullfile('lib','instr','mainExp'); 
 
