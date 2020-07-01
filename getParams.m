@@ -18,13 +18,13 @@ function [cfg,expParameters] = getParams(task)
 cfg = struct; 
 
 %% Debug mode settings
-cfg.debug               = 0 ;  % To test the script
-cfg.testingTranspScreen = 0 ;  % To test with trasparent full size screen 
+cfg.debug               = 1 ;  % To test the script
+cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
 
 %% MRI settings
 cfg.device        = 'PC';       % 'PC': does not care about trigger(for behav) - otherwise use 'Scanner'
 cfg.triggerKey    = 's';        % Set the letter sent by the trigger to sync stimulation and volume acquisition
-cfg.numTriggers   = 4;          % first numTriggers will be dummy scans
+cfg.numTriggers   = 4;          % first #Triggers will be dummy scans
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 %% general configuration
@@ -42,20 +42,24 @@ cfg.baseAmp = 0.5;
 cfg.PTBInitVolume = 0.3; 
 
 
-% BIDS compatible logfile folder
-% by default the data should be stored in an output folder created 
-% outside of the scripts folder
-% change that if you do not want BIDS formatting output
-expParameters.outputDir = fullfile(...
-    fileparts(mfilename('fullpath')), ...
-    'output');
-
-
-%  boolean for equating the dB across different tones for behavioral exp
 if strcmpi(cfg.device, 'scanner')
+    
+    %  boolean for equating the dB across different tones for behavioral exp
     expParameters.equateSoundAmp = 0;
+    
+    % BIDS compatible logfile folder
+    expParameters.outputDir = fullfile(...
+        fileparts(mfilename('fullpath')),'..', ...
+        'output');
 else
+    
+    %  boolean for equating the dB across different tones for behavioral exp
     expParameters.equateSoundAmp = 1;
+    
+    % BIDS non-compatible logfile folder
+    expParameters.outputDir = fullfile(...
+        fileparts(mfilename('fullpath')), ...
+        'output');
     
 end
 
@@ -75,36 +79,7 @@ cfg.fs = 44100;
 
 
 %% download missing stimuli
-
-
-% check if any required stimulus files are missing
-dStim = dir(fullfile('stimuli','*')); 
-fidStimList = fopen(fullfile('stimuli','REQUIRED_FILES_LIST'), 'r'); 
-DOWNLOAD_STIM = 0; 
-fprintf('checking for missing stimulus files...\n'); 
-while 1
-    
-    l = fgetl(fidStimList); 
-    if ~any(strcmp({dStim.name},l))
-        fprintf('%s \n',l); 
-        DOWNLOAD_STIM = 1; 
-    end
-    if feof(fidStimList)
-        break
-    end
-end
-
-if DOWNLOAD_STIM
-    % download missing files from Dropbox
-    url = 'https://www.dropbox.com/sh/20hgit6xoqxsbt0/AABnGrj6XDH08zQ5ilICLARVa?dl=1'; 
-    disp('downloading audio files from Dropbox...'); 
-    urlwrite(url,'stimuli.zip'); 
-    unzip('stimuli.zip','stimuli'); 
-    delete('stimuli.zip')
-    disp('audio downloaded successfully'); 
-end
-
-
+checkSoundFiles();
 
 %% more parameters to get according to thetype of experiment
 if strcmp(expParameters.task,'tapTraining')
