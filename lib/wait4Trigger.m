@@ -21,7 +21,7 @@ if strcmp(cfg.device,'scanner')
             fprintf('Trigger %s \n', num2str(triggerCounter));
             
             %display the trigger count
-            displayInstr(['Trigger ',num2str(triggerCounter)],cfg)
+            displayInstr(['Experiment starting in ',num2str(4-triggerCounter),'...'],cfg)
 
             while keyIsDown
                 [keyIsDown, ~, ~, ~] = KbCheck(-1);
