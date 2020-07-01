@@ -42,7 +42,12 @@ try
     
  
             
-    % add a keypress to wait to check the monitor - for fMRI exp
+    % wait for space key to be pressed by the experimenter
+    % to make the script more verbose
+    pressSpace4me
+    
+    % wait for trigger from fMRI
+    wait4Trigger(cfg);
     
     
     % show instructions and do initial volume setting
@@ -67,8 +72,10 @@ try
     displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
 
     % if there's wait time,..wait
-    WaitSecs(expParam.onsetDelay);
-
+    % WaitSecs(expParam.onsetDelay);
+    
+    
+    
     %% play sequences
     for seqi = 1:expParam.numSequences
 
@@ -80,13 +87,6 @@ try
 
         % construct sequence
         currSeq = makeSequence(cfg,seqi);
-
-
-        % ===========================================
-        % log sequence into text file
-        % ===========================================
-        
-        % saveOutput(cfg, expParam, 'updateStim',currSeq);
 
         
         % ===========================================
@@ -160,10 +160,6 @@ try
 
         % save all the taps for this sequence
         expParam.data(seqi).taps = tapOnsets;
-
-
-
-
 
 
 
