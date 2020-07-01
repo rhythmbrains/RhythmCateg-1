@@ -16,6 +16,6 @@ logfiles/
 *.mat
 *.tsv
 
-stimuli/Grahn2007_complex.txt
-
 *.txt
+!stimuli/Grahn2007_simple.txt
+!stimuli/Grahn2007_complex.txt
