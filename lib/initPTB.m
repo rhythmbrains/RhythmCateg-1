@@ -18,12 +18,15 @@ AssertOpenGL;
     
     KbName('UnifyKeyNames');
     cfg.keywait         = KbName({'RETURN'}); % press enter to start bloc
+    cfg.keyToggleInstr  = KbName({'I'}); % press I to show/remove general instructions from the screen
     cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit 
     cfg.keytap          = KbName('SPACE'); 
     cfg.keyVolUp        = KbName('UpArrow'); 
     cfg.keyVolDown      = KbName('DownArrow'); 
     cfg.keyAudioPlay    = KbName('p'); 
     cfg.keyAudioStop    = KbName('s'); 
+    cfg.keyInstrBack    = KbName('b'); 
+    cfg.keyInstrNext    = KbName('n'); 
 
     
     % Don't echo keypresses to Matlab window
@@ -38,8 +41,9 @@ AssertOpenGL;
     HideCursor;
     
     %% init Visual
-
     
+    clear Screen
+
     cfg.screen              = [];
     cfg.screen.i            = max(Screen('Screens'));
     cfg.screen.res          = Screen('Resolution',cfg.screen.i);
@@ -58,9 +62,10 @@ AssertOpenGL;
         if cfg.testingTranspScreen
             PsychDebugWindowConfiguration
             Screen('Preference', 'SkipSyncTests', 1);
-            cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
-            
         end
+        
+        cfg.screen.h = Screen('OpenWindow',cfg.screen.i,cfg.screen.graycol);
+            
         
         
     else       
@@ -102,29 +107,40 @@ AssertOpenGL;
 
     InitializePsychSound(1);
     
+    % CHANNELS is 1 for mono sound or 2 for stereo sound
+    cfg.audio.channels = 2;
+    
     if any(strcmp(cfg.stimComp,{'mac','linux'}))
         
-        % CHANNELS is 1 for mono sound or 2 for stereo sound
-        cfg.audio.channels = 2;
-        
+                
         % pahandle = PsychPortAudio('Open' [, deviceid][, mode][, reqlatencyclass][, freq] ...
             %       [, channels][, buffersize][, suggestedLatency][, selectchannels][, specialFlags=0]);
         % cfg.pahandle = PsychPortAudio('Open', [], [], 3, cfg.fs, cfg.audio.channels);
         % change the latency to:
         % Try to get the lowest latency that is possible under the constraint of reliable playback
-        cfg.pahandle = PsychPortAudio('Open', [], [], 1, cfg.fs, cfg.audio.channels);
+        cfg.pahandle = PsychPortAudio('Open', [], [], 3, cfg.fs, cfg.audio.channels);
 
         
     else
-        
+                
+        % get audio device list
         audio_dev       = PsychPortAudio('GetDevices');
-        idx             = find([audio_dev.NrInputChannels] == 0 & [audio_dev.NrOutputChannels] == 2);
-        cfg.audio       = [];
+        
+        % find output device using WASAPI deiver
+        idx             = find([audio_dev.NrInputChannels] == 0 & ...
+                               [audio_dev.NrOutputChannels] == 2 & ...
+                               ~cellfun(@isempty, regexp({audio_dev.HostAudioAPIName},'WASAPI')));
+        
+        % save device ID
         cfg.audio.i     = audio_dev(idx).DeviceIndex;
+        
+        % get device's sampling rate
         cfg.fs          = audio_dev(idx).DefaultSampleRate;
-        cfg.audio.channels = audio_dev.NrOutputChannels;
-        %cfg.audio.channels = 1; % we have mono sound actually
-        cfg.pahandle    = PsychPortAudio('Open',cfg.audio.i,1,1,cfg.fs,cfg.audio.channels);
+        
+        % the latency is not important - but consistent latency is! Let's try with WASAPI driver. 
+        cfg.pahandle    = PsychPortAudio('Open', cfg.audio.i, 1, 3, cfg.fs, cfg.audio.channels);
+        % cfg.pahandle = PsychPortAudio('Open', [], [], 0, cfg.fs, cfg.audio.channels);
+
     end
     
     % set initial PTB volume for safety (participants can adjust this manually

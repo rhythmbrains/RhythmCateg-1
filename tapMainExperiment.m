@@ -1,13 +1,4 @@
 
-%
-% SOMETIMES THERE ARE CRACKS IN THE AUDIO
-% (maybe there's too much in the audio buffer at the same time?)
-% > ask participants switch off all the other apps
-%
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
 % Clear all the previous stuff
 if ~ismac
@@ -41,16 +32,37 @@ try
     [cfg] = initPTB(cfg);
 
     % Prepare for the output logfiles
-    expParam = saveOutput(cfg, expParam, 'open');
+    % expParam = saveOutput(cfg, expParam, 'open');
     
     % Prepare for the output logfiles - BIDS
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
-        'patternID','category','F0','gridIOI','patternAmp');
+        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+        'category','F0','gridIOI','patternAmp','PE4','minPE4',...
+        'rangePE4','LHL24','minLHL24','rangeLHL24');
     
+ 
+            
     % add a keypress to wait to check the monitor - for fMRI exp
     
-    % task instructions
-    displayInstr(expParam.taskInstruction,cfg,'waitForKeypress');
+    
+    % show instructions and do initial volume setting
+    currInstrPage = 1; 
+    nInstrPages = length(expParam.introInstruction); 
+    while 1
+        % display instructions and wait for action
+        subAction = displayInstr(expParam.introInstruction{currInstrPage}, cfg, 'setVolumePrevNext', ...
+                                 'currInstrPage', currInstrPage, ...
+                                 'nInstrPages', nInstrPages); 
+        % go one instruction page forward or backward (depending on subject's action)                      
+        if strcmp(subAction,'oneInstrPageForward')
+            currInstrPage = min(currInstrPage+1, length(expParam.introInstruction)); 
+        elseif strcmp(subAction,'oneInstrPageBack')
+            currInstrPage = max(currInstrPage-1, 1); 
+        elseif strcmp(subAction,'done')
+            break
+        end
+    end
+        
     % more instructions
     displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
 
@@ -74,7 +86,7 @@ try
         % log sequence into text file
         % ===========================================
         
-        saveOutput(cfg, expParam, 'updateStim',currSeq);
+        % saveOutput(cfg, expParam, 'updateStim',currSeq);
 
         
         % ===========================================
@@ -91,9 +103,10 @@ try
         end
         
         saveEventsFile('save', expParam, currSeq,'sequenceNum',...
-                'patternID','segmCateg','F0','gridIOI','patternAmp');
-            
-        
+        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+        'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
+        'rangePE4','LHL24','minLHL24','rangeLHL24');
+
 
         %% present stimulus, record tapping
 
@@ -123,8 +136,11 @@ try
             
             
             saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
-                'patternID','segmCateg','F0','gridIOI','patternAmp');
-            
+                'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+                'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
+                'rangePE4','LHL24','minLHL24','rangeLHL24');
+
+    
         end
         
         % ===========================================
@@ -139,8 +155,8 @@ try
 
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
+        currSeq(1).outAudio = [];
         expParam.data(seqi).seq = currSeq;
-        expParam.data(seqi).seq(1).outAudio = [];
 
         % save all the taps for this sequence
         expParam.data(seqi).taps = tapOnsets;
@@ -154,28 +170,43 @@ try
         %% Pause
 
         if seqi<expParam.numSequences
+            
             % pause (before next sequence starts, wait for key to continue)
             if expParam.sequenceDelay
-                fbkToDisp = sprintf(expParam.delayInstruction, seqi, expParam.numSequences);
-                displayInstr(fbkToDisp,cfg,'setVolume');
+                
+                % show sequence-specific instruction if there is some
+                % defined
+                if ~isempty(expParam.seqSpecificDelayInstruction{seqi})
+                    displayInstr(expParam.seqSpecificDelayInstruction{seqi}, ...
+                                 cfg, ...
+                                 'setVolumeToggleGeneralInstr', ...
+                                 'generalInstrTxt', expParam.generalInstruction);
+                end
+                
+                % show general instruction after each sequence
+                fbkToDisp = sprintf(expParam.generalDelayInstruction, seqi, expParam.numSequences);
+                displayInstr(fbkToDisp, ...
+                             cfg, ...
+                             'setVolumeToggleGeneralInstr', ...
+                             'generalInstrTxt', expParam.generalInstruction);
+                
+                % pause for N secs before starting next sequence
                 WaitSecs(expParam.pauseSeq);
             end
-
+            
         else
+            
             % end of experient
             displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);
+            
             % wait 3 seconds and end the experiment
             WaitSecs(3);
+            
         end
 
     end % sequence loop
 
 
-
-
-    % save everything into .mat file
-    saveOutput(cfg, expParam, 'savemat');
-    saveOutput(cfg, expParam, 'close');
 
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', expParam, logFile);
@@ -198,8 +229,13 @@ try
 catch
 
     % save everything into .mat file
-    saveOutput(cfg, expParam, 'savemat');
-    saveOutput(cfg, expParam, 'close');
+    matFile = fullfile(expParam.outputDir, strrep(expParam.fileName.events,'tsv', 'mat'));
+    if IsOctave
+        save(matFile, '-mat7-binary');
+    else
+        save(matFile, '-v7.3');
+    end
+    
     % Close the logfiles - BIDS
     saveEventsFile('close', expParam, logFile);
 
