@@ -1,12 +1,12 @@
 function wait4Trigger(cfg)
 
-if strcmp(cfg.device,'Scanner')
+if strcmp(cfg.device,'scanner')
 
     fprintf('Waiting for trigger \n');
 
-    DrawFormattedText(cfg.win,'Waiting For Trigger',...
-        'center', 'center', cfg.textColor);
-    Screen('Flip', cfg.win);
+    % display instructions in the center of cfg.screen 
+    displayInstr('Waiting For Trigger...',cfg)
+
 
     triggerCounter=0;
 
@@ -19,9 +19,9 @@ if strcmp(cfg.device,'Scanner')
             triggerCounter = triggerCounter+1 ;
 
             fprintf('Trigger %s \n', num2str(triggerCounter));
-
-            DrawFormattedText(cfg.win,['Trigger ',num2str(triggerCounter)],'center', 'center', cfg.textColor);
-            Screen('Flip', cfg.win);
+            
+            %display the trigger count
+            displayInstr(['Trigger ',num2str(triggerCounter)],cfg)
 
             while keyIsDown
                 [keyIsDown, ~, ~, ~] = KbCheck(-1);

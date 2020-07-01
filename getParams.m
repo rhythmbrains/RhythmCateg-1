@@ -22,7 +22,7 @@ cfg.debug               = 1 ;  % To test the script
 cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
 
 %% MRI settings
-cfg.device        = 'PC';       % 'PC': does not care about trigger(for behav) - otherwise use 'Scanner'
+cfg.device        = 'scanner';       % 'PC': does not care about trigger(for behav) - otherwise use 'Scanner'
 cfg.triggerKey    = 's';        % Set the letter sent by the trigger to sync stimulation and volume acquisition
 cfg.numTriggers   = 4;          % first #Triggers will be dummy scans
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
