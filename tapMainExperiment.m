@@ -31,8 +31,6 @@ try
     % Init the experiment
     [cfg] = initPTB(cfg);
 
-    % Prepare for the output logfiles
-    % expParam = saveOutput(cfg, expParam, 'open');
     
     % Prepare for the output logfiles - BIDS
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
@@ -48,6 +46,9 @@ try
     
     
     % consider checking KbCheck if it works here
+    % getResponse('init', xx)
+    % getResponse('start',xx)
+    
     
     % Show instructions for fMRI task
     
@@ -56,7 +57,10 @@ try
     wait4Trigger(cfg);
     
     % show fixation cross 
-    
+    if expParam.fmriTask
+        displayInstr(expParam.fmriTaskInst,cfg);
+        drawFixationCross(cfg,expParam, expParam.fixationCrossColor);
+    end
     
     % "omit" the behav instructions 
     
@@ -81,8 +85,9 @@ try
     % more instructions
     displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
 
+
     % if there's wait time,..wait
-    % WaitSecs(expParam.onsetDelay);
+    WaitSecs(expParam.onsetDelay);
     
     
     
@@ -174,11 +179,12 @@ try
 
 
         %% Pause
+        %change this part for fMRI 
 
         if seqi<expParam.numSequences
             
             % pause (before next sequence starts, wait for key to continue)
-            if expParam.sequenceDelay
+            if expParam.sequenceDelay % change this for fMRI exp
                 
                 % show sequence-specific instruction if there is some
                 % defined
