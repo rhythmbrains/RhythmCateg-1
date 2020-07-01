@@ -46,9 +46,19 @@ try
     % to make the script more verbose
     pressSpace4me
     
+    
+    % consider checking KbCheck if it works here
+    
+    % Show instructions for fMRI task
+    
+    
     % wait for trigger from fMRI
     wait4Trigger(cfg);
     
+    % show fixation cross 
+    
+    
+    % "omit" the behav instructions 
     
     % show instructions and do initial volume setting
     currInstrPage = 1; 
