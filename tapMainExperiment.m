@@ -163,10 +163,6 @@ try
 
 
 
-
-
-
-
         %% Pause
 
         if seqi<expParam.numSequences

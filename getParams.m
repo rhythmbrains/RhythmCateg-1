@@ -16,13 +16,16 @@ function [cfg,expParameters] = getParams(task)
 
 %% cfg parameters
 cfg = struct; 
-cfg.device = 'PC';              % PC for behav, scanner for fMRI, 
-cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 %% Debug mode settings
 cfg.debug               = 0 ;  % To test the script
 cfg.testingTranspScreen = 0 ;  % To test with trasparent full size screen 
 
+%% MRI settings
+cfg.device        = 'PC';       % 'PC': does not care about trigger(for behav) - otherwise use 'Scanner'
+cfg.triggerKey    = 's';        % Set the letter sent by the trigger to sync stimulation and volume acquisition
+cfg.numTriggers   = 4;          % first numTriggers will be dummy scans
+cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 %% general configuration
 expParameters = struct;
