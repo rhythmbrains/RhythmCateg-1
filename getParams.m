@@ -180,6 +180,9 @@ switch lower(cfg.device)
         
     case 'scanner'
         
+        cfg.keyboard = [];
+        cfg.responseBox = [];
+        
     otherwise
         
         cfg.keyboard = [];

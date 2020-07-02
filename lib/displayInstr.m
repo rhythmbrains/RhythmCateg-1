@@ -47,7 +47,7 @@ if any(strcmpi(varargin,'setVolume'))
         DrawFormattedText(cfg.win,instrTxt,'center','center',cfg.white); 
 
         % display continue option on the bottom of the screen
-        DrawFormattedText(cfg.win,'Press [ENTER] to continue...','center',cfg.screen.y*0.9,cfg.white); 
+        DrawFormattedText(cfg.win,'Press [ENTER] to continue...','center',cfg.winHeight*0.9,cfg.white); 
 
         % display quit option in the cfg.screen corner
         txt = sprintf([sprintf(' Press [%s] to play test sound\n',KbName(cfg.keyAudioPlay)), ...
@@ -59,9 +59,9 @@ if any(strcmpi(varargin,'setVolume'))
         tbx     = Screen('TextBounds', cfg.win, txt);
         width   = tbx(3);
         height  = tbx(4);
-        cfg.screen.screenRect = Screen('Rect', cfg.win);
+        %cfg.screen.screenRect = Screen('Rect', cfg.win);
         r = [0 0 width height + Screen('TextSize', cfg.win)];
-        r = AlignRect(r,cfg.screen.screenRect,RectLeft,RectTop);
+        r = AlignRect(r,cfg.winRect,RectLeft,RectTop);
         [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
 
         
@@ -70,9 +70,9 @@ if any(strcmpi(varargin,'setVolume'))
         tbx     = Screen('TextBounds', cfg.win, txt);
         width   = tbx(3);
         height  = tbx(4);
-        cfg.screen.screenRect = Screen('Rect', cfg.win);
+        %cfg.screen.screenRect = Screen('Rect', cfg.win);
         r = [0 0 width height + Screen('TextSize', cfg.win)];
-        r = AlignRect(r,cfg.screen.screenRect,RectRight,RectTop);
+        r = AlignRect(r,cfg.winRect,RectRight,RectTop);
         [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
         
         
@@ -157,7 +157,7 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         % display continue option on the bottom of the screen
         % ! only if we're at the last instruction page ! 
         if currInstrPage == nInstrPages
-            DrawFormattedText(cfg.win,'Press [ENTER] to continue...','center',cfg.screen.y*0.9,cfg.white); 
+            DrawFormattedText(cfg.win,'Press [ENTER] to continue...','center',cfg.winHeight*0.9,cfg.white); 
         end
         
         % display quit option in the cfg.screen corner
@@ -170,9 +170,9 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         tbx     = Screen('TextBounds', cfg.win, txt);
         width   = tbx(3);
         height  = tbx(4);
-        cfg.screen.screenRect = Screen('Rect', cfg.win);
+        %cfg.screen.screenRect = Screen('Rect', cfg.win);
         r = [0 0 width height + Screen('TextSize', cfg.win)];
-        r = AlignRect(r,cfg.screen.screenRect,RectLeft,RectTop);
+        r = AlignRect(r,cfg.winRect,RectLeft,RectTop);
         [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
         
         % display quit option 
@@ -180,9 +180,9 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         tbx     = Screen('TextBounds', cfg.win, txt);
         width   = tbx(3);
         height  = tbx(4);
-        cfg.screen.screenRect = Screen('Rect', cfg.win);
+        %cfg.screen.screenRect = Screen('Rect', cfg.win);
         r = [0 0 width height + Screen('TextSize', cfg.win)];
-        r = AlignRect(r,cfg.screen.screenRect,RectRight,RectTop);
+        r = AlignRect(r,cfg.winRect,RectRight,RectTop);
         [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
         
         % display previous option for instruction pages
@@ -194,9 +194,9 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         tbx     = Screen('TextBounds', cfg.win, txt);
         width   = tbx(3);
         height  = tbx(4);
-        cfg.screen.screenRect = Screen('Rect', cfg.win);
+        %cfg.screen.screenRect = Screen('Rect', cfg.win);
         r = [0 0 width height + nLines*Screen('TextSize', cfg.win)];
-        r = AlignRect(r,cfg.screen.screenRect,RectRight,RectBottom);
+        r = AlignRect(r,cfg.winRect,RectRight,RectBottom);
         [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectTop), cfg.white);
         
         
@@ -277,11 +277,11 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
         if generalInstrOnScreen
         % we are displaying general instructions for the experiment
             
-            % display instructions in the center of cfg.screen 
+            % display instructions in the center of cfg.win 
             DrawFormattedText(cfg.win,generalInstrTxt,'center','center',cfg.white); 
 
             % display continue option on the bottom of the screen
-            DrawFormattedText(cfg.win,'Press [I] to toggle instructions, or [ENTER] to continue...','center',cfg.screen.y*0.9,cfg.white); 
+            DrawFormattedText(cfg.win,'Press [I] to toggle instructions, or [ENTER] to continue...','center',cfg.winHeight*0.9,cfg.white); 
         
             
         else
@@ -291,7 +291,7 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
             DrawFormattedText(cfg.win,instrTxt,'center','center',cfg.white); 
 
             % display continue option on the bottom of the screen
-            DrawFormattedText(cfg.win,'Press [I] to toggle instructions, or [ENTER] to continue...','center',cfg.screen.y*0.9,cfg.white); 
+            DrawFormattedText(cfg.win,'Press [I] to toggle instructions, or [ENTER] to continue...','center',cfg.winHeight*0.9,cfg.white); 
 
             % display quit option in the cfg.screen corner
             txt = sprintf([sprintf(' Press [%s] to play test sound\n',KbName(cfg.keyAudioPlay)), ...
@@ -303,9 +303,9 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
             tbx     = Screen('TextBounds', cfg.win, txt);
             width   = tbx(3);
             height  = tbx(4);
-            cfg.screen.screenRect = Screen('Rect', cfg.win);
+            % cfg.screen.screenRect = Screen('Rect', cfg.win);
             r = [0 0 width height + Screen('TextSize', cfg.win)];
-            r = AlignRect(r,cfg.screen.screenRect,RectLeft,RectTop);
+            r = AlignRect(r,cfg.winRect,RectLeft,RectTop);
             [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
 
             % display quit option 
@@ -313,9 +313,9 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
             tbx     = Screen('TextBounds', cfg.win, txt);
             width   = tbx(3);
             height  = tbx(4);
-            cfg.screen.screenRect = Screen('Rect', cfg.win);
+            %cfg.screen.screenRect = Screen('Rect', cfg.win);
             r = [0 0 width height + Screen('TextSize', cfg.win)];
-            r = AlignRect(r,cfg.screen.screenRect,RectRight,RectTop);
+            r = AlignRect(r,cfg.winRect,RectRight,RectTop);
             [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
             
                         
@@ -380,16 +380,16 @@ elseif any(strcmpi(varargin,'waitForKeypress'))
     DrawFormattedText(cfg.win,instrTxt,'center','center',cfg.white); 
 
     % display continue option on the bottom of the screen
-    DrawFormattedText(cfg.win,'Press [ENTER] to continue...','center',cfg.screen.y*0.9,cfg.white); 
+    DrawFormattedText(cfg.win,'Press [ENTER] to continue...','center',cfg.winHeight*0.9,cfg.white); 
 
     % display quit option 
     txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyquit)); 
     tbx     = Screen('TextBounds', cfg.win, txt);
     width   = tbx(3);
     height  = tbx(4);
-    cfg.screen.screenRect = Screen('Rect', cfg.win);
+    %cfg.screen.screenRect = Screen('Rect', cfg.win);
     r = [0 0 width height + Screen('TextSize', cfg.win)];
-    r = AlignRect(r,cfg.screen.screenRect,RectRight,RectTop);
+    r = AlignRect(r,cfg.winRect,RectRight,RectTop);
     [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
 
     
@@ -424,7 +424,7 @@ elseif any(strcmpi(varargin,'instrAndQuitOption'))
         fbktxt = varargin{find(strcmpi(varargin,'fbktxt'))+1}; 
         % switcht to mono font
         Screen('TextFont', cfg.win, 'Consolas');
-        DrawFormattedText(cfg.win, fbktxt, 'center', cfg.screen.y*0.75, cfg.white);          
+        DrawFormattedText(cfg.win, fbktxt, 'center', cfg.winHeight*0.75, cfg.white);          
         % switch font back to default
         Screen('TextFont',cfg.win,cfg.textFont);
     end
@@ -438,9 +438,9 @@ elseif any(strcmpi(varargin,'instrAndQuitOption'))
     tbx     = Screen('TextBounds', cfg.win, txt,[],[],[],[]);
     width   = tbx(3);
     height  = tbx(4);
-    cfg.screen.screenRect = Screen('Rect', cfg.win);
+    %cfg.screen.screenRect = Screen('Rect', cfg.win);
     r = [0 0 width height + Screen('TextSize', cfg.win)];
-    r = AlignRect(r,cfg.screen.screenRect,RectRight,RectTop);
+    r = AlignRect(r,cfg.winRect,RectRight,RectTop);
     [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);    
     Screen('TextSize',cfg.win,cfg.textSize);
     

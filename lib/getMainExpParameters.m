@@ -8,7 +8,7 @@ function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % % %
 
 % wait before running the exp
-expParam.onsetDelay = 0; %Number of seconds before the rhythmic sequence (exp) are presented
+expParam.onsetDelay = 3; %Number of seconds before the rhythmic sequence (exp) are presented
 expParam.endDelay = 0; % Number of seconds after the end of all stimuli before ending the fmri run! 
 
 

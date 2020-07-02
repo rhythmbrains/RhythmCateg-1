@@ -51,18 +51,21 @@ try
     
     
     % Show instructions for fMRI task
-    
+    if expParam.fmriTask
+        displayInstr(expParam.fmriTaskInst,cfg);
+    end
     
     % wait for trigger from fMRI
     wait4Trigger(cfg);
     
     % show fixation cross 
     if expParam.fmriTask
-        displayInstr(expParam.fmriTaskInst,cfg);
         drawFixationCross(cfg,expParam, expParam.fixationCrossColor);
+        Screen('Flip',cfg.win);
     end
     
     % "omit" the behav instructions 
+    WaitSecs(expParam.onsetDelay);
     
     % show instructions and do initial volume setting
     currInstrPage = 1; 
