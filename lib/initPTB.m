@@ -42,8 +42,6 @@ AssertOpenGL;
     
     %% init Visual
     
-    clear Screen
-
     cfg.screen              = [];
     cfg.screen.i            = max(Screen('Screens'));
     cfg.screen.res          = Screen('Resolution',cfg.screen.i);
