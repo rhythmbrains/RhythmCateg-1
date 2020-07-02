@@ -37,13 +37,7 @@ try
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
         'category','F0','gridIOI','patternAmp','PE4','minPE4',...
         'rangePE4','LHL24','minLHL24','rangeLHL24');
-    
- 
-            
-    % wait for space key to be pressed by the experimenter
-    % to make the script more verbose
-    pressSpace4me
-    
+
     
     % consider checking KbCheck if it works here
     % getResponse('init', xx)
@@ -54,6 +48,10 @@ try
     if expParam.fmriTask
         displayInstr(expParam.fmriTaskInst,cfg);
     end
+    
+    % wait for space key to be pressed by the experimenter
+    % to make the script more verbose
+    pressSpace4me
     
     % wait for trigger from fMRI
     wait4Trigger(cfg);
