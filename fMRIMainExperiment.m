@@ -184,16 +184,18 @@ try
     % wait 3 seconds for participant to read
     WaitSecs(3);
     
-    % collect response 
-    [tapOnsets, countEvents] = mb_getResponse(cfg, ...
-        expParam, ...
-        countEvents, ...
-        currSeq);
-   
-    % response save for BIDS (write)
-    if isfield(countEvents,'onset')
-        saveEventsFile('save', expParam, countEvents);
-    end
+    % add response check and a counter to save into a mat or logfile
+    % modify the below
+%     % collect response 
+%     [tapOnsets, countEvents] = mb_getResponse(cfg, ...
+%         expParam, ...
+%         countEvents, ...
+%         currSeq);
+%    
+%     % response save for BIDS (write)
+%     if isfield(countEvents,'onset')
+%         saveEventsFile('save', expParam, countEvents);
+%     end
     
     
     
@@ -205,6 +207,9 @@ try
     end
     
 
+    % wait 2 seconds for ending the screen/exp
+    WaitSecs(2);
+    
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', expParam, logFile);
     
