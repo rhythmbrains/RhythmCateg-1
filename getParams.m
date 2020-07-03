@@ -155,6 +155,22 @@ end
 %   keyboard. You might have to try some other values for MacOS or Windows
 % TL: I think -1 should work? 
 % CB: I do not know, feel free to add that
+cfg.keyboard = [];
+cfg.responseBox = [];
+
+% keys to check
+cfg.keywait         = KbName({'RETURN'}); % press enter to start bloc
+cfg.keyToggleInstr  = KbName({'I'}); % press I to show/remove general instructions from the screen
+cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
+cfg.keytap          = KbName('SPACE');
+cfg.keyVolUp        = KbName('UpArrow');
+cfg.keyVolDown      = KbName('DownArrow');
+cfg.keyAudioPlay    = KbName('p');
+cfg.keyAudioStop    = KbName('s');
+cfg.keyInstrBack    = KbName('b');
+cfg.keyInstrNext    = KbName('n');
+
+
 
 
 [cfg.keyboardNumbers, cfg.keyboardNames] = GetKeyboardIndices;
@@ -178,7 +194,7 @@ switch lower(cfg.device)
             cfg.responseBox = [];
         end
         
-    case 'scanner'
+    case 'scanner' %%% might need a change! ! ! 
         
         cfg.keyboard = [];
         cfg.responseBox = [];

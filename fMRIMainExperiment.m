@@ -54,7 +54,7 @@ try
         'rangePE4','LHL24','minLHL24','rangeLHL24');
 
     
-    % consider checking KbCheck if it works here
+    % prepare the KbQueue to collect responses
     % getResponse('init', xx)
     % getResponse('start',xx)
     
@@ -78,7 +78,7 @@ try
     end
     
 
-    % if there's wait time,..wait
+    % wait for dummy fMRI scans
     WaitSecs(expParam.onsetDelay);
     
     
