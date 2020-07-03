@@ -19,15 +19,6 @@ addpath(genpath(fullfile(pwd, 'lib')))
 % in here with the arguments for rhythmic sequence, control1 and control2
 % designs
 % % %
-
-% % %
-% convert waitSecs according to the TR
-% TR = 2.28s
-% waitsecs(3*TR);
-% expParam.onsetDelay = 3; %Number of seconds before the rhythmic sequence (exp) are presented
-% expParam.endDelay = 0; % Number of seconds after the end of all stimuli before ending the fmri run! 
-% % %
-
 [cfg,expParam] = getParams('tapMainExp');
 
 % set and load all the subject input to run the experiment
@@ -55,8 +46,8 @@ try
 
     
     % prepare the KbQueue to collect responses
-    % getResponse('init', xx)
-    % getResponse('start',xx)
+    getResponse('init', cfg, expParam);
+    getResponse('start',cfg,expParam);
     
     
     % Show instructions for fMRI task

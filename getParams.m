@@ -102,11 +102,30 @@ cfg.audio.channels = 2;
 %% download missing stimuli (.wav)
 checkSoundFiles();
 
+%% Timing 
+% % %
+% convert waitSecs according to the TR
+% TR = 2.28s
+% waitsecs(3*TR);
+expParam.onsetDelay = 3; %Number of seconds before the rhythmic sequence (exp) are presented
+expParam.endDelay = 0; % Number of seconds after the end of all stimuli before ending the fmri run! 
+% % %
+
+%wait in between sequences? y/n
+expParam.sequenceDelay = 1;
+
+% give a pause of below seconds in between sequences
+expParam.pauseSeq = 1; 
+
+% define ideal number of sequences to be made
+if cfg.debug
+    expParam.numSequences = 2; % multiples of 3
+else
+    expParam.numSequences = 6;
+end
 
 
-
-
-%% fMRI 
+%% fMRI task
 % if fmriTask == true, it'll display a fixation cross during the fMRI run
 
 if expParam.fmriTask
