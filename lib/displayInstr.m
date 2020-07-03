@@ -59,10 +59,9 @@ if any(strcmpi(varargin,'setVolume'))
         tbx     = Screen('TextBounds', cfg.win, txt);
         width   = tbx(3);
         height  = tbx(4);
-        %cfg.screen.screenRect = Screen('Rect', cfg.win);
         r = [0 0 width height + Screen('TextSize', cfg.win)];
         r = AlignRect(r,cfg.winRect,RectLeft,RectTop);
-        [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
+        DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
 
         
         % display quit option 
@@ -70,10 +69,9 @@ if any(strcmpi(varargin,'setVolume'))
         tbx     = Screen('TextBounds', cfg.win, txt);
         width   = tbx(3);
         height  = tbx(4);
-        %cfg.screen.screenRect = Screen('Rect', cfg.win);
         r = [0 0 width height + Screen('TextSize', cfg.win)];
         r = AlignRect(r,cfg.winRect,RectRight,RectTop);
-        [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
+        DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
         
         
         Screen('Flip', cfg.win);      
@@ -170,20 +168,18 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         tbx     = Screen('TextBounds', cfg.win, txt);
         width   = tbx(3);
         height  = tbx(4);
-        %cfg.screen.screenRect = Screen('Rect', cfg.win);
         r = [0 0 width height + Screen('TextSize', cfg.win)];
         r = AlignRect(r,cfg.winRect,RectLeft,RectTop);
-        [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
+        DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
         
         % display quit option 
         txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyquit)); 
         tbx     = Screen('TextBounds', cfg.win, txt);
         width   = tbx(3);
-        height  = tbx(4);
-        %cfg.screen.screenRect = Screen('Rect', cfg.win);
+        height  = tbx(4); 
         r = [0 0 width height + Screen('TextSize', cfg.win)];
         r = AlignRect(r,cfg.winRect,RectRight,RectTop);
-        [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
+        DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
         
         % display previous option for instruction pages
         txt = sprintf( [sprintf('page %d/%d \n', currInstrPage, nInstrPages), ...
@@ -194,10 +190,9 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         tbx     = Screen('TextBounds', cfg.win, txt);
         width   = tbx(3);
         height  = tbx(4);
-        %cfg.screen.screenRect = Screen('Rect', cfg.win);
         r = [0 0 width height + nLines*Screen('TextSize', cfg.win)];
         r = AlignRect(r,cfg.winRect,RectRight,RectBottom);
-        [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectTop), cfg.white);
+        DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectTop), cfg.white);
         
         
         
@@ -223,7 +218,7 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
             newVolume = max(oldVolume-0.05, 0); 
             PsychPortAudio('Volume',cfg.pahandle,newVolume);
  
-        elseif ismember(keyCodePressed, cfg.keywait) & currInstrPage == nInstrPages
+        elseif ismember(keyCodePressed, cfg.keywait) && currInstrPage == nInstrPages
             PsychPortAudio('Stop',cfg.pahandle); 
             subAction = 'done'; 
             break
@@ -303,20 +298,18 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
             tbx     = Screen('TextBounds', cfg.win, txt);
             width   = tbx(3);
             height  = tbx(4);
-            % cfg.screen.screenRect = Screen('Rect', cfg.win);
             r = [0 0 width height + Screen('TextSize', cfg.win)];
             r = AlignRect(r,cfg.winRect,RectLeft,RectTop);
-            [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
+            DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
 
             % display quit option 
             txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyquit)); 
             tbx     = Screen('TextBounds', cfg.win, txt);
             width   = tbx(3);
             height  = tbx(4);
-            %cfg.screen.screenRect = Screen('Rect', cfg.win);
             r = [0 0 width height + Screen('TextSize', cfg.win)];
             r = AlignRect(r,cfg.winRect,RectRight,RectTop);
-            [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
+            DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
             
                         
         end
@@ -387,10 +380,9 @@ elseif any(strcmpi(varargin,'waitForKeypress'))
     tbx     = Screen('TextBounds', cfg.win, txt);
     width   = tbx(3);
     height  = tbx(4);
-    %cfg.screen.screenRect = Screen('Rect', cfg.win);
     r = [0 0 width height + Screen('TextSize', cfg.win)];
     r = AlignRect(r,cfg.winRect,RectRight,RectTop);
-    [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
+    DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);
 
     
     Screen('Flip', cfg.win);      
@@ -438,10 +430,9 @@ elseif any(strcmpi(varargin,'instrAndQuitOption'))
     tbx     = Screen('TextBounds', cfg.win, txt,[],[],[],[]);
     width   = tbx(3);
     height  = tbx(4);
-    %cfg.screen.screenRect = Screen('Rect', cfg.win);
     r = [0 0 width height + Screen('TextSize', cfg.win)];
     r = AlignRect(r,cfg.winRect,RectRight,RectTop);
-    [oldX,oldY] = DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);    
+    DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);    
     Screen('TextSize',cfg.win,cfg.textSize);
     
     Screen('Flip',cfg.win); 
