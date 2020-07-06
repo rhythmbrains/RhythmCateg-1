@@ -15,8 +15,10 @@ AssertOpenGL;
     PsychJavaTrouble;
 
     
-    
+    % Make sure keyboard mapping is the same on all supported operating systems
+    % Apple MacOS/X, MS-Windows and GNU/Linux:
     KbName('UnifyKeyNames');
+    
     cfg.keywait         = KbName({'RETURN'}); % press enter to start bloc
     cfg.keyToggleInstr  = KbName({'I'}); % press I to show/remove general instructions from the screen
     cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit 
