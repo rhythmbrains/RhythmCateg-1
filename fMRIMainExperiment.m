@@ -75,10 +75,6 @@ try
     
     
     %% play sequences
-    % % %
-    % I'm keeping the for loop in case we change our minds on how many
-    % sequence would be concetenated inside fmri
-    % % %
     for seqi = 1:expParam.numSequences
 
         currSeq = struct();
@@ -175,18 +171,29 @@ try
     % wait 3 seconds for participant to read
     WaitSecs(3);
     
-    % add response check and a counter to save into a mat or logfile
-    % modify the below
-%     % collect response 
-%     [tapOnsets, countEvents] = mb_getResponse(cfg, ...
-%         expParam, ...
-%         countEvents, ...
-%         currSeq);
-%    
-%     % response save for BIDS (write)
-%     if isfield(countEvents,'onset')
-%         saveEventsFile('save', expParam, countEvents);
-%     end
+    % collect the responses (counts) and appends to the event structure for
+    % saving in the tsv file
+    countEvents = getResponse('check', cfg, expParam);
+    
+    if ~isempty(countEvents(1).onset)
+        
+        countEvents.eventLogFile = logFile.fileID;
+        countEvents.count = size(countEvents, 1);
+        
+        for iResp = 1:size(countEvents, 1)
+            countEvents(iResp).onset = ...
+                countEvents(iResp).onset - cfg.experimentStart;
+        end
+        
+        saveEventsFile('save', expParam, countEvents, ...
+            'count');
+    end
+    
+    
+    % wait for the participant to press all the counts
+    WaitSecs(5);
+    
+    getResponse('flush', cfg, expParameters);
     
     
     
