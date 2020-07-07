@@ -27,8 +27,8 @@ expParam = createFilename(cfg,expParam);
 
 
 
-% get time point at the beginning of the experiment (machine time)
-expParam.experimentStartTime = GetSecs();
+% get time point at the beginning of the script (machine time)
+expParam.scriptStartTime = GetSecs();
 
 %% Experiment
 
@@ -41,6 +41,7 @@ try
     
     % Prepare for the output logfiles - BIDS
     % saving 2 arrays long-form
+    % open events logfile
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
         'category','F0','gridIOI','patternAmp','PE4_01', 'PE4_02',...
@@ -49,12 +50,12 @@ try
         'LHL24_01', 'LHL24_02', 'LHL24_03', 'LHL24_04', 'LHL24_05',...
         'LHL24_06','LHL24_07', 'LHL24_08', 'LHL24_09', 'LHL24_10',...
         'LHL24_11', 'LHL24_12', 'minLHL24','rangeLHL24');
+    
+    % open stimulation logfile
+    countFile  = saveEventsFile('open_stim', expParam,[],'target',...
+        'key_name','pressed');
 
-    % prepare the KbQueue to collect responses
-    getResponse('init', cfg, expParam);
-    getResponse('start',cfg,expParam);
-    
-    
+
     % Show instructions for fMRI task
     if expParam.fmriTask
         displayInstr(expParam.fmriTaskInst,cfg);
@@ -63,6 +64,10 @@ try
     % wait for space key to be pressed by the experimenter
     % to make the script more verbose
     pressSpace4me
+    
+    % prepare the KbQueue to collect responses
+    getResponse('init', cfg, expParam);
+    getResponse('start',cfg,expParam);
     
     % wait for trigger from fMRI
     wait4Trigger(cfg);
@@ -75,6 +80,9 @@ try
     
 
     % wait for dummy fMRI scans
+    % and collect the timestamp
+    expParam.experimentStart = GetSecs;
+    
     WaitSecs(expParam.onsetDelay);
     
     
@@ -97,7 +105,7 @@ try
         currSeq(1).fileID = logFile.fileID;
         
         % adding columns in currSeq for BIDS format
-        for iPattern=1:length(currSeq)
+        for iPattern = 1:length(currSeq)
             currSeq(iPattern,1).trial_type  = 'dummy';
             currSeq(iPattern,1).duration    = 0;
             currSeq(iPattern,1).sequenceNum = seqi;            
@@ -109,10 +117,10 @@ try
         'rangePE4','LHL24','minLHL24','rangeLHL24');
 
 
-        %% present stimulus, record tapping
+        %% present stimulus, accidential button press during the sequence
 
         % response save for BIDS (set up)
-        responseEvents.fileID = logFile.fileID;            
+        responseEvents(1).fileID = logFile.fileID;            
 
         % fill the buffer
         PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
@@ -126,9 +134,7 @@ try
         expParam.seqi = seqi;
         expParam.currSeqStartTime = currSeqStartTime;
         
-        % % % This one can stay here but a bit simplified maybe to record
-        % in case they press something - accidents? 
-        % % %
+        % record response in case accidential press
         [tapOnsets, responseEvents] = mb_getResponse(cfg, ...
             expParam, ...
             responseEvents, ...
@@ -166,41 +172,43 @@ try
 
     end % sequence loop
 
+
     % wait while fMRI is ongoing
     WaitSecs(expParam.endDelay);
-    
+
     % % %
     % ask for the button press tot times at the end if fmri run & give visual feedback?
     % % %
     displayInstr('Please indicate by pressing button, how many times you detected pitch changes\n\n\n',cfg);
-    % wait 3 seconds for participant to read
-    WaitSecs(3);
     
-    % collect the responses (counts) and appends to the event structure for
-    % saving in the tsv file
+
+    % flush the previous button presses
+    %getResponse('flush', cfg, expParam);
+    
+    % wait 3 seconds for participant to press button
+    WaitSecs(13);
+    
+    % write down buffered responses
     countEvents = getResponse('check', cfg, expParam);
-    
+
     if ~isempty(countEvents(1).onset)
         
-        countEvents.eventLogFile = logFile.fileID;
-        countEvents.count = size(countEvents, 1);
+        countEvents(1).fileID = countFile.fileID;
         
-        for iResp = 1:size(countEvents, 1)
-            countEvents(iResp).onset = ...
-                countEvents(iResp).onset - cfg.experimentStart;
+        for iResp = 1:size(countEvents,1)
+            countEvents(iResp).onset = countEvents(iResp).onset - expParam.experimentStart;
+                countEvents(iResp).target = 8; % assign the correct target number
+
         end
         
-        saveEventsFile('save', expParam, countEvents, ...
-            'count');
+        % saving in the tsv file
+        saveEventsFile('save', expParam, countEvents,...
+            'target','key_name','pressed');
     end
     
     
-    % wait for the participant to press all the counts
-    WaitSecs(5);
     
-    getResponse('flush', cfg, expParameters);
-    
-    
+
     
     % % make a if loop for the finaly run: 
     if expParam.runNb == 666 %change this with the known final run#
@@ -215,6 +223,8 @@ try
     
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', expParam, logFile);
+    saveEventsFile('close', expParam, countFile);
+
     
     
     % save the whole workspace 
@@ -243,6 +253,9 @@ catch
     
     % Close the logfiles - BIDS
     saveEventsFile('close', expParam, logFile);
+    saveEventsFile('close', expParam, countFile);
+
+
 
     % clean the workspace
     cleanUp(cfg);
