@@ -31,19 +31,19 @@ try
     % Init the experiment
     [cfg] = initPTB(cfg);
 
-    % Prepare for the output logfiles
-    % expParam = saveOutput(cfg, expParam, 'open');
     
     % Prepare for the output logfiles - BIDS
+    % saving 2 arrays long-form
     logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-        'category','F0','gridIOI','patternAmp','PE4','minPE4',...
-        'rangePE4','LHL24','minLHL24','rangeLHL24');
+        'category','F0','gridIOI','patternAmp','PE4_01', 'PE4_02',...
+        'PE4_03', 'PE4_04', 'PE4_05', 'PE4_06','PE4_07', 'PE4_08',...
+        'PE4_09', 'PE4_10', 'PE4_11', 'PE4_12','minPE4','rangePE4',...
+        'LHL24_01', 'LHL24_02', 'LHL24_03', 'LHL24_04', 'LHL24_05',...
+        'LHL24_06','LHL24_07', 'LHL24_08', 'LHL24_09', 'LHL24_10',...
+        'LHL24_11', 'LHL24_12', 'minLHL24','rangeLHL24');
     
- 
-            
-    % add a keypress to wait to check the monitor - for fMRI exp
-    
+     
     
     % show instructions and do initial volume setting
     currInstrPage = 1; 
@@ -82,13 +82,6 @@ try
         currSeq = makeSequence(cfg,seqi);
 
 
-        % ===========================================
-        % log sequence into text file
-        % ===========================================
-        
-        % saveOutput(cfg, expParam, 'updateStim',currSeq);
-
-        
         % ===========================================
         % stimulus save for BIDS
         % ===========================================
