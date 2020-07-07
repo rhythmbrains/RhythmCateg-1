@@ -14,8 +14,9 @@ function [cfg,expParam] = getParams(task)
 
 
 
-%% cfg parameters
+%% Init parameter structures
 cfg = struct; 
+expParam = struct;
 
 %% set the type of your computer
 if IsWin
@@ -27,8 +28,8 @@ elseif IsLinux
 end
 
 %% Debug mode settings
-cfg.debug               = 1 ;  % To test the script
-cfg.testingTranspScreen = 1 ;  % To test with trasparent full size screen 
+cfg.debug               = 1 ;  % To test the script with trasparent full size screen 
+expParam.verbose = true; % add here and there some explanations with if verbose is ON. 
 
 %% MRI settings
 cfg.device        = 'scanner';       % 'PC': does not care about trigger(for behav) - otherwise use 'Scanner'
@@ -37,7 +38,6 @@ cfg.numTriggers   = 4;          % first #Triggers will be dummy scans
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 %% general configuration
-expParam = struct;
 expParam.fmriTask = true; % the task is behav exp or fMRI? 
 
 %it should be calling behav or fmri - important for BIDS format.

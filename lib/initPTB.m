@@ -14,6 +14,8 @@ AssertOpenGL;
 %%
 PsychJavaTrouble;
 
+% Make sure keyboard mapping is the same on all supported operating systems
+% Apple MacOS/X, MS-Windows and GNU/Linux:
 KbName('UnifyKeyNames');
 
 
@@ -45,14 +47,12 @@ if cfg.debug
     Screen('Preference', 'Verbosity', 0);
     Screen('Preferences', 'SuppressAllWarnings', 2);
 
-        if cfg.testingTranspScreen
-        PsychDebugWindowConfiguration
-        end
-        [cfg.win, cfg.winRect] = PsychImaging('OpenWindow', cfg.screen, cfg.backgroundColor);
+    PsychDebugWindowConfiguration
+    [cfg.win, cfg.winRect] = PsychImaging('OpenWindow', cfg.screen, cfg.backgroundColor);
         
 else
     % we do not need high accuracy for the screen atm
-    % Screen('Preference', 'SkipSyncTests', 0);
+    % Screen('Preference', 'SkipSyncTests', 1);
     Screen('Preference','SkipSyncTests', 0);
     [cfg.win, cfg.winRect] = PsychImaging('OpenWindow', cfg.screen, cfg.backgroundColor);
 
