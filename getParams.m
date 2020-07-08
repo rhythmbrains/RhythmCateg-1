@@ -111,6 +111,9 @@ cfg.audio.channels = 2;
 checkSoundFiles();
 
 %% Timing 
+
+% max fMRI run number
+expParam.maxfMRIrun = 9;
 % % %
 % convert waitSecs according to the TR = 2.28
 expParam.onsetDelay = 3 * 2.28; %Number of seconds before the rhythmic sequence (exp) are presented
@@ -128,10 +131,17 @@ expParam.pauseSeq = 1; % give a pause of below seconds in between sequences
 
 
 % define ideal number of sequences to be made
-if cfg.debug
-    expParam.numSequences = 2; % multiples of 3
-else
+% multiple of 3 is balanced design
+if strcmp(cfg.device,'pc')
     expParam.numSequences = 6;
+    if cfg.debug
+        expParam.numSequences = 2;
+    end
+elseif strcmp(cfg.device,'scanner')
+    expParam.numSequences = 3;
+    if cfg.debug
+        expParam.numSequences = 2;
+    end
 end
 
 

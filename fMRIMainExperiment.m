@@ -215,7 +215,7 @@ try
     
     %% wrapping up
     % last screen
-    if expParam.runNb == 666 %change this with the known final run#
+    if expParam.runNb == 666 && expParam.maxfMRIrun
         displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)\n\n\n Soon we will take you out!',cfg);
     else
         displayInstr('This run is over. We will shortly start the following!',cfg);
