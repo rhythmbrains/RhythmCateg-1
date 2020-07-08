@@ -197,10 +197,11 @@ try
     % atm, there's NANs in countEvents not sure why, so I'm deleting nans
     if isfield(countEvents,'onset')
         
-        temp = struct();
-        temp(1).fileID = countFile.fileID;
-        temp(1).target = 8; % assign the correct target number
+        temp = struct(); 
+        temp.fileID = countFile.fileID;
+
         count = 1;
+        
         for iResp = 1:size(countEvents,1)
             if (~isnan(countEvents(iResp).onset))
                 temp(count,1).onset = countEvents(iResp).onset - expParam.experimentStart;
@@ -208,6 +209,8 @@ try
                 temp(count,1).duration = countEvents(iResp).duration;
                 temp(count,1).key_name = countEvents(iResp).key_name;
                 temp(count,1).pressed = countEvents(iResp).pressed;
+                temp(count,1).target = 8; % assign the correct target number
+                
                 count = count +1;
             end
         end
