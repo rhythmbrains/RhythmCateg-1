@@ -25,8 +25,6 @@ addpath(genpath(fullfile(pwd, 'lib')))
 expParam = userInputs(cfg,expParam);
 expParam = createFilename(cfg,expParam);
 
-
-
 % get time point at the beginning of the script (machine time)
 expParam.scriptStartTime = GetSecs();
 
@@ -37,8 +35,7 @@ try
     % Init the experiment
     [cfg] = initPTB(cfg);
     
-    
-    
+
     % Prepare for the output logfiles - BIDS
     % saving 2 arrays long-form
     % open events logfile
@@ -66,8 +63,7 @@ try
     pressSpace4me
     
     % prepare the KbQueue to collect responses
-    % it's after space keypressed because the key looked for is "space" for
-    % now
+    % it's after space keypressed because the key looked for is "space" atm
     getResponse('init', cfg, expParam);
     getResponse('start',cfg,expParam);
     
@@ -80,16 +76,14 @@ try
         Screen('Flip',cfg.win);
     end
     
-    
-    
+
     % and collect the timestamp
     expParam.experimentStart = GetSecs;
     
     % wait for dummy fMRI scans
     WaitSecs(expParam.onsetDelay);
     
-    
-    
+
     %% play sequences
     for seqi = 1:expParam.numSequences
         
@@ -111,16 +105,7 @@ try
         % save params for later call in BIDS saving
         expParam.seqi = seqi;
         expParam.currSeqStartTime = currSeqStartTime;
-        
-        %         % open a file to write responses
-        %         responseEvents(1).fileID = logFile.fileID;
-        
-        %         % record response in case accidential press
-        %         [tapOnsets, responseEvents] = mb_getResponse(cfg, ...
-        %             expParam, ...
-        %             responseEvents, ...
-        %             currSeq);
-        %% save
+
         % ===========================================
         % stimulus save for BIDS
         % ===========================================
@@ -149,18 +134,7 @@ try
             'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
             'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
             'rangePE4','LHL24','minLHL24','rangeLHL24');
-        
-        
-        %         % if accidental press, response save for BIDS
-        %         if isfield(responseEvents,'onset')
-        %
-        %             saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
-        %                 'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-        %                 'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
-        %                 'rangePE4','LHL24','minLHL24','rangeLHL24');
-        %
-        %         end
-        
+
         % ===========================================
         % log everything into matlab structure
         % ===========================================
@@ -180,15 +154,13 @@ try
         
     end
 
-    %% Check last button presses & wrap up
     
-    %     % flush the previous button presses
-    %     getResponse('flush', cfg, expParam);
-    
-    % wait while fMRI is ongoing - add last dummy scans
-    %stay here till audio stops
+    %% Wait for audio and delays to catch up
+    % wait while fMRI is ongoing
+    % stay here till audio stops
     reachHereTime = (GetSecs - expParam.experimentStart);
     audioDuration = (cfg.SequenceDur*expParam.numSequences);
+    
     % exp duration + delays - script reaching to till point
     WaitSecs(audioDuration + expParam.onsetDelay + expParam.endDelay ...
         - reachHereTime);
@@ -196,14 +168,12 @@ try
     % record exp ending time
     expParam.fMRIendTime = GetSecs - expParam.experimentStart;
     
-    %% Record responses
+    %% Check last button presses & wrap up
     % % %
     % give visual feedback?
     % % %
     displayInstr('Please indicate by pressing button, how many times you detected pitch changes\n\n\n',cfg);
 
-    %     %start buffering the button presses
-    %     getResponse('start',cfg,expParam);
 
     % wait for participant to press button
     WaitSecs(expParam.endResponseDelay);
