@@ -29,7 +29,7 @@ end
 
 %% Debug mode settings
 cfg.debug               = 1 ;  % To test the script with trasparent full size screen 
-expParam.verbose = true; % add here and there some explanations with if verbose is ON. 
+expParam.verbose        = true; % add here and there some explanations with if verbose is ON. 
 
 %% MRI settings
 cfg.device        = 'scanner';       % 'PC': does not care about trigger(for behav) - otherwise use 'Scanner'
@@ -40,14 +40,22 @@ cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and wa
 %% general configuration
 expParam.fmriTask = true; % the task is behav exp or fMRI? 
 
+% it'll only look for space press -
+% later on change with the responseBox indices/numbers! ! !
+expParam.responseKey = {'space'};
+
 %it should be calling behav or fmri - important for BIDS format.
-expParam.task = task;  % change in the future
+expParam.task = task;
 
 %it won't ask you about group or session
 expParam.askGrpSess = [0 0];
 
+%esc key for both behav and fmri exp
+cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
+
+
 %% monitor
-% Monitor parameters - fMRI 
+% Monitor parameters - fMRI - CHANGE with fMRI parameters
 cfg.monitorWidth  	  = 42;  % Monitor Width in cm
 cfg.screenDistance    = 134; % Distance from the screen in cm
 cfg.diameterAperture  = 8;   % Diameter/length of side of aperture in Visual angles
@@ -111,11 +119,14 @@ expParam.onsetDelay = 3; %Number of seconds before the rhythmic sequence (exp) a
 expParam.endDelay = 0; % Number of seconds after the end of all stimuli before ending the fmri run! 
 % % %
 
-%wait in between sequences? y/n
-expParam.sequenceDelay = 1;
+% ending timings for fMRI
+expParam.endResponseDelay = 13; % wait for participant to response for counts
+expParam.endScreenDelay = 2; %end the screen after thank you screen
 
-% give a pause of below seconds in between sequences
-expParam.pauseSeq = 1; 
+% these are for behavioral exp delays
+expParam.sequenceDelay = 1; %wait in between sequences? y/n
+expParam.pauseSeq = 1; % give a pause of below seconds in between sequences
+
 
 % define ideal number of sequences to be made
 if cfg.debug
@@ -146,7 +157,7 @@ if expParam.fmriTask
     
 end
 
-%% more parameters to get according to thetype of experiment
+%% more parameters to get according to the type of experiment
 if strcmp(expParam.task,'tapTraining')
     
     % get tapping training parameters
@@ -172,29 +183,21 @@ end
 
 % Using empty vectors should work for linux when to select the "main"
 %   keyboard. You might have to try some other values for MacOS or Windows
-% TL: I think -1 should work? 
-% CB: I do not know, feel free to add that
+
+% % %
+
+% After connecting fMRI response button to the laptop, 
+% LOOK what are the experimenters' keyboard & fmri responseKey 
+% by using GetKeyboardIndices below.
 cfg.keyboard = [];
 cfg.responseBox = [];
 
-% keys to check
-cfg.keywait         = KbName({'RETURN'}); % press enter to start bloc
-cfg.keyToggleInstr  = KbName({'I'}); % press I to show/remove general instructions from the screen
-cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
-cfg.keytap          = KbName('SPACE');
-cfg.keyVolUp        = KbName('UpArrow');
-cfg.keyVolDown      = KbName('DownArrow');
-cfg.keyAudioPlay    = KbName('p');
-cfg.keyAudioStop    = KbName('s');
-cfg.keyInstrBack    = KbName('b');
-cfg.keyInstrNext    = KbName('n');
-
-
+% % %
 
 
 [cfg.keyboardNumbers, cfg.keyboardNames] = GetKeyboardIndices;
 cfg.keyboardNumbers
-cfg.keyboardNames
+cfg.keyboardNames 
 
 
 switch lower(cfg.device)
@@ -208,15 +211,25 @@ switch lower(cfg.device)
         cfg.keyboard = [];
         cfg.responseBox = [];
         
+        %behavioral exp keys to check
+        cfg.keywait         = KbName({'RETURN'}); % press enter to start bloc
+        cfg.keyToggleInstr  = KbName({'I'}); % press I to show/remove general instructions from the screen
+        cfg.keytap          = KbName('SPACE');
+        cfg.keyVolUp        = KbName('UpArrow');
+        cfg.keyVolDown      = KbName('DownArrow');
+        cfg.keyAudioPlay    = KbName('p');
+        cfg.keyAudioStop    = KbName('s');
+        cfg.keyInstrBack    = KbName('b');
+        cfg.keyInstrNext    = KbName('n');
+        
         if ismac
             cfg.keyboard = [];
             cfg.responseBox = [];
         end
         
-    case 'scanner' %%% might need a change! ! ! 
-        
-        cfg.keyboard = [];
-        cfg.responseBox = [];
+    case 'scanner'
+    % do nothing because in line 177-178 should have been assigned to keys
+    % check
         
     otherwise
         

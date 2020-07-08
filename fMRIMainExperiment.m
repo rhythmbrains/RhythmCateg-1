@@ -51,7 +51,7 @@ try
         'LHL24_06','LHL24_07', 'LHL24_08', 'LHL24_09', 'LHL24_10',...
         'LHL24_11', 'LHL24_12', 'minLHL24','rangeLHL24');
     
-    % open stimulation logfile
+    % open stimulation logfile - used for counting button press
     countFile  = saveEventsFile('open_stim', expParam,[],'target',...
         'key_name','pressed');
 
@@ -66,12 +66,14 @@ try
     pressSpace4me
     
     % prepare the KbQueue to collect responses
+    % it's after space keypressed because the key looked for is "space" for
+    % now
     getResponse('init', cfg, expParam);
     getResponse('start',cfg,expParam);
     
     % wait for trigger from fMRI
     wait4Trigger(cfg);
-    
+
     % show fixation cross 
     if expParam.fmriTask
         drawFixationCross(cfg,expParam, expParam.fixationCrossColor);
@@ -92,7 +94,6 @@ try
 
         currSeq = struct();
         responseEvents = struct();
-        
 
         % construct sequence
         currSeq = makeSequence(cfg,seqi);
@@ -172,41 +173,57 @@ try
 
     end % sequence loop
 
-
+    % flush the previous button presses
+    getResponse('flush', cfg, expParam);
+    
     % wait while fMRI is ongoing
     WaitSecs(expParam.endDelay);
 
     % % %
-    % ask for the button press tot times at the end if fmri run & give visual feedback?
+    % give visual feedback?
     % % %
     displayInstr('Please indicate by pressing button, how many times you detected pitch changes\n\n\n',cfg);
     
-
-    % flush the previous button presses
-    %getResponse('flush', cfg, expParam);
+    %start buffering the button presses
+    getResponse('start',cfg,expParam);
     
+
     % wait 3 seconds for participant to press button
-    WaitSecs(13);
+    WaitSecs(expParam.endResponseDelay);
     
     % write down buffered responses
-    countEvents = getResponse('check', cfg, expParam);
-
-    if ~isempty(countEvents(1).onset)
+    countEvents = getResponse('check', cfg, expParam,1);
+    
+    % atm, there's NANs in countEvents not sure why, so I'm deleting nans
+    if isfield(countEvents,'onset')
         
-        countEvents(1).fileID = countFile.fileID;
-        
+        temp = struct();
+        temp(1).fileID = countFile.fileID;
+        temp(1).target = 8; % assign the correct target number
+        count = 1;
         for iResp = 1:size(countEvents,1)
-            countEvents(iResp).onset = countEvents(iResp).onset - expParam.experimentStart;
-                countEvents(iResp).target = 8; % assign the correct target number
-
+            if (~isnan(countEvents(iResp).onset))
+                temp(count,1).onset = countEvents(iResp).onset - expParam.experimentStart;
+                temp(count,1).trial_type = countEvents(iResp).trial_type;
+                temp(count,1).duration = countEvents(iResp).duration;
+                temp(count,1).key_name = countEvents(iResp).key_name;
+                temp(count,1).pressed = countEvents(iResp).pressed;
+                count = count +1;
+            end
         end
-        
-        % saving in the tsv file
-        saveEventsFile('save', expParam, countEvents,...
-            'target','key_name','pressed');
     end
     
+    countEvents = struct();
+    countEvents = temp;
     
+    saveEventsFile('save', expParam,countEvents,...
+        'key_name','pressed','target');
+    
+    %clear countEvents 
+
+    
+    % stop key checks
+    getResponse('stop', cfg, expParam);
     
 
     
@@ -219,14 +236,13 @@ try
     
 
     % wait 2 seconds for ending the screen/exp
-    WaitSecs(2);
+    WaitSecs(expParam.endScreenDelay);
     
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', expParam, logFile);
     saveEventsFile('close', expParam, countFile);
 
-    
-    
+
     % save the whole workspace 
     matFile = fullfile(expParam.outputDir, strrep(expParam.fileName.events,'tsv', 'mat'));
     if IsOctave
@@ -234,7 +250,6 @@ try
     else
         save(matFile, '-v7.3');
     end
-    
     
     % clean the workspace
     cleanUp(cfg);
@@ -254,8 +269,6 @@ catch
     % Close the logfiles - BIDS
     saveEventsFile('close', expParam, logFile);
     saveEventsFile('close', expParam, countFile);
-
-
 
     % clean the workspace
     cleanUp(cfg);
