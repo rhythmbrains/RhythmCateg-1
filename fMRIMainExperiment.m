@@ -52,8 +52,8 @@ try
         'LHL24_11', 'LHL24_12', 'minLHL24','rangeLHL24');
     
     % open stimulation logfile - used for counting button press
-    countFile  = saveEventsFile('open_stim', expParam,[],'target',...
-        'key_name','pressed');
+    countFile  = saveEventsFile('open_stim', expParam,[],...
+        'key_name','pressed','target');
 
 
     % Show instructions for fMRI task
@@ -92,21 +92,43 @@ try
     %% play sequences
     for seqi = 1:expParam.numSequences
 
+        % prep for BIDS saving structures
         currSeq = struct();
         responseEvents = struct();
 
+        % response save
+        responseEvents(1).fileID = logFile.fileID;   
+        % sequence save
+        currSeq(1).fileID = logFile.fileID;
+        
         % construct sequence
         currSeq = makeSequence(cfg,seqi);
 
+        % fill the buffer
+        PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
+
+        % start playing
+        currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
+            cfg.PTBstartCue, cfg.PTBwaitForDevice);
+
+        % save params for later call in BIDS saving
+        expParam.seqi = seqi;
+        expParam.currSeqStartTime = currSeqStartTime;
         
+        % record response in case accidential press
+        [tapOnsets, responseEvents] = mb_getResponse(cfg, ...
+            expParam, ...
+            responseEvents, ...
+            currSeq);
+        %% save
         % ===========================================
         % stimulus save for BIDS
         % ===========================================
-        % we save sequence by sequence so we clear this variable every loop
-        currSeq(1).fileID = logFile.fileID;
         
         % adding columns in currSeq for BIDS format
         for iPattern = 1:length(currSeq)
+            currSeq(iPattern,1).onset  = currSeq(iPattern,1).onset + ...
+                expParam.currSeqStartTime - expParam.experimentStart;
             currSeq(iPattern,1).trial_type  = 'dummy';
             currSeq(iPattern,1).duration    = 0;
             currSeq(iPattern,1).sequenceNum = seqi;            
@@ -116,33 +138,9 @@ try
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
         'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
         'rangePE4','LHL24','minLHL24','rangeLHL24');
-
-
-        %% present stimulus, accidential button press during the sequence
-
-        % response save for BIDS (set up)
-        responseEvents(1).fileID = logFile.fileID;            
-
-        % fill the buffer
-        PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
-
-        % start playing
-        currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
-            cfg.PTBstartCue, cfg.PTBwaitForDevice);
-
         
-        % keep collecting tapping until sound stops (log as you go)
-        expParam.seqi = seqi;
-        expParam.currSeqStartTime = currSeqStartTime;
-        
-        % record response in case accidential press
-        [tapOnsets, responseEvents] = mb_getResponse(cfg, ...
-            expParam, ...
-            responseEvents, ...
-            currSeq);
-        
-        
-        % response save for BIDS (write)
+
+        % if accidental press, response save for BIDS
         if isfield(responseEvents,'onset')
 
             saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
@@ -168,11 +166,13 @@ try
         expParam.data(seqi).seq = currSeq;
 
         % save all the taps for this sequence
-        expParam.data(seqi).taps = tapOnsets;
+        %expParam.data(seqi).taps = tapOnsets;
 
 
     end % sequence loop
 
+    %% Check last button presses & wrap up
+    
     % flush the previous button presses
     getResponse('flush', cfg, expParam);
     
@@ -184,17 +184,18 @@ try
     % % %
     displayInstr('Please indicate by pressing button, how many times you detected pitch changes\n\n\n',cfg);
     
+    
     %start buffering the button presses
     getResponse('start',cfg,expParam);
     
 
-    % wait 3 seconds for participant to press button
+    % wait x seconds for participant to press button
     WaitSecs(expParam.endResponseDelay);
     
     % write down buffered responses
     countEvents = getResponse('check', cfg, expParam,1);
     
-    % atm, there's NANs in countEvents not sure why, so I'm deleting nans
+    % omits nans in logfile
     if isfield(countEvents,'onset')
         
         temp = struct(); 
@@ -222,23 +223,21 @@ try
     saveEventsFile('save', expParam,countEvents,...
         'key_name','pressed','target');
     
-    %clear countEvents 
+    % clear countEvents 
 
     
     % stop key checks
     getResponse('stop', cfg, expParam);
     
 
-    
-    % % make a if loop for the finaly run: 
+    % last screen 
     if expParam.runNb == 666 %change this with the known final run#
         displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)\n\n\n Soon we will take you out!',cfg);
     else
         displayInstr('This run is over. We will shortly start the following!',cfg);
     end
     
-
-    % wait 2 seconds for ending the screen/exp
+    % wait x seconds for ending the screen/exp
     WaitSecs(expParam.endScreenDelay);
     
     % Close the logfiles (tsv)   - BIDS
