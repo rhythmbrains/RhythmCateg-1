@@ -13,13 +13,10 @@ addpath(genpath(fullfile(pwd, 'lib')))
 
 
 % Get parameters
+[cfg,expParam] = getParams('RhythmCategFT','scanner',1);
+%[cfg,expParam] = getParams('RhythmCategBlock');
+%[cfg,expParam] = getParams('PitchFT');
 
-% % %
-% provide here to specifiy the sequence length and/or call getParamsMainExp
-% in here with the arguments for rhythmic sequence, control1 and control2
-% designs
-% % %
-[cfg,expParam] = getParams('tapMainExp');
 
 % set and load all the subject input to run the experiment
 expParam = userInputs(cfg,expParam);
@@ -216,7 +213,7 @@ try
     
     %% wrapping up
     % last screen
-    if expParam.runNb == 666 && expParam.maxfMRIrun
+    if expParam.runNb == 666 || expParam.maxfMRIrun
         displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)\n\n\n Soon we will take you out!',cfg);
     else
         displayInstr('This run is over. We will shortly start the following!',cfg);

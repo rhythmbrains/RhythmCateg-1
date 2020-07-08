@@ -12,8 +12,8 @@ end
 addpath(genpath(fullfile(pwd, 'lib')))
 
 
-% Get parameters
-[cfg,expParam] = getParams('tapMainExp');
+% Get parameters by providing task name, device and debugmode
+[cfg,expParam] = getParams('tapMainExp','pc',0);
 
 % set and load all the subject input to run the experiment
 expParam = userInputs(cfg,expParam);
@@ -62,7 +62,7 @@ try
 
 
     % if there's wait time,..wait
-    WaitSecs(expParam.onsetDelay);
+    WaitSecs(2); %expParam.onsetDelay
     
     
     

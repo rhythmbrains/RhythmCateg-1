@@ -1,4 +1,4 @@
-function [cfg,expParam] = getParams(task)
+function [cfg,expParam] = getParams(task,device,debugmode)
 % Initialize the parameters variables
 % Initialize the general configuration variables
 % =======
@@ -28,11 +28,11 @@ elseif IsLinux
 end
 
 %% Debug mode settings
-cfg.debug               = 1 ;  % To test the script with trasparent full size screen 
+cfg.debug               = debugmode ;  % To test the script with trasparent full size screen 
 expParam.verbose        = true; % add here and there some explanations with if verbose is ON. 
 
 %% MRI settings
-cfg.device        = 'scanner';       % 'PC': does not care about trigger(for behav) - otherwise use 'Scanner'
+cfg.device        = device;       % 'PC': does not care about trigger(for behav) - otherwise use 'Scanner'
 cfg.triggerKey    = 's';        % Set the letter sent by the trigger to sync stimulation and volume acquisition
 cfg.numTriggers   = 4;          % first #Triggers will be dummy scans
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
@@ -172,10 +172,14 @@ if strcmp(expParam.task,'tapTraining')
     % get tapping training parameters
     [cfg,expParam] = getTrainingParameters(cfg,expParam);
     
-elseif strcmp(expParam.task,'tapMainExp')
+elseif strcmp(expParam.task,'tapMainExp') || strcmp(expParam.task,'RhythmCategFT')
     
     % get main experiment parameters
     [cfg,expParam] = getMainExpParameters(cfg,expParam);
+    
+    %other options to consider 
+    %[cfg,expParam] = getParams('RhythmCategBlock');
+    %[cfg,expParam] = getParams('PitchFT');
     
 end
 
