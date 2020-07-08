@@ -140,6 +140,7 @@ try
         % ===========================================
         
         % save (machine) onset time for the current sequence
+        % might be irrelevant for fMRI
         expParam.data(seqi).currSeqStartTime = currSeqStartTime;
         
         % save PTB volume
