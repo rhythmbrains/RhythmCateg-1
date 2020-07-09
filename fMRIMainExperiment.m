@@ -50,6 +50,11 @@ try
         'key_name','pressed','target');
     
     
+    % % % modify this for fMRI needs
+    % instructions to set the volume
+    % displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
+    % % % 
+    
     % Show instructions for fMRI task
     if expParam.fmriTask
         displayInstr(expParam.fmriTaskInst,cfg);
