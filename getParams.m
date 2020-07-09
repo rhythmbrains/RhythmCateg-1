@@ -138,7 +138,7 @@ if strcmp(cfg.device,'pc')
         expParam.numSequences = 2;
     end
 elseif strcmp(cfg.device,'scanner')
-    expParam.numSequences = 3;
+    expParam.numSequences = 1;
     if cfg.debug
         expParam.numSequences = 2;
     end

@@ -12,8 +12,8 @@ end
 addpath(genpath(fullfile(pwd, 'lib')))
 
 
-% Get parameters
-[cfg,expParam] = getParams('RhythmCategFT','scanner',1);
+% Get parameters by providing task name, device and debugmode
+[cfg,expParam] = getParams('RhythmCategFT','scanner',0);
 %[cfg,expParam] = getParams('RhythmCategBlock');
 %[cfg,expParam] = getParams('PitchFT');
 
@@ -50,14 +50,12 @@ try
         'key_name','pressed','target');
     
     
-    % % % modify this for fMRI needs
-    % instructions to set the volume
-    % displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
-    % % % 
-    
-    % Show instructions for fMRI task
+    % Show instructions for fMRI task - modify to give duration and volume
+    % check
     if expParam.fmriTask
         displayInstr(expParam.fmriTaskInst,cfg);
+        % displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
+
     end
     
     % wait for space key to be pressed by the experimenter
@@ -218,7 +216,7 @@ try
     
     %% wrapping up
     % last screen
-    if expParam.runNb == 666 || expParam.maxfMRIrun
+    if expParam.runNb == 666 || expParam.runNb == expParam.maxfMRIrun
         displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)\n\n\n Soon we will take you out!',cfg);
     else
         displayInstr('This run is over. We will shortly start the following!',cfg);
