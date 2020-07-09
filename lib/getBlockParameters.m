@@ -1,4 +1,4 @@
-function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
+function     [cfg,expParam] = getBlockParameters(cfg,expParam)
 % this function generates audio sequences to be played in the man
 % experiment
 
@@ -66,18 +66,19 @@ end
 % how many pattern cycles are within each step of [ABBB]
 % how many pattern in each segment A or B.
 cfg.nPatternPerSegment = 4;
-
+ 
 % if the gridIOI can vary across pattern cycles, we need to set the time 
 % interval between two successive segments to a fixed value (this must be 
 % greater or equal to the maximum possible segment duration)
 cfg.interSegmInterval = cfg.nPatternPerSegment * cfg.interPatternInterval; 
 
+
 % there can be a pause after all segments for category A are played 
 % (i.e. between A and B)
-cfg.delayAfterA = 0; 
+cfg.delayAfterA = cfg.interSegmInterval; 
 % there can be a pause after all segments for category B are played 
 % (i.e. between B and A)
-cfg.delayAfterB = 0; 
+cfg.delayAfterB = cfg.interSegmInterval;
 
 %% construct step [ABBB]
 % how many successive segments are presented for category A
@@ -86,7 +87,7 @@ cfg.nSegmentA = 1;
 
 % how many successive segments are presented for category B
 % manw many times segment B will be sequentially repeated
-cfg.nSegmentB = 3; 
+cfg.nSegmentB = 1; 
 
 % number of segments for each step
 cfg.nSegmPerStep = cfg.nSegmentB + cfg.nSegmentA; %4; 
@@ -164,29 +165,13 @@ cfg.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg);
 % this is to make sure each pattern is used equal number of times in the
 % whole experiment
 
-% for exp like fmri that we will present 1 sequence per run, we are
-% creating full exp design in the first run and saving it for the other
-% runs to call .mat file
-
 cfg.labelCategA = 'simple'; 
 cfg.labelCategB = 'complex'; 
-
 %%%%%%%%%%%%
 % ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
 %%%%%%%%%%%%
+cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam); 
 
-if strcmp(cfg.device,'scanner')
-    if expParam.runNb == 1
-        DesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
-        save('SeqDesign','DesignFullExp');
-        cfg.seqDesignFullExp = DesignFullExp;
-    else
-        design = load('SeqDesign');
-        cfg.seqDesignFullExp = design.DesignFullExp;
-    end
-else
-    cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
-end
 
 %% generate example audio for volume setting
 % added F0s-amplitude because the relative dB set in volume adjustment in

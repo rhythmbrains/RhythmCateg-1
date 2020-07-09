@@ -13,14 +13,12 @@ addpath(genpath(fullfile(pwd, 'lib')))
 
 
 % Get parameters by providing task name, device and debugmode
-[cfg,expParam] = getParams('RhythmCategFT','scanner',0);
+[cfg,expParam] = getParams('RhythmCategBlock','scanner',0);
+%[cfg,expParam] = getParams('RhythmCategFT','scanner',0);
 %[cfg,expParam] = getParams('RhythmCategBlock');
 %[cfg,expParam] = getParams('PitchFT');
 
 
-% set and load all the subject input to run the experiment
-expParam = userInputs(cfg,expParam);
-expParam = createFilename(cfg,expParam);
 
 % get time point at the beginning of the script (machine time)
 expParam.scriptStartTime = GetSecs();

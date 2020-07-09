@@ -53,6 +53,9 @@ expParam.askGrpSess = [0 0];
 %esc key for both behav and fmri exp
 cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
 
+%% set and load all the subject input to run the experiment
+expParam = userInputs(cfg,expParam);
+expParam = createFilename(cfg,expParam);
 
 %% monitor
 % Monitor parameters - fMRI - CHANGE with fMRI parameters
@@ -69,7 +72,6 @@ cfg.textColor        = cfg.white;
 cfg.textFont         = 'Arial'; %'Courier New'
 cfg.textSize         = 30; %18
 %cfg.textStyle        = 1;
-
 
     
 %% sound levels
@@ -166,6 +168,9 @@ if expParam.fmriTask
     
 end
 
+
+
+
 %% more parameters to get according to the type of experiment
 if strcmp(expParam.task,'tapTraining')
     
@@ -176,9 +181,13 @@ elseif strcmp(expParam.task,'tapMainExp') || strcmp(expParam.task,'RhythmCategFT
     
     % get main experiment parameters
     [cfg,expParam] = getMainExpParameters(cfg,expParam);
+
+elseif strcmp(expParam.task,'RhythmCategBlock')
+    % get main experiment parameters
+    [cfg,expParam] = getBlockParameters(cfg,expParam);
     
+%elseif strcmp(expParam.task,'PitchFT')
     %other options to consider 
-    %[cfg,expParam] = getParams('RhythmCategBlock');
     %[cfg,expParam] = getParams('PitchFT');
     
 end
