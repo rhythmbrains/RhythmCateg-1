@@ -1,4 +1,4 @@
-function res = getAllSeqDesign(categA,categB,cfg,expParam)
+function seqDesignFullExp = getAllSeqDesign(categA,categB,cfg,expParam)
 
 % this function designs the sequences for the whole experiment in a way
 % that the number of times each pattern is included is counterbalanced and
@@ -17,7 +17,7 @@ patterns2choose = [patterns2chooseA, patterns2chooseB];
 
 
 % allocate result with dimension: sequence x step x segm x pattern
-res = cell(expParam.numSequences, cfg.nStepsPerSequence, cfg.nSegmPerStep, cfg.nPatternPerSegment); 
+seqDesignFullExp = cell(expParam.numSequences, cfg.nStepsPerSequence, cfg.nSegmPerStep, cfg.nPatternPerSegment); 
 
 for seqi=1:expParam.numSequences
 
@@ -49,7 +49,7 @@ for seqi=1:expParam.numSequences
                 
                 % write pattern ID to the result
                 % dims: [seq x step x segm x pat]
-                res{seqi,stepi,segmi,pati} = chosenPatID; 
+                seqDesignFullExp{seqi,stepi,segmi,pati} = chosenPatID; 
 
                 % remove the picked pattern from the available pool
                 patterns2choose{segmi}(chosenPatIdx) = []; 
