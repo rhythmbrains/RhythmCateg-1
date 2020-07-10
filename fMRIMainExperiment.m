@@ -13,7 +13,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
-[cfg,expParam] = getParams('RhythmCategBlock','scanner',0);
+[cfg,expParam] = getParams('RhythmCategFT','scanner',0);
 
 % set and load all the subject input to run the experiment
 expParam = userInputs(cfg,expParam);

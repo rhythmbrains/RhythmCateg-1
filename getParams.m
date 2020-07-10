@@ -153,10 +153,6 @@ end
 
 
 
-% max fMRI run number
-% expParam.maxfMRIrun = 9;
-% expParam.maxfMRIrun = expParam.numSequences;
-
 %% fMRI task
 % if fmriTask == true, it'll display a fixation cross during the fMRI run
 
