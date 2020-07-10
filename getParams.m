@@ -117,14 +117,14 @@ checkSoundFiles();
 
 % % %
 % convert waitSecs according to the TR = 2.28
-expParam.onsetDelay = 3 * 2.28; %Number of seconds before the rhythmic sequence (exp) are presented
-expParam.endDelay = 3 * 2.28; % Number of seconds after the end of all stimuli before ending the fmri run! 
+expParam.timing.onsetDelay = 3 * 2.28; %Number of seconds before the rhythmic sequence (exp) are presented
+expParam.timing.endDelay = 3 * 2.28; % Number of seconds after the end of all stimuli before ending the fmri run! 
 % % %
 
 % ending timings for fMRI
-expParam.endScreenDelay = 2; %end the screen after thank you screen
+expParam.timing.endScreenDelay = 2; %end the screen after thank you screen
 % delay for script ending
-expParam.endResponseDelay = 13; % wait for participant to response for counts
+expParam.timing.endResponseDelay = 13; % wait for participant to response for counts
 
 % these are for behavioral exp delays
 expParam.sequenceDelay = 1; %wait in between sequences? y/n

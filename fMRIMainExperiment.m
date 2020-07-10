@@ -24,7 +24,7 @@ expParam = createFilename(cfg,expParam);
 [cfg,expParam] = makefMRISeqDesign(cfg,expParam);
    
 % get time point at the beginning of the script (machine time)
-expParam.scriptStartTime = GetSecs();
+expParam.timing.scriptStartTime = GetSecs();
 
 %% Experiment
 
@@ -86,15 +86,16 @@ try
     
     
     %% play sequences
-    %    for seqi = 1:expParam.numSequences
+    
+    % take the runNb corresponding sequence
     seqi = expParam.runNb;
+    
     % prep for BIDS saving structures
     currSeq = struct();
     responseEvents = struct();
     
     % construct sequence
     currSeq = makeSequence(cfg,seqi);
-    
     
     % fill the buffer
     PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
@@ -104,8 +105,9 @@ try
         cfg.PTBstartCue, cfg.PTBwaitForDevice);
     
     % save params for later call in BIDS saving
-    expParam.seqi = seqi;
-    expParam.currSeqStartTime = currSeqStartTime;
+    expParam.timing.seqi = seqi;
+    expParam.timing.currSeqStartTime = currSeqStartTime;
+    expParam.timing.experimentStart = expParam.experimentStart;
     
     % ===========================================
     % stimulus save for BIDS
@@ -119,14 +121,14 @@ try
         
         %correcting onsets for fMRI trigger onset
         currSeq(iPattern,1).onset  = currSeq(iPattern,1).onset + ...
-            expParam.currSeqStartTime - expParam.experimentStart;
+            currSeqStartTime - expParam.experimentStart;
         currSeq(iPattern,1).segmentOnset = currSeq(iPattern,1).segmentOnset...
-            + expParam.currSeqStartTime - expParam.experimentStart;
+            + currSeqStartTime - expParam.experimentStart;
         
         %adding compulsory BIDS structures
         currSeq(iPattern,1).trial_type  = 'dummy';
         currSeq(iPattern,1).duration    = 0;
-        %
+        % adding our interest
         currSeq(iPattern,1).sequenceNum = seqi;
         
     end
