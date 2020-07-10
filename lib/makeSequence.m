@@ -2,6 +2,11 @@ function seq = makeSequence(cfg,seqi,varargin)
 % This function constructs a stimulus sequence.
 % by using makeStimMainExp.m script
 
+% it's also using getAllSeqDesign.m to get the (counterbalanced) 
+% order of the patterns with the given run number==seqi (fmri) or
+% expParam.numSequences == seqi (behav)
+
+
 % ------
 % INPUT
 % ------

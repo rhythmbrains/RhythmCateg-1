@@ -11,17 +11,20 @@ end
 % make sure we got access to all the required functions and inputs
 addpath(genpath(fullfile(pwd, 'lib')))
 
-
+% Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
 [cfg,expParam] = getParams('RhythmCategBlock','scanner',0);
-%[cfg,expParam] = getParams('RhythmCategFT','scanner',0);
-%[cfg,expParam] = getParams('RhythmCategBlock');
-%[cfg,expParam] = getParams('PitchFT');
 
+% set and load all the subject input to run the experiment
+expParam = userInputs(cfg,expParam);
+expParam = createFilename(cfg,expParam);
 
-
+% create randomized sequence for 9 runs
+% run ==1 then it'll create 9 seq, otherwise it'll upload whats created
+[cfg,expParam] = makefMRISeqDesign(cfg,expParam);
+   
 % get time point at the beginning of the script (machine time)
-expParam.scriptStartTime = GetSecs();
+expParam.timing.scriptStartTime = GetSecs();
 
 %% Experiment
 
@@ -81,84 +84,86 @@ try
     % wait for dummy fMRI scans
     WaitSecs(expParam.onsetDelay);
     
-
+    
     %% play sequences
-    for seqi = 1:expParam.numSequences
+    
+    % take the runNb corresponding sequence
+    seqi = expParam.runNb;
+    
+    % prep for BIDS saving structures
+    currSeq = struct();
+    responseEvents = struct();
+    
+    % construct sequence
+    currSeq = makeSequence(cfg,seqi);
+    
+    % fill the buffer
+    PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
+    
+    % start playing
+    currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
+        cfg.PTBstartCue, cfg.PTBwaitForDevice);
+    
+    % save params for later call in BIDS saving
+    expParam.timing.seqi = seqi;
+    expParam.timing.currSeqStartTime = currSeqStartTime;
+    expParam.timing.experimentStart = expParam.experimentStart;
+    
+    % ===========================================
+    % stimulus save for BIDS
+    % ===========================================
+    
+    % open a file to write sequencefor BIDS
+    currSeq(1).fileID = logFile.fileID;
+    
+    % adding columns in currSeq for BIDS format
+    for iPattern = 1:length(currSeq)
         
-        % prep for BIDS saving structures
-        currSeq = struct();
-        responseEvents = struct();
+        %correcting onsets for fMRI trigger onset
+        currSeq(iPattern,1).onset  = currSeq(iPattern,1).onset + ...
+            currSeqStartTime - expParam.experimentStart;
+        currSeq(iPattern,1).segmentOnset = currSeq(iPattern,1).segmentOnset...
+            + currSeqStartTime - expParam.experimentStart;
         
-        % construct sequence
-        currSeq = makeSequence(cfg,seqi);
-        
-        
-        % fill the buffer
-        PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
-        
-        % start playing
-        currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
-            cfg.PTBstartCue, cfg.PTBwaitForDevice);
-        
-        % save params for later call in BIDS saving
-        expParam.seqi = seqi;
-        expParam.currSeqStartTime = currSeqStartTime;
-
-        % ===========================================
-        % stimulus save for BIDS
-        % ===========================================
-        
-        % open a file to write sequencefor BIDS
-        currSeq(1).fileID = logFile.fileID;
-        
-        % adding columns in currSeq for BIDS format
-        for iPattern = 1:length(currSeq)
-            
-            %correcting onsets for fMRI trigger onset
-            currSeq(iPattern,1).onset  = currSeq(iPattern,1).onset + ...
-                expParam.currSeqStartTime - expParam.experimentStart;
-            currSeq(iPattern,1).segmentOnset = currSeq(iPattern,1).segmentOnset...
-                + expParam.currSeqStartTime - expParam.experimentStart;
-            
-            %adding compulsory BIDS structures
-            currSeq(iPattern,1).trial_type  = 'dummy';
-            currSeq(iPattern,1).duration    = 0;
-            %
-            currSeq(iPattern,1).sequenceNum = seqi;
-            
-        end
-        
-        saveEventsFile('save', expParam, currSeq,'sequenceNum',...
-            'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-            'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
-            'rangePE4','LHL24','minLHL24','rangeLHL24');
-
-        % ===========================================
-        % log everything into matlab structure
-        % ===========================================
-        
-        % save (machine) onset time for the current sequence
-        % might be irrelevant for fMRI
-        expParam.data(seqi).currSeqStartTime = currSeqStartTime;
-        
-        % save PTB volume
-        % might be irrelevant for fMRI
-        expParam.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
-        
-        % save current sequence information (without the audio, which can
-        % be easily resynthesized)
-        currSeq(1).outAudio = [];
-        expParam.data(seqi).seq = currSeq;
-        
+        %adding compulsory BIDS structures
+        currSeq(iPattern,1).trial_type  = 'dummy';
+        currSeq(iPattern,1).duration    = 0;
+        % adding our interest
+        currSeq(iPattern,1).sequenceNum = seqi;
         
     end
-
+    
+    saveEventsFile('save', expParam, currSeq,'sequenceNum',...
+        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
+        'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
+        'rangePE4','LHL24','minLHL24','rangeLHL24');
+    
+    % ===========================================
+    % log everything into matlab structure
+    % ===========================================
+    
+    % save (machine) onset time for the current sequence
+    % might be irrelevant for fMRI
+    expParam.data(seqi).currSeqStartTime = currSeqStartTime;
+    
+    % save PTB volume
+    % might be irrelevant for fMRI
+    expParam.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
+    
+    % save current sequence information (without the audio, which can
+    % be easily resynthesized)
+    currSeq(1).outAudio = [];
+    expParam.data(seqi).seq = currSeq;
+    
+    
+    %   end
+    
     
     %% Wait for audio and delays to catch up
     % wait while fMRI is ongoing
     % stay here till audio stops
     reachHereTime = (GetSecs - expParam.experimentStart);
-    audioDuration = (cfg.SequenceDur*expParam.numSequences);
+    audioDuration = (cfg.SequenceDur * expParam.numSeq4Run);
     
     % exp duration + delays - script reaching to till point
     WaitSecs(audioDuration + expParam.onsetDelay + expParam.endDelay ...
