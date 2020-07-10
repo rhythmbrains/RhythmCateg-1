@@ -82,7 +82,7 @@ try
     expParam.experimentStart = GetSecs;
     
     % wait for dummy fMRI scans
-    WaitSecs(expParam.onsetDelay);
+    WaitSecs(expParam.timing.onsetDelay);
     
     
     %% play sequences
@@ -124,11 +124,14 @@ try
             currSeqStartTime - expParam.experimentStart;
         currSeq(iPattern,1).segmentOnset = currSeq(iPattern,1).segmentOnset...
             + currSeqStartTime - expParam.experimentStart;
+        currSeq(iPattern,1).stepOnset = currSeq(iPattern,1).stepOnset...
+            + currSeqStartTime - expParam.experimentStart;
         
         %adding compulsory BIDS structures
         currSeq(iPattern,1).trial_type  = 'dummy';
         currSeq(iPattern,1).duration    = 0;
-        % adding our interest
+        
+        % adding outher interest
         currSeq(iPattern,1).sequenceNum = seqi;
         
     end
@@ -166,11 +169,11 @@ try
     audioDuration = (cfg.SequenceDur * expParam.numSeq4Run);
     
     % exp duration + delays - script reaching to till point
-    WaitSecs(audioDuration + expParam.onsetDelay + expParam.endDelay ...
-        - reachHereTime);
+    WaitSecs(audioDuration + expParam.timing.onsetDelay + ...
+        expParam.timing.endDelay - reachHereTime);
     
     % record exp ending time
-    expParam.fMRIendTime = GetSecs - expParam.experimentStart;
+    expParam.timing.fMRIendTime = GetSecs - expParam.experimentStart;
     
     %% Check last button presses & wrap up
     % % %
@@ -180,7 +183,7 @@ try
 
 
     % wait for participant to press button
-    WaitSecs(expParam.endResponseDelay);
+    WaitSecs(expParam.timing.endResponseDelay);
     
     % write down buffered responses
     countEvents = getResponse('check', cfg, expParam,1);
@@ -209,8 +212,10 @@ try
         countEvents = struct();
         countEvents = temp;
         
-        saveEventsFile('save', expParam,countEvents,...
-            'key_name','pressed','target');
+        if isfield(countEvents,'onset') 
+            saveEventsFile('save', expParam,countEvents,...
+                'key_name','pressed','target');
+        end
         
     end
 
@@ -226,10 +231,10 @@ try
     end
     
     % wait for ending the screen/exp
-    WaitSecs(expParam.endScreenDelay);
+    WaitSecs(expParam.timing.endScreenDelay);
     
     % record script ending time
-    expParam.endTime = GetSecs - expParam.experimentStart;
+    expParam.timing.scriptEndTime = GetSecs - expParam.experimentStart;
     
     %% save
     % Close the logfiles (tsv)   - BIDS

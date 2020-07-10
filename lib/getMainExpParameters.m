@@ -174,17 +174,7 @@ cfg.labelCategB = 'complex';
 %%%%%%%%%%%%
 % ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
 %%%%%%%%%%%%
-
-if strcmp(cfg.device,'scanner')
-    if expParam.runNb == 1
-        DesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
-        save('SeqDesign','DesignFullExp');
-        cfg.seqDesignFullExp = DesignFullExp;
-    else
-        design = load('SeqDesign');
-        cfg.seqDesignFullExp = design.DesignFullExp;
-    end
-else
+if strcmp(cfg.device,'pc')
     cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
 end
 
