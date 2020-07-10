@@ -170,9 +170,6 @@ cfg.labelCategA = 'simple';
 cfg.labelCategB = 'complex'; 
 
 
-%Now we create a function instead of the below line
-%cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
-
 %% generate example audio for volume setting
 % added F0s-amplitude because the relative dB set in volume adjustment in
 % PychPortAudio will be used in the mainExp

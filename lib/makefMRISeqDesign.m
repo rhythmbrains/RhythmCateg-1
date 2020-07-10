@@ -15,8 +15,11 @@ function [cfg,expParam] = makefMRISeqDesign(cfg,expParam)
 %%%%%%%%%%%%
 % ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
 %%%%%%%%%%%%
+%getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
 
-% ADD EVEN/ODD RUNS STARTING WITH A OR B CATEG!!!
+
+
+% ADD SHUFFLE ORDER FOR STARTING WITH A OR B CATEG for BLOCK DESING ! 
 
 % CREATE counterbalanced sequences for every 3 sequence then multiply with
 % 3 (in case they stop fMRI, or we want ot increase to 12 runs)
@@ -34,9 +37,6 @@ if strcmp(cfg.device,'scanner')
 else
     cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
 end
-
-
-
 
 
 end
