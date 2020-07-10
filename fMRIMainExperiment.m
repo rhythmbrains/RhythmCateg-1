@@ -11,13 +11,15 @@ end
 % make sure we got access to all the required functions and inputs
 addpath(genpath(fullfile(pwd, 'lib')))
 
+% Define the exp
+task = 'RhythmCategBlock'; % 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 
 % Get parameters by providing task name, device and debugmode
-[cfg,expParam] = getParams('RhythmCategBlock','scanner',0);
-%[cfg,expParam] = getParams('RhythmCategFT','scanner',0);
-%[cfg,expParam] = getParams('RhythmCategBlock');
-%[cfg,expParam] = getParams('PitchFT');
+[cfg,expParam] = getParams(task,'scanner',0);
 
+% set and load all the subject input to run the experiment
+expParam = userInputs(cfg,expParam);
+expParam = createFilename(cfg,expParam);
 
 
 % get time point at the beginning of the script (machine time)
@@ -47,6 +49,9 @@ try
     countFile  = saveEventsFile('open_stim', expParam,[],...
         'key_name','pressed','target');
     
+    
+    % get this exp related params
+    [cfg,expParam] = getBlockParameters(cfg,expParam);
     
     % Show instructions for fMRI task - modify to give duration and volume
     % check
@@ -83,7 +88,7 @@ try
     
 
     %% play sequences
-    for seqi = 1:expParam.numSequences
+    for seqi = expParam.runNb %1:expParam.numSequences
         
         % prep for BIDS saving structures
         currSeq = struct();
@@ -158,7 +163,7 @@ try
     % wait while fMRI is ongoing
     % stay here till audio stops
     reachHereTime = (GetSecs - expParam.experimentStart);
-    audioDuration = (cfg.SequenceDur*expParam.numSequences);
+    audioDuration = (cfg.SequenceDur * expParam.numSeq4Run);
     
     % exp duration + delays - script reaching to till point
     WaitSecs(audioDuration + expParam.onsetDelay + expParam.endDelay ...

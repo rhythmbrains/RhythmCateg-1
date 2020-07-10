@@ -53,10 +53,6 @@ expParam.askGrpSess = [0 0];
 %esc key for both behav and fmri exp
 cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
 
-%% set and load all the subject input to run the experiment
-expParam = userInputs(cfg,expParam);
-expParam = createFilename(cfg,expParam);
-
 %% monitor
 % Monitor parameters - fMRI - CHANGE with fMRI parameters
 cfg.monitorWidth  	  = 42;  % Monitor Width in cm
@@ -134,16 +130,18 @@ expParam.pauseSeq = 1; % give a pause of below seconds in between sequences
 
 % define ideal number of sequences to be made
 % multiple of 3 is balanced design
-if strcmp(cfg.device,'pc')
+if strcmpi(cfg.device,'pc')
     expParam.numSequences = 6;
+    
     if cfg.debug
         expParam.numSequences = 2;
     end
-elseif strcmp(cfg.device,'scanner')
-    expParam.numSequences = 1;
-    if cfg.debug
-        expParam.numSequences = 2;
-    end
+    
+elseif strcmpi(cfg.device,'scanner')
+    
+    expParam.numSequences = 9;
+    expParam.numSeq4Run = 1; % for 1 run time calculation
+
 end
 
 
@@ -182,9 +180,9 @@ elseif strcmp(expParam.task,'tapMainExp') || strcmp(expParam.task,'RhythmCategFT
     % get main experiment parameters
     [cfg,expParam] = getMainExpParameters(cfg,expParam);
 
-elseif strcmp(expParam.task,'RhythmCategBlock')
-    % get main experiment parameters
-    [cfg,expParam] = getBlockParameters(cfg,expParam);
+% elseif strcmp(expParam.task,'RhythmCategBlock')
+%     % get main experiment parameters
+%     [cfg,expParam] = getBlockParameters(cfg,expParam);
     
 %elseif strcmp(expParam.task,'PitchFT')
     %other options to consider 

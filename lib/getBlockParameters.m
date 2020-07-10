@@ -73,6 +73,7 @@ cfg.nPatternPerSegment = 4;
 cfg.interSegmInterval = cfg.nPatternPerSegment * cfg.interPatternInterval; 
 
 
+% Add delays for block's gap 
 % there can be a pause after all segments for category A are played 
 % (i.e. between A and B)
 cfg.delayAfterA = cfg.interSegmInterval; 
@@ -80,7 +81,7 @@ cfg.delayAfterA = cfg.interSegmInterval;
 % (i.e. between B and A)
 cfg.delayAfterB = cfg.interSegmInterval;
 
-%% construct step [ABBB]
+%% construct step [A_B_]
 % how many successive segments are presented for category A
 % manw many times segment A will be sequentially repeated
 cfg.nSegmentA = 1; 
@@ -170,8 +171,20 @@ cfg.labelCategB = 'complex';
 %%%%%%%%%%%%
 % ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
 %%%%%%%%%%%%
-cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam); 
 
+% ADD EVEN?ODD RUNS STARTING WITH A OR B CATEG!!!
+if strcmp(cfg.device,'scanner')
+    if expParam.runNb == 1
+        DesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
+        save('SeqDesign','DesignFullExp');
+        cfg.seqDesignFullExp = DesignFullExp;
+    else
+        design = load('SeqDesign');
+        cfg.seqDesignFullExp = design.DesignFullExp;
+    end
+else
+    cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
+end
 
 %% generate example audio for volume setting
 % added F0s-amplitude because the relative dB set in volume adjustment in
