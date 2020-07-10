@@ -154,7 +154,7 @@ end
 
 
 % max fMRI run number
-expParam.maxfMRIrun = 9;
+% expParam.maxfMRIrun = 9;
 % expParam.maxfMRIrun = expParam.numSequences;
 
 %% fMRI task
