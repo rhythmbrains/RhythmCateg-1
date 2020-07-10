@@ -1,4 +1,9 @@
 function [cfg,expParam] = getParams(task,device,debugmode)
+% NOTE: in order to use behav + fMRI with 1 getParams, we are using
+% getParam with 3 aguments so it won't interfere with behav script
+% CB edit 0n 09/07/2020
+
+
 % Initialize the parameters variables
 % Initialize the general configuration variables
 % =======
@@ -29,7 +34,7 @@ end
 
 %% Debug mode settings
 cfg.debug               = debugmode ;  % To test the script with trasparent full size screen 
-expParam.verbose        = true; % add here and there some explanations with if verbose is ON. 
+expParam.verbose        = 1; % add here and there some explanations with if verbose is ON. 
 
 %% MRI settings
 cfg.device        = device;       % 'PC': does not care about trigger(for behav) - otherwise use 'Scanner'
@@ -38,17 +43,17 @@ cfg.numTriggers   = 4;          % first #Triggers will be dummy scans
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 %% general configuration
+%for BIDS format: 
+expParam.task = task; % should be calling behav or fmri
+expParam.askGrpSess = [0 0]; % it won't ask you about group or session
+
 expParam.fmriTask = true; % the task is behav exp or fMRI? 
 
 % it'll only look for space press -
 % later on change with the responseBox indices/numbers! ! !
 expParam.responseKey = {'space'};
 
-%it should be calling behav or fmri - important for BIDS format.
-expParam.task = task;
 
-%it won't ask you about group or session
-expParam.askGrpSess = [0 0];
 
 %esc key for both behav and fmri exp
 cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
@@ -110,8 +115,6 @@ checkSoundFiles();
 
 %% Timing 
 
-% max fMRI run number
-expParam.maxfMRIrun = 9;
 % % %
 % convert waitSecs according to the TR = 2.28
 expParam.onsetDelay = 3 * 2.28; %Number of seconds before the rhythmic sequence (exp) are presented
@@ -132,18 +135,27 @@ expParam.pauseSeq = 1; % give a pause of below seconds in between sequences
 % multiple of 3 is balanced design
 if strcmpi(cfg.device,'pc')
     expParam.numSequences = 6;
-    
     if cfg.debug
         expParam.numSequences = 2;
     end
-    
+      
 elseif strcmpi(cfg.device,'scanner')
     
-    expParam.numSequences = 9;
-    expParam.numSeq4Run = 1; % for 1 run time calculation
+    if cfg.debug
+       expParam.numSequences = 1; % this param is for counterbalanced design
+    else
+        expParam.numSequences = 9;
+    end
+    
+    expParam.numSeq4Run = 1; % for an fMRI run time calculation
 
 end
 
+
+
+% max fMRI run number
+expParam.maxfMRIrun = 9;
+% expParam.maxfMRIrun = expParam.numSequences;
 
 %% fMRI task
 % if fmriTask == true, it'll display a fixation cross during the fMRI run
@@ -170,6 +182,8 @@ end
 
 
 %% more parameters to get according to the type of experiment
+% this part is solely for behavioral exp
+% control fMRI script has its getxxx.m instead of in here (getParam.m)
 if strcmp(expParam.task,'tapTraining')
     
     % get tapping training parameters
@@ -180,9 +194,9 @@ elseif strcmp(expParam.task,'tapMainExp') || strcmp(expParam.task,'RhythmCategFT
     % get main experiment parameters
     [cfg,expParam] = getMainExpParameters(cfg,expParam);
 
-% elseif strcmp(expParam.task,'RhythmCategBlock')
-%     % get main experiment parameters
-%     [cfg,expParam] = getBlockParameters(cfg,expParam);
+    elseif strcmp(expParam.task,'RhythmCategBlock')
+        % get main experiment parameters
+        [cfg,expParam] = getBlockParameters(cfg,expParam);
     
 %elseif strcmp(expParam.task,'PitchFT')
     %other options to consider 

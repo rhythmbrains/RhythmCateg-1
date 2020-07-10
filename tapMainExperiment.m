@@ -13,7 +13,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 
 
 % Get parameters by providing task name, device and debugmode
-[cfg,expParam] = getParams('tapMainExp','pc',1);
+[cfg,expParam] = getParams('tapMainExp','pc',0);
 
 % set and load all the subject input to run the experiment
 expParam = userInputs(cfg,expParam);

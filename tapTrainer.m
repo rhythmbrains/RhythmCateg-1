@@ -21,10 +21,9 @@ tic
 % make sure we got access to all the required functions and inputs
 addpath(genpath(fullfile(pwd, 'lib')))
 
-% % % refactor this part to run training + exp within 1 go?
-% parameters
-[cfg,expParam] = getParams('tapTraining'); 
-% % % 
+% Get parameters by providing task name, device and debugmode
+[cfg,expParam] = getParams('tapTraining','pc',0); 
+
 
 % datalogging structure
 datalog = []; 
