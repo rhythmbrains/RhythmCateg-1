@@ -152,8 +152,8 @@ cfg.changePitchCategory = 0;
 % change pitch for each step
 cfg.changePitchStep 	= 0;     
 
-% change pitch only for A but keep 1 pitch for categB
-cfg.changePitchCategB   = 0;
+% refuse to pitch-change in categB
+cfg.fixedPitchCategB   = 1;
 
 %% create two sets of patterns
 

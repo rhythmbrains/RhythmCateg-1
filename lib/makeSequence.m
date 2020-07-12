@@ -204,35 +204,72 @@ for stepi=1:cfg.nStepsPerSequence
                 
             end
             
-            % if change of pitch requested, PSEUDOrandomly choose a new pitch
-            % do this only if there is more than 1 F0 to choose from
-            % last checkpoint is if pitch change is requested only for
-            % CategA
-            if CHANGE_PITCH && length(cfg.F0s)>1
-                
-                % get F0s to choose from
-                pitch2ChooseIdx = 1:length(cfg.F0s);
-                % remove F0 used in the previous iteration (to prevent
-                % repetition in the sequence)
-                pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = [];          
-                % randomly select new F0 idx
-                currF0idx = randsample(pitch2ChooseIdx,1);
-                % assign the randomly chosen pitch ID into current pitch to be
-                % used in the sequence constraction
-            end
             
+%             %% ORIGINAL 
+%             % if change of pitch requested, PSEUDOrandomly choose a new pitch
+%             % do this only if there is more than 1 F0 to choose from
+%             if CHANGE_PITCH && length(cfg.F0s)>1
+%                 % get F0s to choose from 
+%                 pitch2ChooseIdx = 1:length(cfg.F0s);
+%                 % remove F0 used in the previous iteration (to prevent
+%                 % repetition in the sequence) 
+%                 pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = [];
+%                 % randomly select new F0 idx
+%                 currF0idx = randsample(pitch2ChooseIdx,1);
+%             end
             
+            %% NEW
+            % % %
+            % long ! pitches are not counterbalanced! 
+            % % %
+            % last checkpoint is if fixed-pitch  is requested for
+            % CategB
+            if isfield(cfg,'fixedPitchCategB')
                 
-            % check change pitch for categB is zero/false
-            if ~cfg.changePitchCategB && strcmpi(currPatternCateg,'complex')
-                %assign to the different pitch to categB
-                currF0 = cfg.differF0;
-                currAmp = cfg.F0sAmps(end);
-                
-            else
-                currF0 = cfg.F0s(currF0idx);
-                currAmp = cfg.F0sAmps(currF0idx);
-                
+                % only categB is with fixed pitch
+                if cfg.fixedPitchCategB && strcmpi(currPatternCateg,'complex')
+                    %assign to the different pitch to categB
+                    currF0 = cfg.differF0;
+                    currAmp = cfg.F0sAmps(end);
+                    
+                elseif cfg.fixedPitchCategB && strcmpi(currPatternCateg,'simple')
+                    
+                    pitch2ChooseIdx = 1:length(cfg.F0s);
+                    % remove F0 used in the previous iteration (to prevent
+                    % repetition in the sequence)
+                    pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = [];
+                    % randomly select new F0 idx
+                    currF0idx = randsample(pitch2ChooseIdx,1);
+                    
+                    %assign the randomly chosen ones to current pitch
+                    currF0 = cfg.F0s(currF0idx);
+                    currAmp = cfg.F0sAmps(currF0idx);
+
+                end
+            end 
+            
+            if ~isfield(cfg,'fixedPitchCategB') || ~ cfg.fixedPitchCategB
+                % if fixedPitchCategB is not defined
+                if CHANGE_PITCH && length(cfg.F0s)>1
+                    
+                    % get F0s to choose from
+                    pitch2ChooseIdx = 1:length(cfg.F0s);
+                    % remove F0 used in the previous iteration (to prevent
+                    % repetition in the sequence)
+                    pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = [];
+                    % randomly select new F0 idx
+                    currF0idx = randsample(pitch2ChooseIdx,1);
+                    
+                    %assign the randomly chosen ones to current pitch
+                    currF0 = cfg.F0s(currF0idx);
+                    currAmp = cfg.F0sAmps(currF0idx);
+                    
+                    % if pitch changes CHANGE_PITCH == 0
+                else
+                    currF0 = cfg.F0s(currF0idx);
+                    currAmp = cfg.F0sAmps(currF0idx);
+                    
+                end
             end
         
                     
