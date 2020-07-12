@@ -155,6 +155,10 @@ end
 
 %% fMRI task
 % if fmriTask == true, it'll display a fixation cross during the fMRI run
+% Also makes the task design in makefMRISeqDesign.m
+
+% For now, I'll insert 3 task versions here to be called in
+% makeStimMainExp.m 
 
 if expParam.fmriTask
     
@@ -172,7 +176,15 @@ if expParam.fmriTask
         + expParam.yDisplacementFixCross;
     cfg.allCoords = [cfg.xCoords; cfg.yCoords];
     
+    %3 task version to choose
+    cfg.isTask.long = 1;
+    cfg.isTask.medium = 0;
+    cfg.isTask.short = 0;
+    
+    % deviant pitch
+    cfg.isTask.F0 = 2000;
 end
+
 
 
 

@@ -13,7 +13,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
-[cfg,expParam] = getParams('PitchFT','scanner',0);
+[cfg,expParam] = getParams('RhythmCategFT','scanner',0);
 
 % set and load all the subject input to run the experiment
 expParam = userInputs(cfg,expParam);
@@ -98,11 +98,12 @@ try
     currSeq = makeSequence(cfg,seqi);
     
     % fill the buffer
-    PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
+    PsychPortAudio('FillBuffer', cfg.pahandle, ...
+        [currSeq.outAudio;currSeq.outAudio]);
     
     % start playing
-    currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
-        cfg.PTBstartCue, cfg.PTBwaitForDevice);
+    currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, ...
+        cfg.PTBrepet,cfg.PTBstartCue, cfg.PTBwaitForDevice);
     
     % save params for later call in BIDS saving
     expParam.timing.seqi = seqi;
@@ -198,12 +199,13 @@ try
         
         for iResp = 1:size(countEvents,1)
             if (~isnan(countEvents(iResp).onset))
-                temp(count,1).onset = countEvents(iResp).onset - expParam.experimentStart;
+                temp(count,1).onset = countEvents(iResp).onset - ...
+                    expParam.experimentStart;
                 temp(count,1).trial_type = countEvents(iResp).trial_type;
                 temp(count,1).duration = countEvents(iResp).duration;
                 temp(count,1).key_name = countEvents(iResp).key_name;
                 temp(count,1).pressed = countEvents(iResp).pressed;
-                temp(count,1).target = 8; % assign the correct target number
+                temp(count,1).target = 8; % assign correct number!!!!!
                 
                 count = count +1;
             end
@@ -243,7 +245,8 @@ try
     
     
     % save the whole workspace
-    matFile = fullfile(expParam.outputDir, strrep(expParam.fileName.events,'tsv', 'mat'));
+    matFile = fullfile(expParam.outputDir, ...
+        strrep(expParam.fileName.events,'tsv', 'mat'));
     if IsOctave
         save(matFile, '-mat7-binary');
     else
@@ -258,7 +261,8 @@ try
 catch
     
     % save everything into .mat file
-    matFile = fullfile(expParam.outputDir, strrep(expParam.fileName.events,'tsv', 'mat'));
+    matFile = fullfile(expParam.outputDir, ...
+        strrep(expParam.fileName.events,'tsv', 'mat'));
     if IsOctave
         save(matFile, '-mat7-binary');
     else

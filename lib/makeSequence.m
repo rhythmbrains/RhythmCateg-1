@@ -128,7 +128,8 @@ for stepi=1:cfg.nStepsPerSequence
             % find the pattern ID from the seqDesignFullExp (output of
             % getAllSeq function)
             currPatID = cfg.seqDesignFullExp{seqi,stepi,segmi,pati}; 
-            currPatIdx = find(strcmp(currPatID,{patterns2choose.ID})); 
+            currPatIdx = find(strcmp(currPatID,{patterns2choose.ID}));
+
             
             % do a quick check that the assigment of category labels is
             % consistent, if not, give a warning
@@ -280,12 +281,17 @@ for stepi=1:cfg.nStepsPerSequence
             % get the pattern
             currPattern = patterns2choose(currPatIdx).pattern;
 
+            
+            % First, check for fmri task exists?
+            if isfield(cfg,'fMRItaskidx')
+                cfg.isTask.Idx = cfg.fMRItaskidx(seqi,stepi,segmi,pati);
+            end
+            
             % make audio 
             [patternAudio,~] = makeStimMainExp(currPattern, ...
-                                               cfg, currGridIOI, ...
-                                               currF0,currAmp); 
+                cfg, currGridIOI, ...
+                currF0,currAmp);
             
-
             % get current audio index in the sequence, and append the audio
             currAudioIdx = round(currTimePoint*cfg.fs); 
             

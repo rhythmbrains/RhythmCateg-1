@@ -24,6 +24,12 @@ else
     currAmp = varargin{1};
 end
 
+if isfield(cfg,'fMRItaskidx')
+    isTask = cfg.isTask.Idx;
+    F0Task = cfg.isTask.F0;
+else
+    isTask =[];   
+end
 
 %% make envelope for the individual sound event 
 
@@ -63,17 +69,34 @@ c=0;
 for cyclei=1:nCycles
     for i=1:length(pattern)
         if pattern(i)
-            % % % is this correct? 
+
             idx = round(c*currGridIOI*cfg.fs); 
-            %idx = round(c*cfg.IOI*cfg.fs); 
-            % % %
+
+
             env(idx+1:idx+length(envEvent)) = pattern(i) * envEvent; 
         end
         c=c+1; 
     end
 end
-% create carrier 
-s = sin(2*pi*currF0*t); 
+
+% create carrier according to isTask
+if isTask
+    if isTask
+        if cfg.isTask.long
+            % change the pitch of whole pattern
+            s = sin(2*pi*F0Task*t);
+        elseif cfg.isTask.medium
+            %change the pitch only 3 events
+            s = sin(2*pi*F0Task*t);
+        else
+            %change the pitch of  1 event
+            s = sin(2*pi*F0Task*t);
+        end
+    end
+else
+    % create carrier
+    s = sin(2*pi*currF0*t);
+end
 
 
 % apply envelope to the carrier
