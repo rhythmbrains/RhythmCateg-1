@@ -119,16 +119,18 @@ fprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
 %for this design, we want categ A and B having sifferent pitches (A will
 %have 5 pitches differing, B will only have 1 pitch)
 cfg.minF0 	= 350; % minimum possible F0
-cfg.maxF0 	= 1140; % maximum possible F0
-cfg.nF0 	= 6; % number of unique F0-values between the limits
+cfg.maxF0 	= 900; % maximum possible F0
+cfg.nF0 	= 5; % number of unique F0-values between the limits
 cfg.F0s 	= logspace(log10(cfg.minF0),log10(cfg.maxF0),cfg.nF0); 
 
+cfg.differF0 = 1140; % this is also logspaced
 
 % calculate required amplitude gain
+% butchered this part with adding cfg.differ - change in the future ! ! !
 if expParam.equateSoundAmp
-    cfg.F0sAmpGain = equalizePureTones(cfg.F0s,[], []);
+    cfg.F0sAmpGain = equalizePureTones([cfg.F0s,cfg.differF0],[], []);
 else
-    cfg.F0sAmpGain = ones(1,cfg.nF0);
+    cfg.F0sAmpGain = ones(1,cfg.nF0+1);
 end
 
 % use the requested gain of each tone to adjust the base amplitude

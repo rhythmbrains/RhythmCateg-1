@@ -209,34 +209,33 @@ for stepi=1:cfg.nStepsPerSequence
             % last checkpoint is if pitch change is requested only for
             % CategA
             if CHANGE_PITCH && length(cfg.F0s)>1
-
-                % check change pitch for categB is zero/false
-                if ~cfg.changePitchCategB
-                    if strcmpi(currPatternCateg,'simple')
-                        %remove the last F0 from frequencies
-                        cfg.F0s = cfg.F0s(1:end-1);
-                        
-                    elseif strcmpi(currPatternCateg,'complex')
-                        %keep the last F0
-                        cfg.F0s = cfg.F0s(end);
-                    end
-                end
                 
                 % get F0s to choose from
                 pitch2ChooseIdx = 1:length(cfg.F0s);
                 % remove F0 used in the previous iteration (to prevent
                 % repetition in the sequence)
-                pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = [];
+                pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = [];          
                 % randomly select new F0 idx
                 currF0idx = randsample(pitch2ChooseIdx,1);
+                % assign the randomly chosen pitch ID into current pitch to be
+                % used in the sequence constraction
             end
-
-            % assign the randomly chosen pitch ID into current pitch to be
-            % used in the sequence constraction
-            currF0 = cfg.F0s(currF0idx);
-            currAmp = cfg.F0sAmps(currF0idx);
-                    
             
+            
+                
+            % check change pitch for categB is zero/false
+            if ~cfg.changePitchCategB && strcmpi(currPatternCateg,'complex')
+                %assign to the different pitch to categB
+                currF0 = cfg.differF0;
+                currAmp = cfg.F0sAmps(end);
+                
+            else
+                currF0 = cfg.F0s(currF0idx);
+                currAmp = cfg.F0sAmps(currF0idx);
+                
+            end
+        
+                    
             % --------------------------------------------------
             % ----------------- make the audio -----------------
             % --------------------------------------------------
