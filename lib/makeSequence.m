@@ -119,7 +119,25 @@ for stepi=1:cfg.nStepsPerSequence
         %% loop over pattern cycles in 1 segment
         % to create a segment
         for pati=1:cfg.nPatternPerSegment
-    
+            
+            
+            % --------------------------------------------------
+            % ---- read current pattern from SequenceDesign ----
+            % --------------------------------------------------
+            
+            % find the pattern ID from the seqDesignFullExp (output of
+            % getAllSeq function)
+            currPatID = cfg.seqDesignFullExp{seqi,stepi,segmi,pati}; 
+            currPatIdx = find(strcmp(currPatID,{patterns2choose.ID})); 
+            
+            % do a quick check that the assigment of category labels is
+            % consistent, if not, give a warning
+            currPatternCateg = regexp(patterns2choose(currPatIdx).ID, '\D*(?=\d.*)', 'match'); 
+            currPatternCateg = currPatternCateg{1}; 
+            if ~strcmpi(currPatternCateg,currCategLabel)
+                warning('mismatching category labels during sequence construction...'); 
+            end
+            
             
             % --------------------------------------------------
             % ----- determine if gridIOI needs to be changed ---
@@ -186,38 +204,42 @@ for stepi=1:cfg.nStepsPerSequence
                 
             end
             
-            % if change of pitch requested, randomly choose a new pitch
+            % if change of pitch requested, PSEUDOrandomly choose a new pitch
             % do this only if there is more than 1 F0 to choose from
+            % last checkpoint is if pitch change is requested only for
+            % CategA
             if CHANGE_PITCH && length(cfg.F0s)>1
-                % get F0s to choose from 
-                pitch2ChooseIdx = 1:length(cfg.F0s); 
+
+                % check change pitch for categB is zero/false
+                if ~cfg.changePitchCategB
+                    if strcmpi(currPatternCateg,'simple')
+                        %remove the last F0 from frequencies
+                        cfg.F0s = cfg.F0s(1:end-1);
+                        
+                    elseif strcmpi(currPatternCateg,'complex')
+                        %keep the last F0
+                        cfg.F0s = cfg.F0s(end);
+                    end
+                end
+                
+                % get F0s to choose from
+                pitch2ChooseIdx = 1:length(cfg.F0s);
                 % remove F0 used in the previous iteration (to prevent
-                % repetition in the sequence) 
-                pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = []; 
+                % repetition in the sequence)
+                pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = [];
                 % randomly select new F0 idx
-                currF0idx = randsample(pitch2ChooseIdx,1); 
+                currF0idx = randsample(pitch2ChooseIdx,1);
             end
-            
-            currF0 = cfg.F0s(currF0idx); 
+
+            % assign the randomly chosen pitch ID into current pitch to be
+            % used in the sequence constraction
+            currF0 = cfg.F0s(currF0idx);
             currAmp = cfg.F0sAmps(currF0idx);
-            
+                    
             
             % --------------------------------------------------
             % ----------------- make the audio -----------------
             % --------------------------------------------------
-            
-            % find the pattern ID from the seqDesignFullExp (output of
-            % getAllSeq function)
-            currPatID = cfg.seqDesignFullExp{seqi,stepi,segmi,pati}; 
-            currPatIdx = find(strcmp(currPatID,{patterns2choose.ID})); 
-            
-            % do a quick check that the assigment of category labels is
-            % consistent, if not, give a warning
-            currPatternCateg = regexp(patterns2choose(currPatIdx).ID, '\D*(?=\d.*)', 'match'); 
-            currPatternCateg = currPatternCateg{1}; 
-            if ~strcmpi(currPatternCateg,currCategLabel)
-                warning('mismatching category labels during sequence construction...'); 
-            end
             
             % get the pattern
             currPattern = patterns2choose(currPatIdx).pattern;

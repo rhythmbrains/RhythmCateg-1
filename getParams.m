@@ -189,14 +189,14 @@ elseif strcmp(expParam.task,'tapMainExp') || strcmp(expParam.task,'RhythmCategFT
     
     % get main experiment parameters
     [cfg,expParam] = getMainExpParameters(cfg,expParam);
-
-    elseif strcmp(expParam.task,'RhythmCategBlock')
-        % get main experiment parameters
-        [cfg,expParam] = getBlockParameters(cfg,expParam);
     
-%elseif strcmp(expParam.task,'PitchFT')
-    %other options to consider 
-    %[cfg,expParam] = getParams('PitchFT');
+elseif strcmp(expParam.task,'RhythmCategBlock')
+    % get main experiment parameters
+    [cfg,expParam] = getBlockParameters(cfg,expParam);
+    
+elseif strcmp(expParam.task,'PitchFT')
+    
+    [cfg,expParam] = getPitchParameters(cfg,expParam);
     
 end
 
