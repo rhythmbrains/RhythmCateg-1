@@ -177,12 +177,12 @@ if expParam.fmriTask
     cfg.allCoords = [cfg.xCoords; cfg.yCoords];
     
     %3 task version to choose
-    cfg.isTask.long = 1;
-    cfg.isTask.medium = 0;
-    cfg.isTask.short = 0;
+    cfg.isTask.long = 0;
+    cfg.isTask.short = 1;
+    cfg.isTask.numEvent = 1;
     
     % deviant pitch
-    cfg.isTask.F0 = 2000;
+    cfg.isTask.F0 = 100;
 end
 
 

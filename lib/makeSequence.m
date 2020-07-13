@@ -306,8 +306,9 @@ for stepi=1:cfg.nStepsPerSequence
             seq(cPat,1).onset       = currTimePoint;
             seq(cPat,1).segmentNum  = segmi;
             seq(cPat,1).segmentOnset = segmentOnset;
-            seq(cPat,1).stepNum    = stepi;
-            seq(cPat,1).stepOnset  = stepOnset;
+            seq(cPat,1).stepNum     = stepi;
+            seq(cPat,1).stepOnset   = stepOnset;
+            seq(cPat,1).isTask      = cfg.isTask.Idx;
             
             seq(cPat,1).pattern     = currPattern; 
             seq(cPat,1).F0          = currF0;
