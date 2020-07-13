@@ -40,7 +40,7 @@ cfg.screen             = max(Screen('Screens'));
 PsychImaging('PrepareConfiguration');
 
 % init PTB with different options in concordance to the Debug Parameters
-if cfg.debug
+% if cfg.debug
 
     % set to one because we don not care about time
     Screen('Preference', 'SkipSyncTests', 2);
@@ -50,13 +50,13 @@ if cfg.debug
     PsychDebugWindowConfiguration
     [cfg.win, cfg.winRect] = PsychImaging('OpenWindow', cfg.screen, cfg.backgroundColor);
         
-else
-    % we do not need high accuracy for the screen atm
-    % Screen('Preference', 'SkipSyncTests', 1);
-    Screen('Preference','SkipSyncTests', 1);
-    [cfg.win, cfg.winRect] = PsychImaging('OpenWindow', cfg.screen, cfg.backgroundColor);
-
-end
+% else
+%     % we do not need high accuracy for the screen atm
+%     % Screen('Preference', 'SkipSyncTests', 1);
+%     Screen('Preference','SkipSyncTests', 1);
+%     [cfg.win, cfg.winRect] = PsychImaging('OpenWindow', cfg.screen, cfg.backgroundColor);
+% 
+% end
 
 
 
