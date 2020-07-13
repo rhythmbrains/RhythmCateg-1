@@ -285,6 +285,8 @@ for stepi=1:cfg.nStepsPerSequence
             % First, check for fmri task exists?
             if isfield(cfg,'fMRItaskidx')
                 cfg.isTask.Idx = cfg.fMRItaskidx(seqi,stepi,segmi,pati);
+            else 
+                cfg.isTask.Idx = 0;
             end
             
             % make audio 

@@ -18,6 +18,8 @@ function [cfg,expParam] = makefMRISeqDesign(cfg,expParam)
 % 3 (in case they stop fMRI, or we want ot increase to 12 runs)
 % expParam.numSequences = 3
 
+expParam.fmriTask = true;
+
 
 %%%%%%%%%%%%
 % ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
@@ -69,7 +71,7 @@ if strcmp(cfg.device,'scanner')
         end
         
         %save the Design
-        save('SeqDesign','DesignFullExp','expParam');
+        save('SeqDesign','DesignFullExp','cfg');
         cfg.seqDesignFullExp = DesignFullExp;
         
     else

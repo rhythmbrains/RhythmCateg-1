@@ -47,7 +47,7 @@ cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and wa
 expParam.task = task; % should be calling behav or fmri
 expParam.askGrpSess = [0 0]; % it won't ask you about group or session
 
-expParam.fmriTask = true; % the task is behav exp or fMRI? 
+%expParam.fmriTask = false; % by default. Then it can be called in makefMRISeqDesign to set true.
 
 % it'll only look for space press -
 % later on change with the responseBox indices/numbers! ! !
@@ -154,13 +154,13 @@ end
 
 
 %% fMRI task
-% if fmriTask == true, it'll display a fixation cross during the fMRI run
+% it'll display a fixation cross during the fMRI run
 % Also makes the task design in makefMRISeqDesign.m
 
 % For now, I'll insert 3 task versions here to be called in
 % makeStimMainExp.m 
 
-if expParam.fmriTask
+if strcmpi(cfg.device,'scanner') %expParam.fmriTask
     
     % Used Pixels here since it really small and can be adjusted during the experiment
     expParam.fixCrossDimPix               = 10;   % Set the length of the lines (in Pixels) of the fixation cross
