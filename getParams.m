@@ -53,8 +53,6 @@ expParam.askGrpSess = [0 0]; % it won't ask you about group or session
 % later on change with the responseBox indices/numbers! ! !
 expParam.responseKey = {'space'};
 
-
-
 %esc key for both behav and fmri exp
 cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
 
@@ -112,6 +110,7 @@ cfg.audio.channels = 2;
 
 %% download missing stimuli (.wav)
 checkSoundFiles();
+% % % % ADD PIANO TONES HERE AS WELL  ! ! ! ! % % %
 
 %% Timing 
 
@@ -183,6 +182,17 @@ if strcmpi(cfg.device,'scanner') %expParam.fmriTask
     
     % deviant pitch
     cfg.isTask.F0 = 100;
+    
+    
+    
+    % piano keys 
+    % read the audio files and insert them into cfg
+    targetList = dir('stimuli/Piano*.wav');
+    for isound = 1:length(targetList)
+        [S,cfg.fs] = audioread(fullfile('stimuli',targetList(isound).name));
+        cfg.targetSounds{isound} = S';
+    end
+    
 end
 
 

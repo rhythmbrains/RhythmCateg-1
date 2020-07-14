@@ -28,6 +28,19 @@ if isfield(cfg,'fMRItaskidx')
     isTask = cfg.isTask.Idx;
     F0Task = cfg.isTask.F0;
     F0NoTask = currF0;
+    
+    % add with piano keys
+    % check the current F0 
+    % find the corresponding cfg.targetSound 
+    
+    % insert that into where we multiply the envolop with sine wave. 
+    % instead of sine wave, nultiple the piano key *it's god to ramp it as well
+    % 
+    % then multiply with the given amp
+    
+    % need to change the long version into all 
+    % all curr envelops goes thorugh the loop and gets multiplies with
+    % piano key tone instead of sine wave
 else
     isTask =[];
 end
