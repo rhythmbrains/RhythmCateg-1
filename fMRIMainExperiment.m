@@ -13,7 +13,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
-[cfg,expParam] = getParams('PitchFT','scanner',0);
+[cfg,expParam] = getParams('PitchFT','scanner',1);
 
 % set and load all the subject input to run the experiment
 expParam = userInputs(cfg,expParam);
@@ -33,7 +33,7 @@ try
     % Init the experiment
     [cfg] = initPTB(cfg);
     
-
+    
     % Prepare for the output logfiles - BIDS
     % saving 2 arrays long-form
     % open events logfile
@@ -56,7 +56,7 @@ try
     if expParam.fmriTask
         displayInstr(expParam.fmriTaskInst,cfg);
         % displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
-
+        
     end
     
     % wait for space key to be pressed by the experimenter
@@ -77,7 +77,7 @@ try
         Screen('Flip',cfg.win);
     end
     
-
+    
     % and collect the timestamp
     expParam.experimentStart = GetSecs;
     
@@ -174,9 +174,38 @@ try
     audioDuration = (cfg.SequenceDur * expParam.numSeq4Run);
     
     % exp duration + delays - script reaching to till point
-    WaitSecs(audioDuration + expParam.timing.onsetDelay + ...
-        expParam.timing.endDelay - reachHereTime);
+%     WaitSecs(audioDuration + expParam.timing.onsetDelay + ...
+%         expParam.timing.endDelay - reachHereTime);
     
+    %%
+    
+    % stay in the loop until the sequence ends
+    %while GetSecs < (currSeqStartTime+cfg.SequenceDur)
+    while GetSecs  < (expParam.experimentStart + audioDuration + ...
+            expParam.timing.onsetDelay + expParam.timing.endDelay)
+        
+        % check if key is pressed
+        %[~, tapTime, keyCode] = KbCheck(cfg.keyboard);
+        [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
+        
+        % terminate if quit-button pressed
+        if find(keyCode)==cfg.keyquit
+            error('Experiment terminated by user...');
+        end
+    end
+    
+    
+    
+    
+    
+    % Check for experiment abortion from operator
+%             [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
+%             if keyIsDown && keyCode(KbName(cfg.escapeKey))
+%                 stopEverything = 1;
+%                 warning('OK let us get out of here')
+%                 break;
+%             end
+    %%
     % record exp ending time
     expParam.timing.fMRIendTime = GetSecs - expParam.experimentStart;
     
