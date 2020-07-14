@@ -141,11 +141,11 @@ if strcmpi(cfg.device,'pc')
       
 elseif strcmpi(cfg.device,'scanner')
     
-    if cfg.debug
-       expParam.numSequences = 1; % this param is for counterbalanced design
-    else
+%     if cfg.debug
+%        expParam.numSequences = 1; % this param is for counterbalanced design
+%     else
         expParam.numSequences = 9;
-    end
+%     end
     
     expParam.numSeq4Run = 1; % for an fMRI run time calculation
 

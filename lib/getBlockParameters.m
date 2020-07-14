@@ -101,7 +101,8 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 %% construct whole sequence
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
-if cfg.debug
+% if debug for behav exp, cut it short! 
+if cfg.debug && strcmpi(cfg.device,'pc')
     cfg.nStepsPerSequence = 1;
 else
     cfg.nStepsPerSequence = 5;
