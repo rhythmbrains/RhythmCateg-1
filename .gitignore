@@ -11,6 +11,12 @@
 !Perc5_cut.wav
 !tone440Hz_10-50ramp.wav
 !clap_005.wav
+!Piano1_T1_F4.wav
+!Piano1_T2_A4.wav
+!Piano1_T3_Csharp5.wav
+!Piano1_T4_F5.wav
+!Piano1_T5_A5.wav
+
 
 logfiles/
 *.mat
