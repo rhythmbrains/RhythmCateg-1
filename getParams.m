@@ -170,9 +170,7 @@ if strcmpi(cfg.device,'scanner') %expParam.fmriTask
         + expParam.yDisplacementFixCross;
     cfg.allCoords = [cfg.xCoords; cfg.yCoords];
     
-    %3 task version to choose
-    % if all pattern insert 12 here
-    % if target appear 1-2-3-... insert the number
+    %how many targets within 1 pattern
     cfg.isTask.numEvent = 1;
 
     % piano keys 
