@@ -12,7 +12,7 @@ AssertOpenGL;
 
 
 %%
-%PsychJavaTrouble;
+PsychJavaTrouble;
 
 % Make sure keyboard mapping is the same on all supported operating systems
 % Apple MacOS/X, MS-Windows and GNU/Linux:
@@ -35,9 +35,9 @@ HideCursor;
 
 cfg.screen             = max(Screen('Screens'));
 
-% Open a fullscreen, onscreen window with gray background. Enable 32bpc
-% floating point framebuffer via imaging pipeline on it.
-PsychImaging('PrepareConfiguration');
+% % Open a fullscreen, onscreen window with gray background. Enable 32bpc
+% % floating point framebuffer via imaging pipeline on it.
+% PsychImaging('PrepareConfiguration');
 
 % init PTB with different options in concordance to the Debug Parameters
 if cfg.debug
@@ -48,17 +48,16 @@ if cfg.debug
     Screen('Preferences', 'SuppressAllWarnings', 2);
 
     PsychDebugWindowConfiguration
-    [cfg.win, cfg.winRect] = PsychImaging('OpenWindow', cfg.screen, cfg.backgroundColor);
         
 else
     % we do not need high accuracy for the screen atm
     % Screen('Preference', 'SkipSyncTests', 1);
     Screen('Preference','SkipSyncTests', 0);
-    [cfg.win, cfg.winRect] = PsychImaging('OpenWindow', cfg.screen, cfg.backgroundColor);
 
 end
 
 
+[cfg.win, cfg.winRect] = Screen('OpenWindow', cfg.screen, cfg.backgroundColor);
 
 [cfg.winWidth,cfg.winHeight] = Screen('WindowSize',cfg.win);
 %[cfg.winWidth,cfg.winHeight] = WindowSize(cfg.win);
