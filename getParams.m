@@ -76,9 +76,9 @@ cfg.textSize         = 30; %18
 %% sound levels
 % assuming that participant will do the task with headphones
 cfg.baseAmp = 0.5; 
-
 % i think this cannot be smaller than cfg.Amp! ! !
 cfg.PTBInitVolume = 0.3; 
+
 
 
 if strcmpi(cfg.device, 'scanner')
@@ -139,13 +139,8 @@ if strcmpi(cfg.device,'pc')
     end
       
 elseif strcmpi(cfg.device,'scanner')
-    
-%     if cfg.debug
-%        expParam.numSequences = 1; % this param is for counterbalanced design
-%     else
-        expParam.numSequences = 9;
-%     end
-    
+
+    expParam.numSequences = 9;
     expParam.numSeq4Run = 1; % for an fMRI run time calculation
 
 end
@@ -176,15 +171,10 @@ if strcmpi(cfg.device,'scanner') %expParam.fmriTask
     cfg.allCoords = [cfg.xCoords; cfg.yCoords];
     
     %3 task version to choose
-    cfg.isTask.long = 0;
-    cfg.isTask.short = 1;
+    % if all pattern insert 12 here
+    % if target appear 1-2-3-... insert the number
     cfg.isTask.numEvent = 1;
-    
-    % deviant pitch
-    cfg.isTask.F0 = 100;
-    
-    
-    
+
     % piano keys 
     % read the audio files and insert them into cfg
     targetList = dir('stimuli/Piano*.wav');

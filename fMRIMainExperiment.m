@@ -13,7 +13,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
-[cfg,expParam] = getParams('PitchFT','scanner',1);
+[cfg,expParam] = getParams('PitchFT','scanner',0);
 
 % set and load all the subject input to run the experiment
 expParam = userInputs(cfg,expParam);
@@ -160,7 +160,7 @@ try
     
     % save current sequence information (without the audio, which can
     % be easily resynthesized)
-    currSeq(1).outAudio = [];
+%    currSeq(1).outAudio = [];
     expParam.data(seqi).seq = currSeq;
     
     

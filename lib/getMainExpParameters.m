@@ -116,8 +116,8 @@ fprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
 %% construct pitch features of the stimulus 
 % the pitch (F0) of the tones making up the patterns can vary 
 % (it can be selected randomly from a set of possible values)
-cfg.minF0 	= 350; % minimum possible F0
-cfg.maxF0 	= 900; % maximum possible F0
+cfg.minF0 	= 349.228; % 350 or 349.228 minimum possible F0
+cfg.maxF0 	= 880; % 900 or 880 maximum possible F0
 cfg.nF0 	= 5; % number of unique F0-values between the limits
 cfg.F0s 	= logspace(log10(cfg.minF0),log10(cfg.maxF0),cfg.nF0); 
 

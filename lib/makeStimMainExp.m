@@ -26,21 +26,6 @@ end
 
 if isfield(cfg,'fMRItaskidx')
     isTask = cfg.isTask.Idx;
-    F0Task = cfg.isTask.F0;
-    F0NoTask = currF0;
-    
-    % add with piano keys
-    % check the current F0 
-    % find the corresponding cfg.targetSound 
-    
-    % insert that into where we multiply the envolop with sine wave. 
-    % instead of sine wave, nultiple the piano key *it's god to ramp it as well
-    % 
-    % then multiply with the given amp
-    
-    % need to change the long version into all 
-    % all curr envelops goes thorugh the loop and gets multiplies with
-    % piano key tone instead of sine wave
 else
     isTask =[];
 end
@@ -103,54 +88,62 @@ end
 
 
 % create carrier according to isTask
-if isTask 
-    if cfg.isTask.long
-        % change the pitch of whole pattern
-        s = sin(2*pi*F0Task*t);
-        % apply envelope to the carrier
-        s = s.* env;
-
-    elseif cfg.isTask.short
-        
-        % find first N non-zero element
-        % numEvent defined in getParam.m
-        idxTask = find(pattern);
+if isTask
+    
+    % check the current F0
+    % find the corresponding cfg.targetSound
+    targetSoundIdx = cfg.isTask.F0Idx;
+    currTargetS = cfg.targetSounds{1,targetSoundIdx};
+    
+    % take 1 channel
+    % later on adapt for stereo
+    currTargetS =  currTargetS(2,:);
+ 
+    % find first N non-zero element
+    % numEvent defined in getParam.m
+    idxTask = find(pattern);
+    if cfg.isTask.numEvent < length(idxTask)
         idxTask = idxTask(1:cfg.isTask.numEvent);
-        
-        for iEvent = 1:length(pattern)
-            
-            % find the targeted env & time
-            currEnv = smallEnv{iEvent};
-            currTime = smallT{iEvent};
-            
-            % make the targeted carrier with F0task
-            if ismember(iEvent,idxTask)
-                currF0 = F0Task;
-            else
-                currF0 = F0NoTask;
-            end
-            
-            % create "current" carrier signal
-            currS = sin(2*pi*currF0*currTime);
-            %apply to an current envelope
-            currS = currS.* currEnv;
-            
-            %assign it to big array
-            s = [s currS];
-        end
     end
+    
+    for iEvent = 1:length(pattern)
+        
+        % find the targeted env & time
+        currEnv = smallEnv{iEvent};
+        currTime = smallT{iEvent};
+        
+        % insert piano key when thre's target
+        if ismember(iEvent,idxTask) % target - piano key
+            currS = currTargetS.*currEnv;
+            % not amp here
+            % yes amp
+            % apply the amplitude
+            % currS = currS.* currAmp;
+            
+        else % no target = sine wave   
+            currS = sin(2*pi*currF0*currTime);
+            currS = currS.* currEnv;
+            % apply the amplitude
+            currS = currS.* currAmp;
+        end
+        
+        %assign it to big array
+        s = [s currS];
+    end
+
     
 else
     % create carrier
     s = sin(2*pi*currF0*t);
     % apply envelope to the carrier
     s = s.* env;
+    % apply the amplitude
+    s = s.* currAmp;
 end
 
 
 
-% apply the amplitude
-s = s.* currAmp;
+
 
 
 % % to visualise 1 pattern
