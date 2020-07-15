@@ -53,8 +53,6 @@ expParam.askGrpSess = [0 0]; % it won't ask you about group or session
 % later on change with the responseBox indices/numbers! ! !
 expParam.responseKey = {'space'};
 
-
-
 %esc key for both behav and fmri exp
 cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
 
@@ -78,9 +76,9 @@ cfg.textSize         = 30; %18
 %% sound levels
 % assuming that participant will do the task with headphones
 cfg.baseAmp = 0.5; 
-
 % i think this cannot be smaller than cfg.Amp! ! !
 cfg.PTBInitVolume = 0.3; 
+
 
 
 if strcmpi(cfg.device, 'scanner')
@@ -112,6 +110,7 @@ cfg.audio.channels = 2;
 
 %% download missing stimuli (.wav)
 checkSoundFiles();
+% % % % ADD PIANO TONES HERE AS WELL  ! ! ! ! % % %
 
 %% Timing 
 
@@ -140,13 +139,8 @@ if strcmpi(cfg.device,'pc')
     end
       
 elseif strcmpi(cfg.device,'scanner')
-    
-    if cfg.debug
-       expParam.numSequences = 1; % this param is for counterbalanced design
-    else
-        expParam.numSequences = 9;
-    end
-    
+
+    expParam.numSequences = 9;
     expParam.numSeq4Run = 1; % for an fMRI run time calculation
 
 end
@@ -177,12 +171,18 @@ if strcmpi(cfg.device,'scanner') %expParam.fmriTask
     cfg.allCoords = [cfg.xCoords; cfg.yCoords];
     
     %3 task version to choose
-    cfg.isTask.long = 0;
-    cfg.isTask.short = 1;
+    % if all pattern insert 12 here
+    % if target appear 1-2-3-... insert the number
     cfg.isTask.numEvent = 1;
+
+    % piano keys 
+    % read the audio files and insert them into cfg
+    targetList = dir('stimuli/Piano*.wav');
+    for isound = 1:length(targetList)
+        [S,cfg.fs] = audioread(fullfile('stimuli',targetList(isound).name));
+        cfg.targetSounds{isound} = S';
+    end
     
-    % deviant pitch
-    cfg.isTask.F0 = 100;
 end
 
 

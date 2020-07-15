@@ -12,7 +12,7 @@ AssertOpenGL;
 
 
 %%
-PsychJavaTrouble;
+%PsychJavaTrouble;
 
 % Make sure keyboard mapping is the same on all supported operating systems
 % Apple MacOS/X, MS-Windows and GNU/Linux:
@@ -53,7 +53,7 @@ if cfg.debug
 else
     % we do not need high accuracy for the screen atm
     % Screen('Preference', 'SkipSyncTests', 1);
-    Screen('Preference','SkipSyncTests', 1);
+    Screen('Preference','SkipSyncTests', 0);
     [cfg.win, cfg.winRect] = PsychImaging('OpenWindow', cfg.screen, cfg.backgroundColor);
 
 end
@@ -66,7 +66,7 @@ end
 % Get the Center of the Screen
 cfg.center = [cfg.winRect(3), cfg.winRect(4)]/2;
 
-% % % CONSIDER CHANGES ACCORDUNG TO THE FMRI MONITOR
+% % % CONSIDER CHANGES ACCORDING TO THE FMRI MONITOR
 
 % % %
 
@@ -90,13 +90,11 @@ InitializePsychSound(1);
 
 if any(strcmp(cfg.stimComp,{'mac','linux'}))
     
-    
     % pahandle = PsychPortAudio('Open' [, deviceid][, mode][, reqlatencyclass][, freq] ...
     %       [, channels][, buffersize][, suggestedLatency][, selectchannels][, specialFlags=0]);
     % Try to get the lowest latency that is possible under the constraint of reliable playback
     cfg.pahandle = PsychPortAudio('Open', [], [], 3, cfg.fs, cfg.audio.channels);
-    
-    
+     
 else
     
     % get audio device list
@@ -129,7 +127,6 @@ cfg.reqsampleoffset = cfg.requestoffsettime*cfg.fs; %
 
 
 % playing parameters
-
 % sound repetition
 cfg.PTBrepet = 1;
 
@@ -138,6 +135,16 @@ cfg.PTBstartCue = 0;
 
 % Should we wait for the device to really start (1 = yes)
 cfg.PTBwaitForDevice = 1;
+
+
+
+%% Warm up some functions
+% Do dummy calls to GetSecs, WaitSecs, KbCheck to make sure
+% they are loaded and ready when we need them - without delays
+% in the wrong moment:
+KbCheck;
+WaitSecs(0.1);
+GetSecs;
 
 
 end

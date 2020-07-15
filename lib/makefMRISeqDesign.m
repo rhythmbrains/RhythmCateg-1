@@ -9,7 +9,10 @@ function [cfg,expParam] = makefMRISeqDesign(cfg,expParam)
 % In the future it can be embedded into getParams.m script but since it's
 % depending on the expParam.runNb parameter, it should be causiously
 % embedded. (e.g. after the script gets runNb)
-
+% if debug, put back run =1 so in the main script sequence =runNb ==1
+if cfg.debug 
+    expParam.runNb = 1;
+end
 
 %% Get counterbalanced sequences according to the total fMRI RUNs
 % ADD SHUFFLE ORDER FOR STARTING WITH A OR B CATEG for BLOCK DESING !
