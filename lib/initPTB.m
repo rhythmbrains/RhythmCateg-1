@@ -52,8 +52,8 @@ if cfg.debug
         
 else
     % we do not need high accuracy for the screen atm
-    % Screen('Preference', 'SkipSyncTests', 0);
-    Screen('Preference','SkipSyncTests', 1);
+    % Screen('Preference', 'SkipSyncTests', 1);
+    Screen('Preference','SkipSyncTests', 0);
     [cfg.win, cfg.winRect] = PsychImaging('OpenWindow', cfg.screen, cfg.backgroundColor);
 
 end
