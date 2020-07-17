@@ -47,7 +47,7 @@ try
         'LHL24_10','LHL24_11', 'LHL24_12', 'minLHL24','rangeLHL24');
     
     % open stimulation logfile - used for counting button press
-    countFile  = saveEventsFile('open_stim', expParam,[],...
+    responseFile  = saveEventsFile('open_stim', expParam,[],...
         'key_name','pressed','target');
     
     
@@ -62,9 +62,7 @@ try
     % wait for space key to be pressed by the experimenter
     % to make the script more verbose
     pressSpace4me
-    
-    %stopEverything = 0;
-    
+        
     % prepare the KbQueue to collect responses
     % it's after space keypressed because the key looked for is "space" atm
     getResponse('init', cfg, expParam);
@@ -83,8 +81,8 @@ try
     % and collect the timestamp
     expParam.experimentStart = GetSecs;
     
-    % write down buffered responses
-    countEvents = getResponse('check', cfg, expParam,1);
+%   % write down buffered responses
+%   responseEvents = getResponse('check', cfg, expParam,1);
     
     % wait for dummy fMRI scans
     WaitSecs(expParam.timing.onsetDelay);
@@ -98,7 +96,8 @@ try
     % prep for BIDS saving structures
     currSeq = struct();
     responseEvents = struct();
-    
+
+  
     % construct sequence
     currSeq = makeSequence(cfg,seqi);
     
@@ -122,7 +121,6 @@ try
     
     % open a file to write sequencefor BIDS
     currSeq(1).fileID = logFile.fileID;
-    countEvents(1).fileID = countFile.fileID;
     
     % adding columns in currSeq for BIDS format
     for iPattern = 1:length(currSeq)
@@ -184,10 +182,6 @@ try
     while GetSecs  < (expParam.experimentStart + audioDuration + ...
             expParam.timing.onsetDelay + expParam.timing.endDelay)
         
-%         if stopEverything
-%             break;
-%         end
-
         % check if key is pressed
         [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
         
@@ -208,51 +202,31 @@ try
     % % %
     displayInstr('Please indicate by pressing button, how many times you detected pitch changes\n\n\n',cfg);
 
-
     % wait for participant to press button
     WaitSecs(expParam.timing.endResponseDelay);
     
-%     % write down buffered responses
-     countEvents = getResponse('check', cfg, expParam,1);
-     countEvents.fileID = countFile.fileID;
-     
-     countEvents(1).target = sum(target);
-     
-    % omits nans in logfile
-    if isfield(countEvents,'onset')
-        
-%         temp = struct();
-%         temp.fileID = countFile.fileID;
-        
-%         count = 1;
-        
-        for iResp = 1:size(countEvents,1)
-%             if (~isnan(countEvents(iResp).onset))
-                countEvents(count,1).onset = countEvents(iResp).onset - ...
-                    expParam.experimentStart;
-
-                countEvents(count,1).target = sum(target);
-                
-%                 count = count +1;
-        end
-%         end
-%         
-%         countEvents = struct();
-%         countEvents = temp;
-        
-        if isfield(countEvents,'onset') 
-            
-            countEvents(1).target = sum(target);
-            
-            saveEventsFile('save', expParam,countEvents,...
-                'key_name','pressed','target');
-%         end
-        
-%    end
-
-    % stop key checks
-    getResponse('stop', cfg, expParam);
+    % write down buffered responses after waiting for response
+    responseEvents = getResponse('check', cfg, expParam,1);
     
+    %save responses here
+    responseEvents(1).fileID = responseFile.fileID;
+    
+    %savethe target number
+    responseEvents(1).target = sum(target);
+    
+    % checks if something to save exist
+    if isfield(responseEvents,'onset')
+        for iResp = 1:size(responseEvents,1)
+            responseEvents(iResp,1).onset = responseEvents(iResp).onset - ...
+                expParam.experimentStart;
+            responseEvents(iResp,1).target = sum(target);
+        end
+        
+        saveEventsFile('save', expParam,responseEvents,...
+            'key_name','pressed','target');
+    end
+    
+  
     %% wrapping up
     % last screen
     if expParam.runNb == 666 || expParam.runNb == expParam.numSequences
@@ -267,10 +241,16 @@ try
     % record script ending time
     expParam.timing.scriptEndTime = GetSecs - expParam.experimentStart;
     
+    %clear the buffer
+    getResponse('flush', cfg, expParam);
+    
+    % stop key checks
+    getResponse('stop', cfg, expParam);
+    
     %% save
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', expParam, logFile);
-    saveEventsFile('close', expParam, countFile);
+    saveEventsFile('close', expParam, responseFile);
     
     
     % save the whole workspace
@@ -300,7 +280,7 @@ catch
     
     % Close the logfiles - BIDS
     saveEventsFile('close', expParam, logFile);
-    saveEventsFile('close', expParam, countFile);
+    saveEventsFile('close', expParam, responseFile);
     
     % clean the workspace
     cleanUp;

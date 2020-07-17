@@ -95,9 +95,9 @@ if isTask
     targetSoundIdx = cfg.isTask.F0Idx;
     currTargetS = cfg.targetSounds{1,targetSoundIdx};
     
-    % take 1 channel
-    % later on adapt for stereo
-    currTargetS =  currTargetS(2,:);
+%     % take 1 channel
+%     % later on adapt for stereo
+%     currTargetS =  currTargetS(2,:);
  
     % find first N non-zero element
     % numEvent defined in getParam.m

@@ -101,7 +101,6 @@ cfg.audio.channels = 2;
 
 %% download missing stimuli (.wav)
 checkSoundFiles();
-% % % % ADD PIANO TONES HERE AS WELL  ! ! ! ! % % %
 
 %% Timing 
 
