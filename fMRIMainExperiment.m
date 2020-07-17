@@ -13,7 +13,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
-[cfg,expParam] = getParams('PitchFT','scanner',0);
+[cfg,expParam] = getParams('RhythmCategFT','scanner',0);
 
 % set and load all the subject input to run the experiment
 expParam = userInputs(cfg,expParam);
@@ -47,7 +47,7 @@ try
         'LHL24_10','LHL24_11', 'LHL24_12', 'minLHL24','rangeLHL24');
     
     % open stimulation logfile - used for counting button press
-    countFile  = saveEventsFile('open_stim', expParam,[],...
+    responseFile  = saveEventsFile('open_stim', expParam,[],...
         'key_name','pressed','target');
     
     
@@ -62,7 +62,7 @@ try
     % wait for space key to be pressed by the experimenter
     % to make the script more verbose
     pressSpace4me
-    
+        
     % prepare the KbQueue to collect responses
     % it's after space keypressed because the key looked for is "space" atm
     getResponse('init', cfg, expParam);
@@ -81,6 +81,9 @@ try
     % and collect the timestamp
     expParam.experimentStart = GetSecs;
     
+%   % write down buffered responses
+%   responseEvents = getResponse('check', cfg, expParam,1);
+    
     % wait for dummy fMRI scans
     WaitSecs(expParam.timing.onsetDelay);
     
@@ -93,7 +96,8 @@ try
     % prep for BIDS saving structures
     currSeq = struct();
     responseEvents = struct();
-    
+
+  
     % construct sequence
     currSeq = makeSequence(cfg,seqi);
     
@@ -160,51 +164,34 @@ try
     
     % save current sequence information (without the audio, which can
     % be easily resynthesized)
-%    currSeq(1).outAudio = [];
+    currSeq(1).outAudio = [];
     expParam.data(seqi).seq = currSeq;
-    
-    
-    %   end
-    
-    
+
+     
     %% Wait for audio and delays to catch up
     % wait while fMRI is ongoing
     % stay here till audio stops
     reachHereTime = (GetSecs - expParam.experimentStart);
     audioDuration = (cfg.SequenceDur * expParam.numSeq4Run);
     
-    % exp duration + delays - script reaching to till point
+%     % exp duration + delays - script reaching to till point
 %     WaitSecs(audioDuration + expParam.timing.onsetDelay + ...
 %         expParam.timing.endDelay - reachHereTime);
-    
-    %%
-    
+
     % stay in the loop until the sequence ends
-    %while GetSecs < (currSeqStartTime+cfg.SequenceDur)
     while GetSecs  < (expParam.experimentStart + audioDuration + ...
             expParam.timing.onsetDelay + expParam.timing.endDelay)
         
         % check if key is pressed
-        %[~, tapTime, keyCode] = KbCheck(cfg.keyboard);
         [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
         
         % terminate if quit-button pressed
-        if find(keyCode)==cfg.keyquit
+        if find(keyCode)==cfg.escapeKey
             error('Experiment terminated by user...');
         end
     end
     
-    
-    
-    
-    
-    % Check for experiment abortion from operator
-%             [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
-%             if keyIsDown && keyCode(KbName(cfg.escapeKey))
-%                 stopEverything = 1;
-%                 warning('OK let us get out of here')
-%                 break;
-%             end
+
     %%
     % record exp ending time
     expParam.timing.fMRIendTime = GetSecs - expParam.experimentStart;
@@ -215,48 +202,31 @@ try
     % % %
     displayInstr('Please indicate by pressing button, how many times you detected pitch changes\n\n\n',cfg);
 
-
     % wait for participant to press button
     WaitSecs(expParam.timing.endResponseDelay);
     
-    % write down buffered responses
-    countEvents = getResponse('check', cfg, expParam,1);
+    % write down buffered responses after waiting for response
+    responseEvents = getResponse('check', cfg, expParam,1);
     
-    % omits nans in logfile
-    if isfield(countEvents,'onset')
-        
-        temp = struct();
-        temp.fileID = countFile.fileID;
-        
-        count = 1;
-        
-        for iResp = 1:size(countEvents,1)
-            if (~isnan(countEvents(iResp).onset))
-                temp(count,1).onset = countEvents(iResp).onset - ...
-                    expParam.experimentStart;
-                temp(count,1).trial_type = countEvents(iResp).trial_type;
-                temp(count,1).duration = countEvents(iResp).duration;
-                temp(count,1).key_name = countEvents(iResp).key_name;
-                temp(count,1).pressed = countEvents(iResp).pressed;
-                temp(count,1).target = sum(target);
-                
-                count = count +1;
-            end
+    %save responses here
+    responseEvents(1).fileID = responseFile.fileID;
+    
+    %savethe target number
+    responseEvents(1).target = sum(target);
+    
+    % checks if something to save exist
+    if isfield(responseEvents,'onset')
+        for iResp = 1:size(responseEvents,1)
+            responseEvents(iResp,1).onset = responseEvents(iResp).onset - ...
+                expParam.experimentStart;
+            responseEvents(iResp,1).target = sum(target);
         end
         
-        countEvents = struct();
-        countEvents = temp;
-        
-        if isfield(countEvents,'onset') 
-            saveEventsFile('save', expParam,countEvents,...
-                'key_name','pressed','target');
-        end
-        
+        saveEventsFile('save', expParam,responseEvents,...
+            'key_name','pressed','target');
     end
-
-    % stop key checks
-    getResponse('stop', cfg, expParam);
     
+  
     %% wrapping up
     % last screen
     if expParam.runNb == 666 || expParam.runNb == expParam.numSequences
@@ -271,10 +241,16 @@ try
     % record script ending time
     expParam.timing.scriptEndTime = GetSecs - expParam.experimentStart;
     
+    %clear the buffer
+    getResponse('flush', cfg, expParam);
+    
+    % stop key checks
+    getResponse('stop', cfg, expParam);
+    
     %% save
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', expParam, logFile);
-    saveEventsFile('close', expParam, countFile);
+    saveEventsFile('close', expParam, responseFile);
     
     
     % save the whole workspace
@@ -287,7 +263,7 @@ try
     end
     
     % clean the workspace
-    cleanUp(cfg);
+    cleanUp;
     
     
     
@@ -304,10 +280,10 @@ catch
     
     % Close the logfiles - BIDS
     saveEventsFile('close', expParam, logFile);
-    saveEventsFile('close', expParam, countFile);
+    saveEventsFile('close', expParam, responseFile);
     
     % clean the workspace
-    cleanUp(cfg);
+    cleanUp;
     
     psychrethrow(psychlasterror);
 end

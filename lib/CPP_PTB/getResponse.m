@@ -16,8 +16,8 @@ function responseEvents = getResponse(action, cfg, expParameters, getOnlyPress)
 %  - flush:
 %  - stop:
 %
-% - getOnlyPress: if set to 1 the function will only return the key presses and
-%    will not return when the keys were released (default=1)
+% - getOnlyPress: if set to true the function will only return the key presses and
+%    will not return when the keys were released (default=true)
 %    See the section on OUTPUT below for more info
 %
 %
@@ -44,15 +44,10 @@ function responseEvents = getResponse(action, cfg, expParameters, getOnlyPress)
 
 
 if nargin < 4
-    getOnlyPress = 1;
+    getOnlyPress = true;
 end
 
 responseEvents = struct;
-responseEvents.onset = [];
-responseEvents.trial_type = [];
-responseEvents.duration = [];
-responseEvents.key_name = [];
-responseEvents.pressed = [];
 
 responseBox = cfg.responseBox;
 
@@ -60,40 +55,14 @@ switch action
     
     case 'init'
         
-        % Prevent spilling of keystrokes into console. If you use ListenChar(2)
-        % this will prevent you from using KbQueue.
+        % Prevent spilling of keystrokes into console. 
+        % If you use ListenChar(2), this will prevent you from using KbQueue.
         ListenChar(-1);
         
         % Clean and realease any queue that might be opened
         KbQueueRelease(responseBox);
         
-        %% Defines keys
-        % list all the response keys we want KbQueue to listen to
-        
-        % by default we listen to all keys
-        % but if responseKey is set in the parameters we override this
-        keysOfInterest = ones(1,256);
-        
-        fprintf('\n Will be listening for key presses on : ')
-        
-        if isfield(expParameters, 'responseKey') && ~isempty(expParameters.responseKey)
-            
-            keysOfInterest = zeros(1,256);
-            
-            for iKey = 1:numel(expParameters.responseKey)
-                fprintf('\n  - %s ', expParameters.responseKey{iKey})
-                responseTargetKeys(iKey) = KbName(expParameters.responseKey(iKey)); %#ok<*SAGROW>
-            end
-            
-            keysOfInterest(responseTargetKeys) = 1;
-            
-        else
-            
-            fprintf('ALL KEYS.')
-            
-        end
-        
-        fprintf('\n\n')
+        keysOfInterest = setKeysOfInterest(expParameters);
         
         % Create the keyboard queue to collect responses.
         KbQueueCreate(responseBox, keysOfInterest);
@@ -106,29 +75,10 @@ switch action
         
     case 'check'
         
-        iEvent = 1;
+        responseEvents = getAllKeyEvents(responseEvents, responseBox, getOnlyPress);
         
-        while KbEventAvail(responseBox)
-            
-            event = KbEventGet(responseBox);
-            
-            % we only return the pressed keys by default
-            if getOnlyPress && event.Pressed==0
-            else
-                
-                responseEvents(iEvent,1).onset = event.Time;
-                responseEvents(iEvent,1).trial_type = 'response';
-                responseEvents(iEvent,1).duration = 0;
-                responseEvents(iEvent,1).key_name = KbName(event.Keycode);
-                responseEvents(iEvent,1).pressed =  event.Pressed;
-                
-            end
-            
-            iEvent = iEvent + 1;
-            
-        end
-        
-        
+        checkAbort(cfg)
+          
     case 'flush'
         
         KbQueueFlush(responseBox);
@@ -146,6 +96,62 @@ end
 
 talkToMe(action, expParameters);
 
+end
+
+
+function keysOfInterest = setKeysOfInterest(expParameters)
+% list all the response keys we want KbQueue to listen to
+% by default we listen to all keys
+% but if responseKey is set in the parameters we override this
+
+keysOfInterest = ones(1,256);
+
+fprintf('\n Will be listening for key presses on : ')
+
+if isfield(expParameters, 'responseKey') && ~isempty(expParameters.responseKey)
+
+    responseTargetKeys = nan(1,numel(expParameters.responseKey));
+    
+    for iKey = 1:numel(expParameters.responseKey)
+        fprintf('\n  - %s ', expParameters.responseKey{iKey})
+        responseTargetKeys(iKey) = KbName(expParameters.responseKey(iKey));
+    end
+    
+    keysOfInterest(responseTargetKeys) = 1;
+    
+else
+    
+    fprintf('ALL KEYS.')
+    
+end
+
+fprintf('\n\n')
+end
+
+
+function responseEvents = getAllKeyEvents(responseEvents, responseBox, getOnlyPress)
+
+iEvent = 1;
+
+while KbEventAvail(responseBox)
+    
+    event = KbEventGet(responseBox);
+    
+    % we only return the pressed keys by default
+    if getOnlyPress==true && event.Pressed==0
+    else
+        
+        responseEvents(iEvent,1).onset = event.Time;
+        responseEvents(iEvent,1).trial_type = 'response';
+        responseEvents(iEvent,1).duration = 0;
+        responseEvents(iEvent,1).key_name = KbName(event.Keycode);
+        responseEvents(iEvent,1).pressed =  event.Pressed;
+        
+        iEvent = iEvent + 1;
+        
+    end
+    
+end
 
 end
 

@@ -47,15 +47,6 @@ cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and wa
 expParam.task = task; % should be calling behav or fmri
 expParam.askGrpSess = [0 0]; % it won't ask you about group or session
 
-%expParam.fmriTask = false; % by default. Then it can be called in makefMRISeqDesign to set true.
-
-% it'll only look for space press -
-% later on change with the responseBox indices/numbers! ! !
-expParam.responseKey = {'space'};
-
-%esc key for both behav and fmri exp
-cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
-
 %% monitor
 % Monitor parameters - fMRI - CHANGE with fMRI parameters
 cfg.monitorWidth  	  = 42;  % Monitor Width in cm
@@ -110,7 +101,6 @@ cfg.audio.channels = 2;
 
 %% download missing stimuli (.wav)
 checkSoundFiles();
-% % % % ADD PIANO TONES HERE AS WELL  ! ! ! ! % % %
 
 %% Timing 
 
@@ -253,6 +243,7 @@ switch lower(cfg.device)
         
         %behavioral exp keys to check
         cfg.keywait         = KbName({'RETURN'}); % press enter to start bloc
+        cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
         cfg.keyToggleInstr  = KbName({'I'}); % press I to show/remove general instructions from the screen
         cfg.keytap          = KbName('SPACE');
         cfg.keyVolUp        = KbName('UpArrow');
@@ -268,9 +259,16 @@ switch lower(cfg.device)
         end
         
     case 'scanner'
-    % do nothing because in line 177-178 should have been assigned to keys
-    % check
         
+    
+    % it'll only look for space press -
+    % later on change with the responseBox indices/numbers! ! !
+    expParam.responseKey = {'space','d','a'};
+    
+    %esc key for both behav and fmri exp
+    cfg.escapeKey       = KbName('ESCAPE'); % press ESCAPE at response time to quit
+
+
     otherwise
         
         cfg.keyboard = [];
