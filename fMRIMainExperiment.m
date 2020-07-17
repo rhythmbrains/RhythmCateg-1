@@ -13,7 +13,7 @@ addpath(genpath(fullfile(pwd, 'lib')))
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
-[cfg,expParam] = getParams('PitchFT','scanner',0);
+[cfg,expParam] = getParams('RhythmCategFT','scanner',0);
 
 % set and load all the subject input to run the experiment
 expParam = userInputs(cfg,expParam);
@@ -63,6 +63,8 @@ try
     % to make the script more verbose
     pressSpace4me
     
+    %stopEverything = 0;
+    
     % prepare the KbQueue to collect responses
     % it's after space keypressed because the key looked for is "space" atm
     getResponse('init', cfg, expParam);
@@ -80,6 +82,9 @@ try
     
     % and collect the timestamp
     expParam.experimentStart = GetSecs;
+    
+    % write down buffered responses
+    countEvents = getResponse('check', cfg, expParam,1);
     
     % wait for dummy fMRI scans
     WaitSecs(expParam.timing.onsetDelay);
@@ -117,6 +122,7 @@ try
     
     % open a file to write sequencefor BIDS
     currSeq(1).fileID = logFile.fileID;
+    countEvents(1).fileID = countFile.fileID;
     
     % adding columns in currSeq for BIDS format
     for iPattern = 1:length(currSeq)
@@ -160,51 +166,38 @@ try
     
     % save current sequence information (without the audio, which can
     % be easily resynthesized)
-%    currSeq(1).outAudio = [];
+    currSeq(1).outAudio = [];
     expParam.data(seqi).seq = currSeq;
-    
-    
-    %   end
-    
-    
+
+     
     %% Wait for audio and delays to catch up
     % wait while fMRI is ongoing
     % stay here till audio stops
     reachHereTime = (GetSecs - expParam.experimentStart);
     audioDuration = (cfg.SequenceDur * expParam.numSeq4Run);
     
-    % exp duration + delays - script reaching to till point
+%     % exp duration + delays - script reaching to till point
 %     WaitSecs(audioDuration + expParam.timing.onsetDelay + ...
 %         expParam.timing.endDelay - reachHereTime);
-    
-    %%
-    
+
     % stay in the loop until the sequence ends
-    %while GetSecs < (currSeqStartTime+cfg.SequenceDur)
     while GetSecs  < (expParam.experimentStart + audioDuration + ...
             expParam.timing.onsetDelay + expParam.timing.endDelay)
         
+%         if stopEverything
+%             break;
+%         end
+
         % check if key is pressed
-        %[~, tapTime, keyCode] = KbCheck(cfg.keyboard);
         [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
         
         % terminate if quit-button pressed
-        if find(keyCode)==cfg.keyquit
+        if find(keyCode)==cfg.escapeKey
             error('Experiment terminated by user...');
         end
     end
     
-    
-    
-    
-    
-    % Check for experiment abortion from operator
-%             [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
-%             if keyIsDown && keyCode(KbName(cfg.escapeKey))
-%                 stopEverything = 1;
-%                 warning('OK let us get out of here')
-%                 break;
-%             end
+
     %%
     % record exp ending time
     expParam.timing.fMRIendTime = GetSecs - expParam.experimentStart;
@@ -219,40 +212,43 @@ try
     % wait for participant to press button
     WaitSecs(expParam.timing.endResponseDelay);
     
-    % write down buffered responses
-    countEvents = getResponse('check', cfg, expParam,1);
-    
+%     % write down buffered responses
+     countEvents = getResponse('check', cfg, expParam,1);
+     countEvents.fileID = countFile.fileID;
+     
+     countEvents(1).target = sum(target);
+     
     % omits nans in logfile
     if isfield(countEvents,'onset')
         
-        temp = struct();
-        temp.fileID = countFile.fileID;
+%         temp = struct();
+%         temp.fileID = countFile.fileID;
         
-        count = 1;
+%         count = 1;
         
         for iResp = 1:size(countEvents,1)
-            if (~isnan(countEvents(iResp).onset))
-                temp(count,1).onset = countEvents(iResp).onset - ...
+%             if (~isnan(countEvents(iResp).onset))
+                countEvents(count,1).onset = countEvents(iResp).onset - ...
                     expParam.experimentStart;
-                temp(count,1).trial_type = countEvents(iResp).trial_type;
-                temp(count,1).duration = countEvents(iResp).duration;
-                temp(count,1).key_name = countEvents(iResp).key_name;
-                temp(count,1).pressed = countEvents(iResp).pressed;
-                temp(count,1).target = sum(target);
+
+                countEvents(count,1).target = sum(target);
                 
-                count = count +1;
-            end
+%                 count = count +1;
         end
-        
-        countEvents = struct();
-        countEvents = temp;
+%         end
+%         
+%         countEvents = struct();
+%         countEvents = temp;
         
         if isfield(countEvents,'onset') 
+            
+            countEvents(1).target = sum(target);
+            
             saveEventsFile('save', expParam,countEvents,...
                 'key_name','pressed','target');
-        end
+%         end
         
-    end
+%    end
 
     % stop key checks
     getResponse('stop', cfg, expParam);
@@ -287,7 +283,7 @@ try
     end
     
     % clean the workspace
-    cleanUp(cfg);
+    cleanUp;
     
     
     
@@ -307,7 +303,7 @@ catch
     saveEventsFile('close', expParam, countFile);
     
     % clean the workspace
-    cleanUp(cfg);
+    cleanUp;
     
     psychrethrow(psychlasterror);
 end

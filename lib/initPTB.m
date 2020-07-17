@@ -52,7 +52,7 @@ if cfg.debug
 else
     % we do not need high accuracy for the screen atm
     % Screen('Preference', 'SkipSyncTests', 1);
-    Screen('Preference','SkipSyncTests', 0);
+    Screen('Preference','SkipSyncTests', 1);
 
 end
 
