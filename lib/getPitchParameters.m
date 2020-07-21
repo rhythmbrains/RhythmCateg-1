@@ -1,4 +1,4 @@
-function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
+function     [cfg,expParam] = getPitchParameters(cfg,expParam)
 % this function generates audio sequences to be played in the man
 % experiment
 
@@ -100,7 +100,7 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
 % if debug for behav exp, cut it short! 
-if cfg.debug && strcmpi(cfg.device,'pc')
+if cfg.debug && strcmpi(cfg.testingDevice,'pc')
     cfg.nStepsPerSequence = 1;
 else
     cfg.nStepsPerSequence = 5;

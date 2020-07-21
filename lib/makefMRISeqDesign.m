@@ -29,7 +29,7 @@ expParam.fmriTask = true;
 % getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
 %%%%%%%%%%%%
 
-if strcmp(cfg.device,'scanner')
+if strcmp(cfg.testingDevice,'mri')
     if expParam.runNb == 1
         
         %make the design

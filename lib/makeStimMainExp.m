@@ -94,16 +94,14 @@ if isTask
     % find the corresponding cfg.targetSound
     targetSoundIdx = cfg.isTask.F0Idx;
     currTargetS = cfg.targetSounds{1,targetSoundIdx};
-    
-%     % take 1 channel
-%     % later on adapt for stereo
-%     currTargetS =  currTargetS(2,:);
  
     % find first N non-zero element
     % numEvent defined in getParam.m
     idxTask = find(pattern);
     if cfg.isTask.numEvent < length(idxTask)
-        idxTask = idxTask(1:cfg.isTask.numEvent);
+        %for now, take the second tone in pattern as target
+        firstID = idxTask(1);
+        idxTask = idxTask(2:1+cfg.isTask.numEvent);
     end
     
     for iEvent = 1:length(pattern)
@@ -112,11 +110,28 @@ if isTask
         currEnv = smallEnv{iEvent};
         currTime = smallT{iEvent};
         
-        % insert piano key when thre's target
+%         if iEvent ==firstID
+%         % rms the base sine wave
+%         referenceS = sin(2*pi*currF0*currTime);
+%         referenceS = referenceS.* currEnv;
+%         rmsRefS = rms(referenceS);
+%         end
+        
+        % insert piano key when there's target
         if ismember(iEvent,idxTask) % target - piano key
+            
+            % apply envelop to the target 
             currS = currTargetS.*currEnv;
+            
+            % rms the deviant/target tone  
+           % rmsTargetS = rms(currS);
+            
+            % correct for the rms differences in each channel
+          %  currS = currS*(rmsRefS/rmsTargetS);
+         % final_wave = [ target_wav*(rms_reference(1)/rms_target(1))]
+           
+           
             % not amp here
-            % yes amp
             % apply the amplitude
             % currS = currS.* currAmp;
             
