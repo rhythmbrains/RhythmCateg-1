@@ -37,7 +37,7 @@ cfg.debug               = debugmode ;  % To test the script with trasparent full
 expParam.verbose        = 1; % add here and there some explanations with if verbose is ON. 
 
 %% MRI settings
-cfg.device        = device;       % 'PC': does not care about trigger(for behav) - otherwise use 'Scanner'
+cfg.testingDevice = device;       % 'pc': does not care about trigger(for behav) - otherwise use 'mri'
 cfg.triggerKey    = 's';        % Set the letter sent by the trigger to sync stimulation and volume acquisition
 cfg.numTriggers   = 4;          % first #Triggers will be dummy scans
 cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
@@ -66,13 +66,13 @@ cfg.textSize         = 30; %18
     
 %% sound levels
 % assuming that participant will do the task with headphones
-cfg.baseAmp = 0.5; 
+cfg.baseAmp = 0.85; 
 % i think this cannot be smaller than cfg.Amp! ! !
-cfg.PTBInitVolume = 0.3; 
+cfg.PTBInitVolume = 1; 
 
 
 
-if strcmpi(cfg.device, 'scanner')
+if strcmpi(cfg.testingDevice, 'mri')
     
     %  boolean for equating the dB across different tones for behavioral exp
     expParam.equateSoundAmp = 0;
@@ -122,13 +122,13 @@ expParam.pauseSeq = 1; % give a pause of below seconds in between sequences
 
 % define ideal number of sequences to be made
 % multiple of 3 is balanced design
-if strcmpi(cfg.device,'pc')
+if strcmpi(cfg.testingDevice,'pc')
     expParam.numSequences = 6;
     if cfg.debug
         expParam.numSequences = 2;
     end
       
-elseif strcmpi(cfg.device,'scanner')
+elseif strcmpi(cfg.testingDevice,'mri')
 
     expParam.numSequences = 9;
     expParam.numSeq4Run = 1; % for an fMRI run time calculation
@@ -144,7 +144,7 @@ end
 % For now, I'll insert 3 task versions here to be called in
 % makeStimMainExp.m 
 
-if strcmpi(cfg.device,'scanner') %expParam.fmriTask
+if strcmpi(cfg.testingDevice,'mri') %expParam.fmriTask
     
     % Used Pixels here since it really small and can be adjusted during the experiment
     expParam.fixCrossDimPix               = 10;   % Set the length of the lines (in Pixels) of the fixation cross
@@ -160,7 +160,7 @@ if strcmpi(cfg.device,'scanner') %expParam.fmriTask
         + expParam.yDisplacementFixCross;
     cfg.allCoords = [cfg.xCoords; cfg.yCoords];
     
-    %how many targets within 1 pattern
+    % how many targets within 1 pattern
     cfg.isTask.numEvent = 1;
 
     % piano keys 
@@ -204,7 +204,7 @@ end
 
 
 %% differentiating response button (subject) from keyboard(experimenter)
-% cfg.responseBox would be the device used by the participant to give his/her response: 
+% cfg.responseBox would be the testingDevice used by the participant to give his/her response: 
 %   like the button box in the scanner or a separate keyboard for a behavioral experiment
 %
 % cfg.keyboard is the keyboard on which the experimenter will type or press the keys necessary 
@@ -230,7 +230,7 @@ cfg.keyboardNumbers
 cfg.keyboardNames 
 
 
-switch lower(cfg.device)
+switch lower(cfg.testingDevice)
     
     
     % this part might need to be adapted because the "default" device
@@ -258,7 +258,7 @@ switch lower(cfg.device)
             cfg.responseBox = [];
         end
         
-    case 'scanner'
+    case 'mri'
         
     
     % it'll only look for space press -
