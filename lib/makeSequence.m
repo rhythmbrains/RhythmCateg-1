@@ -307,7 +307,7 @@ for stepi=1:cfg.nStepsPerSequence
                 length(patternAudio)) = patternAudio; 
             
             seq(cPat,1).patternID   = currPatID;
-            seq(cPat,1).segmCateg   = currCategLabel;
+            seq(cPat,1).segmentCateg   = currCategLabel;
             seq(cPat,1).onset       = currTimePoint;
             seq(cPat,1).segmentNum  = segmi;
             seq(cPat,1).segmentOnset = segmentOnset;

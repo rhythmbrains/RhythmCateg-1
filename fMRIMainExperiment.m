@@ -33,46 +33,22 @@ try
     [cfg] = initPTB(cfg);
 
     % Prepare for the output logfiles - BIDS
-
-    % define the extra columns: they will be added to the tsv files in the order the user input them,
-    logFile.extraColumns.sequenceNum = 1;
-    logFile.extraColumns.segmentOnset = 1;
-    logFile.extraColumns.stepNum = 1;
-    logFile.extraColumns.stepOnset = 1;
-    logFile.extraColumns.patternID = 1;
-    logFile.extraColumns.category = 1;
-    logFile.extraColumns.F0 = 1;
-    logFile.extraColumns.isTask =1;
-    logFile.extraColumns.gridIOI = 1;
-    logFile.extraColumns.patternAmp = 1;
-    logFile.extraColumns.minPE4 = 1;
-    logFile.extraColumns.rangePE4 = 1;
-    logFile.extraColumns.minLHL24 = 1;
-    logFile.extraColumns.rangeLHL24 = 1;
-
-    logFile.extraColumns.LHL24 = 12; % will set 12 columns with names LHL24-01, LHL24-02, ...
-    logFile.extraColumns.PE4 = 12;
+    logFile = getVariable2Save;
     
-    % create file and get file ID
+    % create event file and get file ID - used for event logging
     logFile  = saveEventsFile('open', expParam, logFile);
-    % logFile = saveEventsFile('open', expParameters, logFile);
 
+    % define the extra columns: 
+    % they will be added to the tsv files in the order the user input them
+    responseFile.extraColumns = {'key_name', 'pressed', 'target'};
     
-%     'sequenceNum', ...
-%         'segmentNum', 'segmentOnset', 'stepNum', 'stepOnset', 'patternID', ...
-%         'category', 'F0', 'isTask', 'gridIOI', 'patternAmp', 'minPE4', ...
-%         'rangePE4',  'minLHL24', 'rangeLHL24');
-
-
     % open stimulation logfile - used for counting button press
-    responseFile  = saveEventsFile('open_stim', expParam, [], ...
-        'key_name', 'pressed', 'target');
+    responseFile  = saveEventsFile('open_stim', expParam, responseFile);
 
     % Show instructions for fMRI task - modify to give duration and volume
     % check
     if expParam.fmriTask
         displayInstr(expParam.fmriTaskInst, cfg);
-        % displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
 
     end
 
@@ -135,8 +111,8 @@ try
     % open a file to write sequencefor BIDS
     % currSeq(1).fileID = logFile.fileID;
     % update responseEvents with the relevant info
-    currSeq(1).fileID = logFile.fileID;
-    currSeq.extraColumns = logFile.extraColumns;
+    currSeq(1).fileID = logFile(1).fileID;
+    currSeq(1).extraColumns = logFile(1).extraColumns;
 
     % adding columns in currSeq for BIDS format
     for iPattern = 1:numel(currSeq)
@@ -166,7 +142,7 @@ try
     
     %     saveEventsFile('save', expParam, currSeq, 'sequenceNum', ...
     %         'segmentNum', 'segmentOnset', 'stepNum', 'stepOnset', 'patternID', ...
-    %         'segmCateg', 'F0', 'isTask', 'gridIOI', 'patternAmp', 'PE4', 'minPE4', ...
+    %         'segmentCateg', 'F0', 'isTask', 'gridIOI', 'patternAmp', 'PE4', 'minPE4', ...
     %         'rangePE4', 'LHL24', 'minLHL24', 'rangeLHL24');
 
     % ===========================================
@@ -183,7 +159,7 @@ try
 
     % save current sequence information (without the audio, which can
     % be easily resynthesized)
-    %   currSeq(1).outAudio = [];
+    currSeq(1).outAudio = [];
     expParam.data(seqi).seq = currSeq;
 
     %% Wait for audio and delays to catch up
@@ -228,7 +204,9 @@ try
     %responseEvents = getResponse('check', deviceNumber, cfg);
 
     % save responses here
-    responseEvents(1).fileID = responseFile.fileID;
+    responseEvents(1).fileID = responseFile(1).fileID;
+    responseEvents(1).extraColumns = responseFile(1).extraColumns;
+
 
     % savethe target number
     responseEvents(1).target = sum(target);
@@ -241,8 +219,7 @@ try
             responseEvents(iResp, 1).target = sum(target);
         end
 
-        saveEventsFile('save', expParam, responseEvents, ...
-            'key_name', 'pressed', 'target');
+        saveEventsFile('save', expParam, responseEvents);
     end
 
     %% wrapping up
