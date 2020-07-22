@@ -144,7 +144,7 @@ end
 % For now, I'll insert 3 task versions here to be called in
 % makeStimMainExp.m 
 
-if strcmpi(cfg.testingDevice,'mri') %expParam.fmriTask
+if strcmpi(cfg.testingDevice,'mri')
     
     % Used Pixels here since it really small and can be adjusted during the experiment
     expParam.fixCrossDimPix               = 10;   % Set the length of the lines (in Pixels) of the fixation cross

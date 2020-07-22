@@ -32,12 +32,23 @@ try
     % Init the experiment
     [cfg] = initPTB(cfg);
 
-    % Prepare for the output logfiles - BIDS
-    logFile = getVariable2Save;
+    % create event file and get file ID - used for event logging - BIDS
+    % logFile = getVariable2Save;
+    logFile.extraColumns = {'sequenceNum', 'segmentNum', 'segmentOnset', ...
+    'stepNum', 'stepOnset', 'patternID', 'segmentCateg', 'F0', 'isTask', ...
+    'gridIOI', 'patternAmp', 'minPE4', 'rangePE4', 'minLHL24', ...
+    'rangeLHL24', 'LHL24', 'PE4'};
     
-    % create event file and get file ID - used for event logging
+    % dummy call to initialize the logFile variable
     logFile  = saveEventsFile('open', expParam, logFile);
 
+    % set the real length we really want
+    logFile(1).extraColumns.LHL24.length = 12;
+    logFile(1).extraColumns.PE4.length = 12;
+
+    % actual inititalization
+    logFile = saveEventsFile('open', expParam, logFile);
+    
     % define the extra columns: 
     % they will be added to the tsv files in the order the user input them
     responseFile.extraColumns = {'key_name', 'pressed', 'target'};
@@ -45,6 +56,7 @@ try
     % open stimulation logfile - used for counting button press
     responseFile  = saveEventsFile('open_stim', expParam, responseFile);
 
+    
     % Show instructions for fMRI task - modify to give duration and volume
     % check
     if expParam.fmriTask
@@ -216,7 +228,7 @@ try
         for iResp = 1:size(responseEvents, 1)
             responseEvents(iResp, 1).onset = responseEvents(iResp).onset - ...
                 expParam.experimentStart;
-            responseEvents(iResp, 1).target = sum(target);
+          %  responseEvents(iResp, 1).target = sum(target);
         end
 
         saveEventsFile('save', expParam, responseEvents);
