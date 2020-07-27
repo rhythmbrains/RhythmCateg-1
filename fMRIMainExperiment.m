@@ -9,6 +9,7 @@ end
 
 % make sure we got access to all the required functions and inputs
 addpath(genpath(fullfile(pwd, 'lib')));
+addpath(genpath(fullfile('../../CPPLab/CPP_BIDS')));
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
@@ -18,8 +19,7 @@ addpath(genpath(fullfile(pwd, 'lib')));
 expParam = userInputs(cfg, expParam);
 [cfg, expParam] = createFilename(cfg, expParam);
 
-% create randomized sequence for 9 runs
-% run ==1 then it'll create 9 seq, otherwise it'll upload whats created
+% create randomized sequence for 9 runs when run =1
 [cfg, expParam] = makefMRISeqDesign(cfg, expParam);
 
 % get time point at the beginning of the script (machine time)
@@ -66,7 +66,8 @@ try
 
     % wait for space key to be pressed by the experimenter
     % to make the script more verbose
-    pressSpace4me;
+    %pressSpace4me;
+    pressSpaceForMe;
 
     % prepare the KbQueue to collect responses
     % it's after space keypressed because the key looked for is "space" atm
@@ -74,8 +75,9 @@ try
     getResponse('start', cfg, expParam);
 
     % wait for trigger from fMRI
-    wait4Trigger(cfg);
-
+    %wait4Trigger(cfg);
+    waitForTrigger(cfg);
+    
     % show fixation cross
     if expParam.fmriTask
         drawFixationCross(cfg, expParam, expParam.fixationCrossColor);
@@ -120,9 +122,7 @@ try
     % stimulus save for BIDS
     % ===========================================
 
-    % open a file to write sequencefor BIDS
-    % currSeq(1).fileID = logFile.fileID;
-    % update responseEvents with the relevant info
+    % write into logfile
     currSeq(1).fileID = logFile(1).fileID;
     currSeq(1).extraColumns = logFile(1).extraColumns;
 
@@ -151,14 +151,10 @@ try
     
 
     saveEventsFile('save', expParam, currSeq);
-    
-    %     saveEventsFile('save', expParam, currSeq, 'sequenceNum', ...
-    %         'segmentNum', 'segmentOnset', 'stepNum', 'stepOnset', 'patternID', ...
-    %         'segmentCateg', 'F0', 'isTask', 'gridIOI', 'patternAmp', 'PE4', 'minPE4', ...
-    %         'rangePE4', 'LHL24', 'minLHL24', 'rangeLHL24');
+
 
     % ===========================================
-    % log everything into matlab structure
+    % log into matlab structure
     % ===========================================
 
     % save (machine) onset time for the current sequence
@@ -228,7 +224,6 @@ try
         for iResp = 1:size(responseEvents, 1)
             responseEvents(iResp, 1).onset = responseEvents(iResp).onset - ...
                 expParam.experimentStart;
-          %  responseEvents(iResp, 1).target = sum(target);
         end
 
         saveEventsFile('save', expParam, responseEvents);

@@ -32,8 +32,9 @@ expParam.fmriTask = true;
 if strcmp(cfg.testingDevice,'mri')
     if expParam.runNb == 1
         
-        %make the design
+        % get the design
         DesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
+        % DesginFullExp (runNum, stepNum,segmentNum,patternNum)
         
         if expParam.fmriTask
             %create an empty cell to store the task==1s and 0s
@@ -59,13 +60,18 @@ if strcmp(cfg.testingDevice,'mri')
             categA = zeros(categANum,1);
             categB = zeros(categBNum,1);
             
-            %assign ones (marking for target)
+            %assign 1s to indicate the targets
             categA(1:expParam.categANumTask) = 1;
             categB(1:expParam.categBNumTask) = 1;
             
             %and shuffle the order or target across seq (runs), steps, segments, ...
             idxCategATarget = Shuffle(categA);
             idxCategBTarget = Shuffle(categB);
+            
+%             %insert control
+%             % dont put target into first pattern of sequence
+%             DesignFullExp(:)
+%             idx = find(DesignFullExp(:,1,1,1))
             
             %save it to expParams for using the order in makeSequence.m
             cfg.fMRItaskidx(idxCategA)= idxCategATarget;

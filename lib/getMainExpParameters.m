@@ -8,11 +8,11 @@ function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
 % % %
 
 
-
 %% contruct individual sound events (that will make up each pattern)
 
 % Define envelope shape of the individual sound event. 
 % All parameters are defined in seconds. 
+
 
 % total sound duration _/```\_  
 cfg.soundDur             = 0.190; % s
