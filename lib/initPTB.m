@@ -57,7 +57,7 @@ else
 end
 
 
-[cfg.win, cfg.winRect] = Screen('OpenWindow', cfg.screen, cfg.backgroundColor);
+[cfg.win, cfg.winRect] = Screen('OpenWindow', cfg.screen, cfg.background.color);
 
 [cfg.winWidth,cfg.winHeight] = Screen('WindowSize',cfg.win);
 %[cfg.winWidth,cfg.winHeight] = WindowSize(cfg.win);
@@ -74,8 +74,8 @@ cfg.center = [cfg.winRect(3), cfg.winRect(4)]/2;
 Screen('BlendFunction',cfg.win,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 %% text
-Screen('TextFont',cfg.win,cfg.textFont);
-Screen('TextSize',cfg.win,cfg.textSize);
+Screen('TextFont',cfg.win,cfg.text.font);
+Screen('TextSize',cfg.win,cfg.text.size);
 
 
 %% Timing

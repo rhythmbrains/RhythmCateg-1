@@ -22,21 +22,6 @@ logFile.extraColumns = {'sequenceNum', 'segmentNum', 'segmentOnset', ...
         end
         logFile(1).extraColumns = tmp;
     end
-    
-% logFile.extraColumns.sequenceNum.length = 1;
-% logFile.extraColumns.segmentOnset.length = 1;
-% logFile.extraColumns.stepNum.length = 1;
-% logFile.extraColumns.stepOnset.length = 1;
-% logFile.extraColumns.patternID.length = 1;
-% logFile.extraColumns.segmentCateg.length = 1;
-% logFile.extraColumns.F0.length = 1;
-% logFile.extraColumns.isTask.length =1;
-% logFile.extraColumns.gridIOI.length = 1;
-% logFile.extraColumns.patternAmp.length = 1;
-% logFile.extraColumns.minPE4.length = 1;
-% logFile.extraColumns.rangePE4.length = 1;
-% logFile.extraColumns.minLHL24.length = 1;
-% logFile.extraColumns.rangeLHL24.length = 1;
 
  
 logFile(1).extraColumns.LHL24.length = 12; % will set 12 columns with names LHL24-01, LHL24-02, ...

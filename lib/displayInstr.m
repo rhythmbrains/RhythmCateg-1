@@ -26,8 +26,8 @@ function [subAction] = displayInstr(instrTxt,cfg,varargin)
 subAction = []; 
 
 
-Screen('TextFont',cfg.win,cfg.textFont);
-Screen('TextSize',cfg.win,cfg.textSize);
+Screen('TextFont',cfg.win,cfg.text.font);
+Screen('TextSize',cfg.win,cfg.text.size);
 
 %% volume setting  
 if any(strcmpi(varargin,'setVolume'))
@@ -418,14 +418,14 @@ elseif any(strcmpi(varargin,'instrAndQuitOption'))
         Screen('TextFont', cfg.win, 'Consolas');
         DrawFormattedText(cfg.win, fbktxt, 'center', cfg.winHeight*0.75, cfg.white);          
         % switch font back to default
-        Screen('TextFont',cfg.win,cfg.textFont);
+        Screen('TextFont',cfg.win,cfg.text.font);
     end
     
     % display instructions in the center of cfg.screen 
     DrawFormattedText(cfg.win,instrTxt,'center','center',cfg.white); 
 
     % display small-font quit option 
-    Screen('TextSize',cfg.win,cfg.textSize*0.7);
+    Screen('TextSize',cfg.win,cfg.text.size*0.7);
     txt = sprintf('(in case of emergency, press [%s] to terminate the experiment)  ',KbName(cfg.keyquit)); 
     tbx     = Screen('TextBounds', cfg.win, txt,[],[],[],[]);
     width   = tbx(3);
@@ -433,7 +433,7 @@ elseif any(strcmpi(varargin,'instrAndQuitOption'))
     r = [0 0 width height + Screen('TextSize', cfg.win)];
     r = AlignRect(r,cfg.winRect,RectRight,RectTop);
     DrawFormattedText(cfg.win, txt, r(RectLeft), r(RectBottom), cfg.white);    
-    Screen('TextSize',cfg.win,cfg.textSize);
+    Screen('TextSize',cfg.win,cfg.text.size);
     
     Screen('Flip',cfg.win); 
     

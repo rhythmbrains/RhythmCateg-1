@@ -57,11 +57,11 @@ cfg.diameterAperture  = 8;   % Diameter/length of side of aperture in Visual ang
 cfg.white  = [255 255 255];
 cfg.black  = [ 0   0   0 ];
 cfg.gray   = mean([cfg.black; cfg.white]);
-cfg.backgroundColor  = cfg.gray;
-cfg.textColor        = cfg.white;
-cfg.textFont         = 'Arial'; %'Courier New'
-cfg.textSize         = 30; %18
-%cfg.textStyle        = 1;
+cfg.background.color  = cfg.gray;
+cfg.text.color        = cfg.white;
+cfg.text.font         = 'Arial'; %'Courier New'
+cfg.text.size         = 30; %18
+%cfg.text.style        = 1;
 
     
 %% sound levels
