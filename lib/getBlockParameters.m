@@ -1,4 +1,4 @@
-function     [cfg,expParam] = getBlockParameters(cfg,expParam)
+function     cfg = getBlockParameters(cfg)
 % this function generates audio sequences to be played in the man
 % experiment
 
@@ -124,7 +124,7 @@ cfg.nF0 	= 5; % number of unique F0-values between the limits
 cfg.F0s 	= logspace(log10(cfg.minF0),log10(cfg.maxF0),cfg.nF0); 
 
 % calculate required amplitude gain
-if expParam.equateSoundAmp
+if cfg.equateSoundAmp
     cfg.F0sAmpGain = equalizePureTones(cfg.F0s,[], []);
 else
     cfg.F0sAmpGain = ones(1,cfg.nF0);
@@ -183,13 +183,13 @@ cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
 %% Task Instructions
 
 % fMRI instructions
-expParam.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
+cfg.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
 
 % ------------------------------------------------
 % instruction showing info about sequence curation 
 % ------------------------------------------------
 
-expParam.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.SequenceDur/60), ...
+cfg.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.SequenceDur/60), ...
                             'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n']; 
                            
 % ------------------------------
@@ -197,7 +197,7 @@ expParam.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\
 % ------------------------------
 
 % this is general instruction displayed after each sequence
-expParam.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
+cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
                             'You can have a break. \n\n',...
                             'Good luck!\n\n']; 
 

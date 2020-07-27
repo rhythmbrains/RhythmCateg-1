@@ -13,17 +13,17 @@ addpath(genpath(fullfile('../../CPPLab/CPP_BIDS')));
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
-[cfg, expParam] = getParams('RhythmCategFT', 'mri', 0);
+cfg = getParams('RhythmCategFT', 'mri', 0);
 
 % set and load all the subject input to run the experiment
-expParam = userInputs(cfg, expParam);
-[cfg, expParam] = createFilename(cfg, expParam);
+cfg = userInputs(cfg);
+cfg = createFilename(cfg);
 
 % create randomized sequence for 9 runs when run =1
-[cfg, expParam] = makefMRISeqDesign(cfg, expParam);
+cfg = makefMRISeqDesign(cfg);
 
 % get time point at the beginning of the script (machine time)
-expParam.timing.scriptStartTime = GetSecs();
+cfg.timing.scriptStartTime = GetSecs();
 
 %% Experiment
 
@@ -40,27 +40,27 @@ try
     'rangeLHL24', 'LHL24', 'PE4'};
     
     % dummy call to initialize the logFile variable
-    logFile  = saveEventsFile('open', expParam, logFile);
+    logFile  = saveEventsFile('open', cfg, logFile);
 
     % set the real length we really want
     logFile(1).extraColumns.LHL24.length = 12;
     logFile(1).extraColumns.PE4.length = 12;
 
     % actual inititalization
-    logFile = saveEventsFile('open', expParam, logFile);
+    logFile = saveEventsFile('open', cfg, logFile);
     
     % define the extra columns: 
     % they will be added to the tsv files in the order the user input them
     responseFile.extraColumns = {'key_name', 'pressed', 'target'};
     
     % open stimulation logfile - used for counting button press
-    responseFile  = saveEventsFile('open_stim', expParam, responseFile);
+    responseFile  = saveEventsFile('open_stim', cfg, responseFile);
 
     
     % Show instructions for fMRI task - modify to give duration and volume
     % check
-    if expParam.fmriTask
-        displayInstr(expParam.fmriTaskInst, cfg);
+    if cfg.fmriTask
+        displayInstr(cfg.fmriTaskInst, cfg);
 
     end
 
@@ -71,32 +71,32 @@ try
 
     % prepare the KbQueue to collect responses
     % it's after space keypressed because the key looked for is "space" atm
-    getResponse('init', cfg, expParam);
-    getResponse('start', cfg, expParam);
+    getResponse('init', cfg);
+    getResponse('start', cfg);
 
     % wait for trigger from fMRI
     %wait4Trigger(cfg);
     waitForTrigger(cfg);
     
     % show fixation cross
-    if expParam.fmriTask
-        drawFixationCross(cfg, expParam, expParam.fixationCrossColor);
+    if cfg.fmriTask
+        drawFixationCross(cfg, cfg.fixationCrossColor);
         Screen('Flip', cfg.win);
     end
 
     % and collect the timestamp
-    expParam.experimentStart = GetSecs;
+    cfg.experimentStart = GetSecs;
 
     %   % write down buffered responses
     %   responseEvents = getResponse('check', cfg, expParam,1);
 
     % wait for dummy fMRI scans
-    WaitSecs(expParam.timing.onsetDelay);
+    WaitSecs(cfg.timing.onsetDelay);
 
     %% play sequences
 
     % take the runNb corresponding sequence
-    seqi = expParam.runNb;
+    seqi = cfg.runNb;
 
     % prep for BIDS saving structures
     currSeq = struct();
@@ -114,9 +114,9 @@ try
         cfg.PTBrepet, cfg.PTBstartCue, cfg.PTBwaitForDevice);
 
     % save params for later call in BIDS saving
-    expParam.timing.seqi = seqi;
-    expParam.timing.currSeqStartTime = currSeqStartTime;
-    expParam.timing.experimentStart = expParam.experimentStart;
+    cfg.timing.seqi = seqi;
+    cfg.timing.currSeqStartTime = currSeqStartTime;
+    cfg.timing.experimentStart = cfg.experimentStart;
 
     % ===========================================
     % stimulus save for BIDS
@@ -131,11 +131,11 @@ try
 
         % correcting onsets for fMRI trigger onset
         currSeq(iPattern, 1).onset  = currSeq(iPattern, 1).onset + ...
-            currSeqStartTime - expParam.experimentStart;
+            currSeqStartTime - cfg.experimentStart;
         currSeq(iPattern, 1).segmentOnset = currSeq(iPattern, 1).segmentOnset ...
-            + currSeqStartTime - expParam.experimentStart;
+            + currSeqStartTime - cfg.experimentStart;
         currSeq(iPattern, 1).stepOnset = currSeq(iPattern, 1).stepOnset ...
-            + currSeqStartTime - expParam.experimentStart;
+            + currSeqStartTime - cfg.experimentStart;
 
         % adding compulsory BIDS structures
         currSeq(iPattern, 1).trial_type  = 'dummy';
@@ -150,7 +150,7 @@ try
     end
     
 
-    saveEventsFile('save', expParam, currSeq);
+    saveEventsFile('save', cfg, currSeq);
 
 
     % ===========================================
@@ -159,30 +159,30 @@ try
 
     % save (machine) onset time for the current sequence
     % might be irrelevant for fMRI
-    expParam.data(seqi).currSeqStartTime = currSeqStartTime;
+    cfg.data(seqi).currSeqStartTime = currSeqStartTime;
 
     % save PTB volume
     % might be irrelevant for fMRI
-    expParam.data(seqi).ptbVolume = PsychPortAudio('Volume', cfg.pahandle);
+    cfg.data(seqi).ptbVolume = PsychPortAudio('Volume', cfg.pahandle);
 
     % save current sequence information (without the audio, which can
     % be easily resynthesized)
     currSeq(1).outAudio = [];
-    expParam.data(seqi).seq = currSeq;
+    cfg.data(seqi).seq = currSeq;
 
     %% Wait for audio and delays to catch up
     % wait while fMRI is ongoing
     % stay here till audio stops
-    reachHereTime = (GetSecs - expParam.experimentStart);
-    audioDuration = (cfg.SequenceDur * expParam.numSeq4Run);
+    reachHereTime = (GetSecs - cfg.experimentStart);
+    audioDuration = (cfg.SequenceDur * cfg.numSeq4Run);
 
     %     % exp duration + delays - script reaching to till point
     %     WaitSecs(audioDuration + expParam.timing.onsetDelay + ...
     %         expParam.timing.endDelay - reachHereTime);
 
     % stay in the loop until the sequence ends
-    while GetSecs  < (expParam.experimentStart + audioDuration + ...
-            expParam.timing.onsetDelay + expParam.timing.endDelay)
+    while GetSecs  < (cfg.experimentStart + audioDuration + ...
+            cfg.timing.onsetDelay + cfg.timing.endDelay)
 
         % check if key is pressed
         [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
@@ -195,7 +195,7 @@ try
 
     %%
     % record exp ending time
-    expParam.timing.fMRIendTime = GetSecs - expParam.experimentStart;
+    cfg.timing.fMRIendTime = GetSecs - cfg.experimentStart;
 
     %% Check last button presses & wrap up
     % % %
@@ -204,10 +204,10 @@ try
     displayInstr('Please indicate by pressing button, how many times you detected pitch changes\n\n\n', cfg);
 
     % wait for participant to press button
-    WaitSecs(expParam.timing.endResponseDelay);
+    WaitSecs(cfg.timing.endResponseDelay);
 
     % write down buffered responses after waiting for response
-    responseEvents = getResponse('check', cfg, expParam, 1);
+    responseEvents = getResponse('check', cfg, 1);
     % get responses with new CPP_PTB
     %responseEvents = getResponse('check', deviceNumber, cfg);
 
@@ -223,40 +223,40 @@ try
     if isfield(responseEvents, 'onset')
         for iResp = 1:size(responseEvents, 1)
             responseEvents(iResp, 1).onset = responseEvents(iResp).onset - ...
-                expParam.experimentStart;
+                cfg.experimentStart;
         end
 
-        saveEventsFile('save', expParam, responseEvents);
+        saveEventsFile('save', cfg, responseEvents);
     end
 
     %% wrapping up
     % last screen
-    if expParam.runNb == 666 || expParam.runNb == expParam.numSequences
+    if cfg.runNb == 666 || cfg.runNb == cfg.numSequences
         displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)\n\n\n Soon we will take you out!', cfg);
     else
         displayInstr('This run is over. We will shortly start the following!', cfg);
     end
 
     % wait for ending the screen/exp
-    WaitSecs(expParam.timing.endScreenDelay);
+    WaitSecs(cfg.timing.endScreenDelay);
 
     % record script ending time
-    expParam.timing.scriptEndTime = GetSecs - expParam.experimentStart;
+    cfg.timing.scriptEndTime = GetSecs - cfg.experimentStart;
 
     % clear the buffer
-    getResponse('flush', cfg, expParam);
+    getResponse('flush', cfg);
 
     % stop key checks
-    getResponse('stop', cfg, expParam);
+    getResponse('stop', cfg);
 
     %% save
     % Close the logfiles (tsv)   - BIDS
-    saveEventsFile('close', expParam, logFile);
-    saveEventsFile('close', expParam, responseFile);
+    saveEventsFile('close', cfg, logFile);
+    saveEventsFile('close', cfg, responseFile);
 
     % save the whole workspace
-    matFile = fullfile(expParam.outputDir, ...
-        strrep(expParam.fileName.events, 'tsv', 'mat'));
+    matFile = fullfile(cfg.outputDir, ...
+        strrep(cfg.fileName.events, 'tsv', 'mat'));
     if IsOctave
         save(matFile, '-mat7-binary');
     else
@@ -269,8 +269,8 @@ try
 catch
 
     % save everything into .mat file
-    matFile = fullfile(expParam.outputDir, ...
-        strrep(expParam.fileName.events, 'tsv', 'mat'));
+    matFile = fullfile(cfg.outputDir, ...
+        strrep(cfg.fileName.events, 'tsv', 'mat'));
     if IsOctave
         save(matFile, '-mat7-binary');
     else
@@ -278,8 +278,8 @@ catch
     end
 
     % Close the logfiles - BIDS
-    saveEventsFile('close', expParam, logFile);
-    saveEventsFile('close', expParam, responseFile);
+    saveEventsFile('close', cfg, logFile);
+    saveEventsFile('close', cfg, responseFile);
 
     % clean the workspace
     cleanUp;

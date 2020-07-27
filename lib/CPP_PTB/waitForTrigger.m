@@ -72,8 +72,8 @@ function pauseBetweenTriggers(cfg)
     % catch several triggers in one go.
 
     waitTime = 0.5;
-    if ~isempty(cfg.MRI.repetitionTime)
-        waitTime = cfg.MRI.repetitionTime / 2;
+    if ~isempty(cfg.bids.MRI.repetitionTime)
+        waitTime = cfg.bids.MRI.repetitionTime / 2;
     end
 
     WaitSecs(waitTime);

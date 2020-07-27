@@ -1,4 +1,4 @@
-function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
+function     cfg = getMainExpParameters(cfg)
 % this function generates audio sequences to be played in the man
 % experiment
 
@@ -122,7 +122,7 @@ cfg.nF0 	= 5; % number of unique F0-values between the limits
 cfg.F0s 	= logspace(log10(cfg.minF0),log10(cfg.maxF0),cfg.nF0); 
 
 % calculate required amplitude gain
-if expParam.equateSoundAmp
+if cfg.equateSoundAmp
     cfg.F0sAmpGain = equalizePureTones(cfg.F0s,[], []);
 else
     cfg.F0sAmpGain = ones(1,cfg.nF0);
@@ -176,7 +176,7 @@ cfg.labelCategB = 'complex';
 % ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
 %%%%%%%%%%%%
 if strcmp(cfg.testingDevice,'pc')
-    cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
+    cfg.seqDesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex,cfg);
 end
 
 %% generate example audio for volume setting
@@ -191,7 +191,7 @@ cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
 %% Task Instructions
 
 % fMRI instructions
-expParam.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
+cfg.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
 
 
 
@@ -209,11 +209,11 @@ loadPathInstr = fullfile('lib','instr','mainExp');
 % will wait for a keypress. 
 
 dirInstr = dir(fullfile(loadPathInstr,'instrMainExpIntro*')); 
-expParam.introInstruction = cell(1,length(dirInstr)); 
+cfg.introInstruction = cell(1,length(dirInstr)); 
 for i=1:length(dirInstr)
     instrFid = fopen(fullfile(loadPathInstr, dirInstr(i).name),'r','n','UTF-8'); 
     while ~feof(instrFid)
-        expParam.introInstruction{i} = [expParam.introInstruction{i}, fgets(instrFid)]; 
+        cfg.introInstruction{i} = [cfg.introInstruction{i}, fgets(instrFid)]; 
     end
     fclose(instrFid); 
 end
@@ -226,10 +226,10 @@ end
 % sure they understand their task. 
 
 dirInstr = dir(fullfile(loadPathInstr,'instrMainExpGeneral')); 
-expParam.generalInstruction = ''; 
+cfg.generalInstruction = ''; 
 instrFid = fopen(fullfile(loadPathInstr, dirInstr.name),'r','n','UTF-8'); 
 while ~feof(instrFid)
-    expParam.generalInstruction = [expParam.generalInstruction, fgets(instrFid)]; 
+    cfg.generalInstruction = [cfg.generalInstruction, fgets(instrFid)]; 
 end
 fclose(instrFid); 
 
@@ -239,7 +239,7 @@ fclose(instrFid);
 % instruction showing info about sequence curation 
 % ------------------------------------------------
 
-expParam.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.SequenceDur/60), ...
+cfg.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.SequenceDur/60), ...
                             'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n']; 
     
 
@@ -249,7 +249,7 @@ expParam.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\
 % ------------------------------
 
 % this is general instruction displayed after each sequence
-expParam.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
+cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
                             'You can have a break. \n\n',...
                             'Good luck!\n\n']; 
 
@@ -260,14 +260,14 @@ expParam.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
 % instruction should appear. 
 
 dirInstr = dir(fullfile(loadPathInstr,'instrMainExpDelay*')); 
-expParam.seqSpecificDelayInstruction = cell(1, expParam.numSequences); 
+cfg.seqSpecificDelayInstruction = cell(1, cfg.numSequences); 
 for i=1:length(dirInstr)
     
     targetSeqi = regexp(dirInstr(i).name, '(?<=instrMainExpDelay)\d*', 'match'); 
     targetSeqi = str2num(targetSeqi{1}); 
     instrFid = fopen(fullfile(loadPathInstr, dirInstr(i).name),'r','n','UTF-8'); 
     while ~feof(instrFid)
-        expParam.seqSpecificDelayInstruction{targetSeqi} = [expParam.seqSpecificDelayInstruction{i}, fgets(instrFid)]; 
+        cfg.seqSpecificDelayInstruction{targetSeqi} = [cfg.seqSpecificDelayInstruction{i}, fgets(instrFid)]; 
     end
     fclose(instrFid); 
 end

@@ -1,4 +1,4 @@
-function [cfg,expParam] = makefMRISeqDesign(cfg,expParam)
+function cfg = makefMRISeqDesign(cfg)
 
 % this function creates counterbalanced audio sequences for fMRI in
 % by using subfunction as:
@@ -11,7 +11,7 @@ function [cfg,expParam] = makefMRISeqDesign(cfg,expParam)
 % embedded. (e.g. after the script gets runNb)
 % if debug, put back run =1 so in the main script sequence =runNb ==1
 if cfg.debug 
-    expParam.runNb = 1;
+    cfg.runNb = 1;
 end
 
 %% Get counterbalanced sequences according to the total fMRI RUNs
@@ -21,7 +21,7 @@ end
 % 3 (in case they stop fMRI, or we want ot increase to 12 runs)
 % expParam.numSequences = 3
 
-expParam.fmriTask = true;
+cfg.fmriTask = true;
 
 
 %%%%%%%%%%%%
@@ -30,16 +30,16 @@ expParam.fmriTask = true;
 %%%%%%%%%%%%
 
 if strcmp(cfg.testingDevice,'mri')
-    if expParam.runNb == 1
+    if cfg.runNb == 1
         
         % get the design
-        DesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
+        DesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg);
         % DesginFullExp (runNum, stepNum,segmentNum,patternNum)
         
-        if expParam.fmriTask
+        if cfg.fmriTask
             %create an empty cell to store the task==1s and 0s
             cfg.fMRItaskidx =  zeros(...
-                expParam.numSequences, ...
+                cfg.numSequences, ...
                 cfg.nStepsPerSequence,...
                 cfg.nSegmPerStep, ...
                 cfg.nPatternPerSegment);
@@ -53,16 +53,16 @@ if strcmp(cfg.testingDevice,'mri')
             categBNum = sum(idxCategB);
             
             % take the 10%
-            expParam.categANumTask = round(categANum*0.1);
-            expParam.categBNumTask = round(categBNum*0.1);
+            cfg.categANumTask = round(categANum*0.1);
+            cfg.categBNumTask = round(categBNum*0.1);
             
             %create zero array
             categA = zeros(categANum,1);
             categB = zeros(categBNum,1);
             
             %assign 1s to indicate the targets
-            categA(1:expParam.categANumTask) = 1;
-            categB(1:expParam.categBNumTask) = 1;
+            categA(1:cfg.categANumTask) = 1;
+            categB(1:cfg.categBNumTask) = 1;
             
             %and shuffle the order or target across seq (runs), steps, segments, ...
             idxCategATarget = Shuffle(categA);

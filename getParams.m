@@ -1,4 +1,4 @@
-function [cfg,expParam] = getParams(task,device,debugmode)
+function cfg = getParams(task,device,debugmode)
 % NOTE: in order to use behav + fMRI with 1 getParams, we are using
 % getParam with 3 aguments so it won't interfere with behav script
 % CB edit 0n 09/07/2020
@@ -21,7 +21,6 @@ function [cfg,expParam] = getParams(task,device,debugmode)
 
 %% Init parameter structures
 cfg = struct; 
-expParam = struct;
 
 %% set the type of your computer
 if IsWin
@@ -33,8 +32,8 @@ elseif IsLinux
 end
 
 %% Debug mode settings
-cfg.debug               = debugmode ;  % To test the script with trasparent full size screen 
-expParam.verbose        = 1; % add here and there some explanations with if verbose is ON. 
+cfg.debug          = debugmode ;  % To test the script with trasparent full size screen 
+cfg.verbose        = 1; % add here and there some explanations with if verbose is ON. 
 
 %% MRI settings
 cfg.testingDevice = device;       % 'pc': does not care about trigger(for behav) - otherwise use 'mri'
@@ -44,8 +43,8 @@ cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and wa
 
 %% general configuration
 %for BIDS format: 
-expParam.task = task; % should be calling behav or fmri
-expParam.askGrpSess = [0 0]; % it won't ask you about group or session
+cfg.task = task; % should be calling behav or fmri
+cfg.askGrpSess = [0 0]; % it won't ask you about group or session
 
 %% monitor
 % Monitor parameters - fMRI - CHANGE with fMRI parameters
@@ -75,19 +74,19 @@ cfg.PTBInitVolume = 1;
 if strcmpi(cfg.testingDevice, 'mri')
     
     %  boolean for equating the dB across different tones for behavioral exp
-    expParam.equateSoundAmp = 0;
+    cfg.equateSoundAmp = 0;
     
     % BIDS compatible logfile folder
-    expParam.outputDir = fullfile(...
+    cfg.outputDir = fullfile(...
         fileparts(mfilename('fullpath')),'..', ...
         'output');
 else
     
     %  boolean for equating the dB across different tones for behavioral exp
-    expParam.equateSoundAmp = 1;
+    cfg.equateSoundAmp = 1;
     
     % BIDS non-compatible logfile folder
-    expParam.outputDir = fullfile(...
+    cfg.outputDir = fullfile(...
         fileparts(mfilename('fullpath')), ...
         'output');
     
@@ -106,32 +105,32 @@ checkSoundFiles();
 
 % % %
 % convert waitSecs according to the TR = 2.28
-expParam.timing.onsetDelay = 3 * 2.28; %Number of seconds before the rhythmic sequence (exp) are presented
-expParam.timing.endDelay = 3 * 2.28; % Number of seconds after the end of all stimuli before ending the fmri run! 
+cfg.timing.onsetDelay = 3 * 2.28; %Number of seconds before the rhythmic sequence (exp) are presented
+cfg.timing.endDelay = 3 * 2.28; % Number of seconds after the end of all stimuli before ending the fmri run! 
 % % %
 
 % ending timings for fMRI
-expParam.timing.endScreenDelay = 2; %end the screen after thank you screen
+cfg.timing.endScreenDelay = 2; %end the screen after thank you screen
 % delay for script ending
-expParam.timing.endResponseDelay = 13; % wait for participant to response for counts
+cfg.timing.endResponseDelay = 13; % wait for participant to response for counts
 
 % these are for behavioral exp delays
-expParam.sequenceDelay = 1; %wait in between sequences? y/n
-expParam.pauseSeq = 1; % give a pause of below seconds in between sequences
+cfg.sequenceDelay = 1; %wait in between sequences? y/n
+cfg.pauseSeq = 1; % give a pause of below seconds in between sequences
 
 
 % define ideal number of sequences to be made
 % multiple of 3 is balanced design
 if strcmpi(cfg.testingDevice,'pc')
-    expParam.numSequences = 6;
+    cfg.numSequences = 6;
     if cfg.debug
-        expParam.numSequences = 2;
+        cfg.numSequences = 2;
     end
       
 elseif strcmpi(cfg.testingDevice,'mri')
 
-    expParam.numSequences = 9;
-    expParam.numSeq4Run = 1; % for an fMRI run time calculation
+    cfg.numSequences = 9;
+    cfg.numSeq4Run = 1; % for an fMRI run time calculation
 
 end
 
@@ -147,17 +146,17 @@ end
 if strcmpi(cfg.testingDevice,'mri')
     
     % Used Pixels here since it really small and can be adjusted during the experiment
-    expParam.fixCrossDimPix               = 10;   % Set the length of the lines (in Pixels) of the fixation cross
-    expParam.lineWidthPix                 = 4;    % Set the line width (in Pixels) for our fixation cross
-    expParam.xDisplacementFixCross        = 0;    % Manual displacement of the fixation cross
-    expParam.yDisplacementFixCross        = 0;    % Manual displacement of the fixation cross
-    expParam.fixationCrossColor           = cfg.white;
+    cfg.fixCrossDimPix               = 10;   % Set the length of the lines (in Pixels) of the fixation cross
+    cfg.lineWidthPix                 = 4;    % Set the line width (in Pixels) for our fixation cross
+    cfg.xDisplacementFixCross        = 0;    % Manual displacement of the fixation cross
+    cfg.yDisplacementFixCross        = 0;    % Manual displacement of the fixation cross
+    cfg.fixationCrossColor           = cfg.white;
     
     %calculate the location coord for cross
-    cfg.xCoords = [-expParam.fixCrossDimPix expParam.fixCrossDimPix 0 0] ...
-        + expParam.xDisplacementFixCross;
-    cfg.yCoords = [0 0 -expParam.fixCrossDimPix expParam.fixCrossDimPix] ...
-        + expParam.yDisplacementFixCross;
+    cfg.xCoords = [-cfg.fixCrossDimPix cfg.fixCrossDimPix 0 0] ...
+        + cfg.xDisplacementFixCross;
+    cfg.yCoords = [0 0 -cfg.fixCrossDimPix cfg.fixCrossDimPix] ...
+        + cfg.yDisplacementFixCross;
     cfg.allCoords = [cfg.xCoords; cfg.yCoords];
     
     % how many targets within 1 pattern
@@ -180,23 +179,23 @@ end
 %% more parameters to get according to the type of experiment
 % this part is solely for behavioral exp
 % control fMRI script has its getxxx.m instead of in here (getParam.m)
-if strcmp(expParam.task,'tapTraining')
+if strcmp(cfg.task,'tapTraining')
     
     % get tapping training parameters
-    [cfg,expParam] = getTrainingParameters(cfg,expParam);
+    cfg = getTrainingParameters(cfg);
     
-elseif strcmp(expParam.task,'tapMainExp') || strcmp(expParam.task,'RhythmCategFT')
+elseif strcmp(cfg.task,'tapMainExp') || strcmp(cfg.task,'RhythmCategFT')
     
     % get main experiment parameters
-    [cfg,expParam] = getMainExpParameters(cfg,expParam);
+    cfg = getMainExpParameters(cfg);
     
-elseif strcmp(expParam.task,'RhythmCategBlock')
+elseif strcmp(cfg.task,'RhythmCategBlock')
     % get main experiment parameters
-    [cfg,expParam] = getBlockParameters(cfg,expParam);
+    cfg = getBlockParameters(cfg);
     
-elseif strcmp(expParam.task,'PitchFT')
+elseif strcmp(cfg.task,'PitchFT')
     
-    [cfg,expParam] = getPitchParameters(cfg,expParam);
+    cfg = getPitchParameters(cfg);
     
 end
 
@@ -263,7 +262,7 @@ switch lower(cfg.testingDevice)
     
     % it'll only look for space press -
     % later on change with the responseBox indices/numbers! ! !
-    expParam.responseKey = {'space','d','a'};
+    cfg.responseKey = {'space','d','a'};
     
     %esc key for both behav and fmri exp
     cfg.escapeKey       = KbName('ESCAPE'); % press ESCAPE at response time to quit
