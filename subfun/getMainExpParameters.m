@@ -7,6 +7,8 @@ function     cfg = getMainExpParameters(cfg)
 % start the sequence with one B-category segment that will be discarded during analysis
 % % %
 
+% behavioral instructions
+loadPathInstr = fullfile(fileparts(mfilename('fullpath')), 'instr','mainExp');
 
 %% contruct individual sound events (that will make up each pattern)
 
@@ -100,7 +102,7 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
 % if debug for behav exp, cut it short! 
-if cfg.debug && strcmpi(cfg.testingDevice,'pc')
+if cfg.debug.do && strcmpi(cfg.testingDevice,'pc')
     cfg.nStepsPerSequence = 1;
 else
     cfg.nStepsPerSequence = 5;
@@ -191,14 +193,10 @@ cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
 %% Task Instructions
 
 % fMRI instructions
-cfg.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
+cfg.fmriTaskInst = 'Fixate to the cross & count the deviant tone\n \n\n';
 
 
-
-
-% behavioral instructions
-
-loadPathInstr = fullfile('lib','instr','mainExp'); 
+ 
 
 % -------------------
 % intro instructions

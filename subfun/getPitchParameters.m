@@ -1,4 +1,4 @@
-function     cfg = getBlockParameters(cfg)
+function     cfg = getPitchParameters(cfg)
 % this function generates audio sequences to be played in the man
 % experiment
 
@@ -66,29 +66,27 @@ end
 % how many pattern cycles are within each step of [ABBB]
 % how many pattern in each segment A or B.
 cfg.nPatternPerSegment = 4;
- 
+
 % if the gridIOI can vary across pattern cycles, we need to set the time 
 % interval between two successive segments to a fixed value (this must be 
 % greater or equal to the maximum possible segment duration)
 cfg.interSegmInterval = cfg.nPatternPerSegment * cfg.interPatternInterval; 
 
-
-% Add delays for block's gap 
 % there can be a pause after all segments for category A are played 
 % (i.e. between A and B)
-cfg.delayAfterA = cfg.interSegmInterval; 
+cfg.delayAfterA = 0; 
 % there can be a pause after all segments for category B are played 
 % (i.e. between B and A)
-cfg.delayAfterB = cfg.interSegmInterval;
+cfg.delayAfterB = 0; 
 
-%% construct step [A_B_]
+%% construct step [ABBB]
 % how many successive segments are presented for category A
 % manw many times segment A will be sequentially repeated
 cfg.nSegmentA = 1; 
 
 % how many successive segments are presented for category B
 % manw many times segment B will be sequentially repeated
-cfg.nSegmentB = 1; 
+cfg.nSegmentB = 3; 
 
 % number of segments for each step
 cfg.nSegmPerStep = cfg.nSegmentB + cfg.nSegmentA; %4; 
@@ -102,7 +100,7 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
 % if debug for behav exp, cut it short! 
-if cfg.debug && strcmpi(cfg.testingDevice,'pc')
+if cfg.debug.do && strcmpi(cfg.testingDevice,'pc')
     cfg.nStepsPerSequence = 1;
 else
     cfg.nStepsPerSequence = 5;
@@ -118,16 +116,22 @@ fprintf('\n\nsequence duration is: %.1f minutes\n',cfg.SequenceDur/60);
 %% construct pitch features of the stimulus 
 % the pitch (F0) of the tones making up the patterns can vary 
 % (it can be selected randomly from a set of possible values)
-cfg.minF0 	= 350; % minimum possible F0
-cfg.maxF0 	= 900; % maximum possible F0
+
+%for this design, we want categ A and B having sifferent pitches (A will
+%have 5 pitches differing, B will only have 1 pitch)
+cfg.minF0 	= 349.228; % 350 or 349.228 minimum possible F0
+cfg.maxF0 	= 880; % 900 or 880 maximum possible F0
 cfg.nF0 	= 5; % number of unique F0-values between the limits
 cfg.F0s 	= logspace(log10(cfg.minF0),log10(cfg.maxF0),cfg.nF0); 
 
+cfg.differF0 = 277.183; % this is also logspaced
+
 % calculate required amplitude gain
+% butchered this part with adding cfg.differ - change in the future ! ! !
 if cfg.equateSoundAmp
-    cfg.F0sAmpGain = equalizePureTones(cfg.F0s,[], []);
+    cfg.F0sAmpGain = equalizePureTones([cfg.F0s,cfg.differF0],[], []);
 else
-    cfg.F0sAmpGain = ones(1,cfg.nF0);
+    cfg.F0sAmpGain = ones(1,cfg.nF0+1);
 end
 
 % use the requested gain of each tone to adjust the base amplitude
@@ -149,6 +153,8 @@ cfg.changePitchCategory = 0;
 % change pitch for each step
 cfg.changePitchStep 	= 0;     
 
+% refuse to pitch-change in categB
+cfg.fixedPitchCategB   = 1;
 
 %% create two sets of patterns
 
@@ -167,6 +173,10 @@ cfg.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg);
 % this is to make sure each pattern is used equal number of times in the
 % whole experiment
 
+% for exp like fmri that we will present 1 sequence per run, we are
+% creating full exp design in the first run and saving it for the other
+% runs to call .mat file
+
 cfg.labelCategA = 'simple'; 
 cfg.labelCategB = 'complex'; 
 
@@ -181,7 +191,6 @@ cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
 
 
 %% Task Instructions
-
 % fMRI instructions
 cfg.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
 
@@ -202,8 +211,7 @@ cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
                             'Good luck!\n\n']; 
 
 
-
-  
+    
 end
 
 

@@ -60,7 +60,7 @@ for seqi=1:cfg.numSequences
 end
 
 if all(cellfun(@isempty, patterns2choose))
-    disp('hooray, the experiment is fully counterbalanced ;)')
+    disp('hooray, the constructed audio sequences are fully counterbalanced ;)')
 else
     disp('ouch, the experiment is NOT fully counterbalanced :(')
 end

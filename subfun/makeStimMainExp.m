@@ -100,7 +100,7 @@ if isTask
     idxTask = find(pattern);
     if cfg.isTask.numEvent < length(idxTask)
         %for now, take the second tone in pattern as target
-        firstID = idxTask(1);
+        firstEventIdx = idxTask(1);
         idxTask = idxTask(2:1+cfg.isTask.numEvent);
     end
     

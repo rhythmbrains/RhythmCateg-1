@@ -10,9 +10,12 @@ function cfg = makefMRISeqDesign(cfg)
 % depending on the expParam.runNb parameter, it should be causiously
 % embedded. (e.g. after the script gets runNb)
 % if debug, put back run =1 so in the main script sequence =runNb ==1
-if cfg.debug 
-    cfg.runNb = 1;
+if cfg.debug.do 
+    cfg.subject.runNb = 1;
 end
+
+% path to save output
+savepath = fullfile(fileparts(mfilename('fullpath')),'../');
 
 %% Get counterbalanced sequences according to the total fMRI RUNs
 % ADD SHUFFLE ORDER FOR STARTING WITH A OR B CATEG for BLOCK DESING !
@@ -30,7 +33,7 @@ cfg.fmriTask = true;
 %%%%%%%%%%%%
 
 if strcmp(cfg.testingDevice,'mri')
-    if cfg.runNb == 1
+    if cfg.subject.runNb == 1
         
         % get the design
         DesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg);
@@ -80,12 +83,12 @@ if strcmp(cfg.testingDevice,'mri')
         end
         
         %save the Design
-        save('SeqDesign','DesignFullExp','cfg');
+        save([savepath,'SeqDesign'],'DesignFullExp','cfg');
         cfg.seqDesignFullExp = DesignFullExp;
         
     else
         
-        design = load('SeqDesign');
+        design = load([savepath,'SeqDesign']);
         cfg.seqDesignFullExp = design.DesignFullExp;
         cfg.fMRItaskidx = design.cfg.fMRItaskidx;
         
