@@ -32,19 +32,21 @@ elseif IsLinux
 end
 
 %% Debug mode settings
-cfg.debug          = debugmode ;  % To test the script with trasparent full size screen 
-cfg.verbose        = 1; % add here and there some explanations with if verbose is ON. 
+cfg.debug.do        = debugmode ;  
+cfg.debug.transpWin = true;     % To test the script with trasparent full size screen
+cfg.debug.smallWin  = false;
+cfg.verbose         = 1;        % add here and there some explanations with if verbose is ON. 
 
 %% MRI settings
 cfg.testingDevice = device;       % 'pc': does not care about trigger(for behav) - otherwise use 'mri'
-cfg.triggerKey    = 's';        % Set the letter sent by the trigger to sync stimulation and volume acquisition
-cfg.numTriggers   = 4;          % first #Triggers will be dummy scans
-cfg.eyeTracker    = false;      % Set to 'true' if you are testing in MRI and want to record ET data
+cfg.mri.triggerNb = 4; % first #Triggers will be dummy scans
+cfg.mri.triggerKey = 's';  % Set the letter sent by the trigger to sync stimulation and volume acquisition
+cfg.eyeTracker.do = false;      % Set to 'true' if you are testing in MRI and want to record ET data
 
 %% general configuration
 %for BIDS format: 
-cfg.task = task; % should be calling behav or fmri
-cfg.askGrpSess = [0 0]; % it won't ask you about group or session
+cfg.task = task;                % should be calling behav or fmri
+cfg.subject.askGrpSess = [0 0]; % it won't ask you about group or session
 
 %% monitor
 % Monitor parameters - fMRI - CHANGE with fMRI parameters
@@ -99,7 +101,8 @@ cfg.fs = 44100;
 cfg.audio.channels = 2;
 
 %% download missing stimuli (.wav)
-checkSoundFiles();
+soundpath = fullfile(fileparts(mfilename('fullpath')));
+checkSoundFiles(soundpath);
 
 %% Timing 
 
@@ -123,7 +126,7 @@ cfg.pauseSeq = 1; % give a pause of below seconds in between sequences
 % multiple of 3 is balanced design
 if strcmpi(cfg.testingDevice,'pc')
     cfg.numSequences = 6;
-    if cfg.debug
+    if cfg.debug.do
         cfg.numSequences = 2;
     end
       
@@ -159,12 +162,15 @@ if strcmpi(cfg.testingDevice,'mri')
         + cfg.yDisplacementFixCross;
     cfg.allCoords = [cfg.xCoords; cfg.yCoords];
     
+    % set default for no-task 
+    cfg.isTask.Idx = 0;
+    
     % how many targets within 1 pattern
     cfg.isTask.numEvent = 1;
 
     % piano keys 
     % read the audio files and insert them into cfg
-    targetList = dir('stimuli/Piano*.wav');
+    targetList = dir(fullfile(soundpath,'stimuli/Piano*.wav'));
     for isound = 1:length(targetList)
         [S,cfg.fs] = audioread(fullfile('stimuli',targetList(isound).name));
         cfg.targetSounds{isound} = S';
@@ -211,22 +217,23 @@ end
 %   The two can be different or the same.
 
 % Using empty vectors should work for linux when to select the "main"
-%   keyboard. You might have to try some other values for MacOS or Windows
+% keyboard. 
 
-% % %
+
+cfg.keyboard.keyboard = [];
+cfg.keyboard.responseBox = [];
 
 % After connecting fMRI response button to the laptop, 
 % LOOK what are the experimenters' keyboard & fmri responseKey 
 % by using GetKeyboardIndices below.
-cfg.keyboard = [];
-cfg.responseBox = [];
+% copy-paste these this into command window 
+% then you can assign device number to the main keyboard or the response
+% box. 
+% otherwise it's set for PTB to assign. 
+[keyboardNumbers, keyboardNames] = GetKeyboardIndices;
 
-% % %
-
-
-[cfg.keyboardNumbers, cfg.keyboardNames] = GetKeyboardIndices;
-cfg.keyboardNumbers
-cfg.keyboardNames 
+disp(keyboardNumbers);
+disp(keyboardNames);
 
 
 switch lower(cfg.testingDevice)
@@ -253,8 +260,8 @@ switch lower(cfg.testingDevice)
         cfg.keyInstrNext    = KbName('n');
         
         if ismac
-            cfg.keyboard = [];
-            cfg.responseBox = [];
+            cfg.keyboard.keyboard = [];
+            cfg.keyboard.responseBox = [];
         end
         
     case 'mri'
@@ -262,22 +269,24 @@ switch lower(cfg.testingDevice)
     
     % it'll only look for space press -
     % later on change with the responseBox indices/numbers! ! !
-    cfg.responseKey = {'space','d','a'};
+    cfg.keyboard.responseKey = {'space','d','a'};
     
     %esc key for both behav and fmri exp
     cfg.escapeKey       = KbName('ESCAPE'); % press ESCAPE at response time to quit
+   % cfg.keyboard.escapeKey = 'ESCAPE'; %use this with the latest CPP_PTB
+   % repo
 
 
     otherwise
         
-        cfg.keyboard = [];
-        cfg.responseBox = [];
+        cfg.keyboard.keyboard = [];
+        cfg.keyboard.responseBox = [];
         
 end
 
 
 %%
-if cfg.debug
+if cfg.debug.do
     fprintf('\n\n\n\n')
     fprintf('######################################## \n')
     fprintf('##  DEBUG MODE, NOT THE ACTUAL EXP CODE  ## \n')
