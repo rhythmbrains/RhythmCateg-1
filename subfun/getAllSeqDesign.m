@@ -10,31 +10,33 @@ function seqDesignFullExp = getAllSeqDesign(categA,categB,cfg)
 
 % create a separate "reservoir" with available patterns for each segment 
 % (e.g. A, B, B, B)
-[patterns2chooseA{1:cfg.nSegmentA}] = deal(categA); 
-[patterns2chooseB{1:cfg.nSegmentB}] = deal(categB); 
+[patterns2chooseA{1:cfg.pattern.nSegmentA}] = deal(categA); 
+[patterns2chooseB{1:cfg.pattern.nSegmentB}] = deal(categB); 
 
 patterns2choose = [patterns2chooseA, patterns2chooseB]; 
 
 
 % allocate result with dimension: sequence x step x segm x pattern
-seqDesignFullExp = cell(cfg.numSequences, cfg.nStepsPerSequence, cfg.nSegmPerStep, cfg.nPatternPerSegment); 
+seqDesignFullExp = cell(cfg.pattern.numSequences, ...
+    cfg.pattern.nStepsPerSequence, cfg.pattern.nSegmPerStep, ...
+    cfg.pattern.nPatternPerSegment); 
 
-for seqi=1:cfg.numSequences
+for seqi=1:cfg.pattern.numSequences
 
-    for stepi=1:cfg.nStepsPerSequence 
+    for stepi=1:cfg.pattern.nStepsPerSequence 
 
-        for segmi=1:cfg.nSegmPerStep
+        for segmi=1:cfg.pattern.nSegmPerStep
             
-            for pati=1:cfg.nPatternPerSegment
+            for pati=1:cfg.pattern.nPatternPerSegment
 
                 % check if there are any patterns left in the reservoir for
                 % this segment 
                 % if no, refill it with the whole pattern set for that category
                 if isempty(patterns2choose{segmi})
                     % Determine which segment category this is (A or B)
-                    % (the first 'cfg.nSegmentA' segments will be category A, 
+                    % (the first 'cfg.pattern.nSegmentA' segments will be category A, 
                     % the rest will be category B)
-                    if ismember(segmi, [1:cfg.nSegmentA])            
+                    if ismember(segmi, [1:cfg.pattern.nSegmentA])            
                         patterns2choose{segmi} = categA; 
                     else
                         patterns2choose{segmi} = categB; 

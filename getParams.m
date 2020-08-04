@@ -127,15 +127,15 @@ cfg.pauseSeq = 1; % give a pause of below seconds in between sequences
 % define ideal number of sequences to be made
 % multiple of 3 is balanced design
 if strcmpi(cfg.testingDevice,'pc')
-    cfg.numSequences = 6;
+    cfg.pattern.numSequences = 6;
     if cfg.debug.do
-        cfg.numSequences = 2;
+        cfg.pattern.numSequences = 2;
     end
       
 elseif strcmpi(cfg.testingDevice,'mri')
 
-    cfg.numSequences = 9;
-    cfg.numSeq4Run = 1; % for an fMRI run time calculation
+    cfg.pattern.numSequences = 9;
+    cfg.pattern.numSeq4Run = 1; % for an fMRI run time calculation
 
 end
 

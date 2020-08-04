@@ -56,16 +56,12 @@ try
     responseFile  = saveEventsFile('open_stim', cfg, responseFile);
 
     
-    % Show instructions for fMRI task - modify to give duration and volume
-    % check
-    if cfg.fmriTask
-        displayInstr(cfg.fmriTaskInst, cfg);
+    % Show instructions for fMRI task 
+    displayInstr(cfg.fmriTaskInst, cfg);
 
-    end
 
     % wait for space key to be pressed by the experimenter
     % to make the script more verbose
-    %pressSpace4me;
     pressSpaceForMe;
 
     % prepare the KbQueue to collect responses
@@ -74,7 +70,6 @@ try
     getResponse('start', cfg);
 
     % wait for trigger from fMRI
-    %wait4Trigger(cfg);
     waitForTrigger(cfg);
     
     % show fixation cross
@@ -230,7 +225,7 @@ try
 
     %% wrapping up
     % last screen
-    if cfg.runNb == 666 || cfg.runNb == cfg.numSequences
+    if cfg.subject.runNb == 666 || cfg.subject.runNb == cfg.pattern.numSequences
         displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)\n\n\n Soon we will take you out!', cfg);
     else
         displayInstr('This run is over. We will shortly start the following!', cfg);
@@ -254,7 +249,7 @@ try
     saveEventsFile('close', cfg, responseFile);
 
     % save the whole workspace
-    matFile = fullfile(cfg.outputDir, ...
+    matFile = fullfile(cfg.dir.output, ...
         strrep(cfg.fileName.events, 'tsv', 'mat'));
     if IsOctave
         save(matFile, '-mat7-binary');
@@ -268,7 +263,7 @@ try
 catch
 
     % save everything into .mat file
-    matFile = fullfile(cfg.outputDir, ...
+    matFile = fullfile(cfg.dir.output, ...
         strrep(cfg.fileName.events, 'tsv', 'mat'));
     if IsOctave
         save(matFile, '-mat7-binary');

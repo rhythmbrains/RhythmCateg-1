@@ -18,13 +18,13 @@ end
 savepath = fullfile(fileparts(mfilename('fullpath')),'../');
 
 %% Get counterbalanced sequences according to the total fMRI RUNs
+% to do! 
 % ADD SHUFFLE ORDER FOR STARTING WITH A OR B CATEG for BLOCK DESING !
 
+% to do! 
 % CREATE counterbalanced sequences for every 3 sequence then multiply with
 % 3 (in case they stop fMRI, or we want ot increase to 12 runs)
 % expParam.numSequences = 3
-
-
 
 
 %%%%%%%%%%%%
@@ -36,36 +36,36 @@ if strcmp(cfg.testingDevice,'mri')
     if cfg.subject.runNb == 1
         
         % get the design
-        DesignFullExp = getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg);
+        DesignFullExp = getAllSeqDesign(cfg.pattern.patternSimple, cfg.pattern.patternComplex, cfg);
         % DesginFullExp (runNum, stepNum,segmentNum,patternNum)
         
         if cfg.fmriTask
             %create an empty cell to store the task==1s and 0s
             cfg.fMRItaskidx =  zeros(...
-                cfg.numSequences, ...
-                cfg.nStepsPerSequence,...
-                cfg.nSegmPerStep, ...
-                cfg.nPatternPerSegment);
+                cfg.pattern.numSequences, ...
+                cfg.pattern.nStepsPerSequence,...
+                cfg.pattern.nSegmPerStep, ...
+                cfg.pattern.nPatternPerSegment);
             
             % find the categA and categB
-            idxCategA = contains(DesignFullExp(:),cfg.labelCategA);
-            idxCategB = contains(DesignFullExp(:),cfg.labelCategB);
+            idxCategA = contains(DesignFullExp(:),cfg.pattern.labelCategA);
+            idxCategB = contains(DesignFullExp(:),cfg.pattern.labelCategB);
             
             %count the number of categA and categB
             categANum = sum(idxCategA);
             categBNum = sum(idxCategB);
             
             % take the 10%
-            cfg.categANumTask = round(categANum*0.1);
-            cfg.categBNumTask = round(categBNum*0.1);
+            cfg.pattern.categANumTask = round(categANum*0.1);
+            cfg.pattern.categBNumTask = round(categBNum*0.1);
             
             %create zero array
             categA = zeros(categANum,1);
             categB = zeros(categBNum,1);
             
             %assign 1s to indicate the targets
-            categA(1:cfg.categANumTask) = 1;
-            categB(1:cfg.categBNumTask) = 1;
+            categA(1:cfg.pattern.categANumTask) = 1;
+            categB(1:cfg.pattern.categBNumTask) = 1;
             
             %and shuffle the order or target across seq (runs), steps, segments, ...
             idxCategATarget = Shuffle(categA);
@@ -84,12 +84,12 @@ if strcmp(cfg.testingDevice,'mri')
         
         %save the Design
         save([savepath,'SeqDesign'],'DesignFullExp','cfg');
-        cfg.seqDesignFullExp = DesignFullExp;
+        cfg.pattern.seqDesignFullExp = DesignFullExp;
         
     else
         
         design = load([savepath,'SeqDesign']);
-        cfg.seqDesignFullExp = design.DesignFullExp;
+        cfg.pattern.seqDesignFullExp = design.DesignFullExp;
         cfg.fMRItaskidx = design.cfg.fMRItaskidx;
         
     end
