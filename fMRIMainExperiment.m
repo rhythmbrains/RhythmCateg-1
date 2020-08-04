@@ -8,8 +8,7 @@ else
 end
 
 % make sure we got access to all the required functions and inputs
-addpath(genpath(fullfile(pwd, 'lib')));
-addpath(genpath(fullfile('../../CPPLab/CPP_BIDS')));
+initEnv()
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
@@ -40,7 +39,7 @@ try
     'rangeLHL24', 'LHL24', 'PE4'};
     
     % dummy call to initialize the logFile variable
-    logFile  = saveEventsFile('open', cfg, logFile);
+    [logFile]  = saveEventsFile('open', cfg, logFile);
 
     % set the real length we really want
     logFile(1).extraColumns.LHL24.length = 12;
@@ -96,7 +95,7 @@ try
     %% play sequences
 
     % take the runNb corresponding sequence
-    seqi = cfg.runNb;
+    seqi = cfg.subject.runNb;
 
     % prep for BIDS saving structures
     currSeq = struct();

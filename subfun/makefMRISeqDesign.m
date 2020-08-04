@@ -24,7 +24,7 @@ savepath = fullfile(fileparts(mfilename('fullpath')),'../');
 % 3 (in case they stop fMRI, or we want ot increase to 12 runs)
 % expParam.numSequences = 3
 
-cfg.fmriTask = true;
+
 
 
 %%%%%%%%%%%%

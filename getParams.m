@@ -38,14 +38,15 @@ cfg.debug.smallWin  = false;
 cfg.verbose         = 1;        % add here and there some explanations with if verbose is ON. 
 
 %% MRI settings
-cfg.testingDevice = device;       % 'pc': does not care about trigger(for behav) - otherwise use 'mri'
-cfg.mri.triggerNb = 4; % first #Triggers will be dummy scans
-cfg.mri.triggerKey = 's';  % Set the letter sent by the trigger to sync stimulation and volume acquisition
-cfg.eyeTracker.do = false;      % Set to 'true' if you are testing in MRI and want to record ET data
+cfg.testingDevice = device;         % 'pc': does not care about trigger(for behav) - otherwise use 'mri'
+cfg.mri.triggerNb = 4;              % first #Triggers will be dummy scans
+cfg.mri.triggerKey = 's';           % Set the letter sent by the trigger to sync stimulation and volume acquisition
+cfg.eyeTracker.do = false;          % Set to 'true' if you are testing in MRI and want to record ET data
 
+cfg.fmriTask = true;                % is it really useful? 
 %% general configuration
 %for BIDS format: 
-cfg.task = task;                % should be calling behav or fmri
+cfg.task.name = task;                % should be calling behav or fmri
 cfg.subject.askGrpSess = [0 0]; % it won't ask you about group or session
 
 %% monitor
@@ -79,16 +80,17 @@ if strcmpi(cfg.testingDevice, 'mri')
     cfg.equateSoundAmp = 0;
     
     % BIDS compatible logfile folder
-    cfg.outputDir = fullfile(...
+    cfg.dir.output = fullfile(...
         fileparts(mfilename('fullpath')),'..', ...
         'output');
+    
 else
     
     %  boolean for equating the dB across different tones for behavioral exp
     cfg.equateSoundAmp = 1;
     
     % BIDS non-compatible logfile folder
-    cfg.outputDir = fullfile(...
+    cfg.dir.output = fullfile(...
         fileparts(mfilename('fullpath')), ...
         'output');
     
@@ -185,21 +187,21 @@ end
 %% more parameters to get according to the type of experiment
 % this part is solely for behavioral exp
 % control fMRI script has its getxxx.m instead of in here (getParam.m)
-if strcmp(cfg.task,'tapTraining')
+if strcmp(cfg.task.name,'tapTraining')
     
     % get tapping training parameters
     cfg = getTrainingParameters(cfg);
     
-elseif strcmp(cfg.task,'tapMainExp') || strcmp(cfg.task,'RhythmCategFT')
+elseif strcmp(cfg.task.name,'tapMainExp') || strcmp(cfg.task.name,'RhythmCategFT')
     
     % get main experiment parameters
     cfg = getMainExpParameters(cfg);
     
-elseif strcmp(cfg.task,'RhythmCategBlock')
+elseif strcmp(cfg.task.name,'RhythmCategBlock')
     % get main experiment parameters
     cfg = getBlockParameters(cfg);
     
-elseif strcmp(cfg.task,'PitchFT')
+elseif strcmp(cfg.task.name,'PitchFT')
     
     cfg = getPitchParameters(cfg);
     
