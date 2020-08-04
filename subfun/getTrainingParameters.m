@@ -1,4 +1,4 @@
-function [cfg,expParam] = getTrainingParameters(cfg,expParam)
+function cfg = getTrainingParameters(cfg)
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % 
@@ -301,11 +301,11 @@ loadPathInstr = fullfile('lib','instr','tapTrainer');
 % keypress. 
 
 dirInstr = dir(fullfile(loadPathInstr,'instrTrainingIntro*')); 
-expParam.taskInstruction = cell(1,length(dirInstr)); 
+cfg.taskInstruction = cell(1,length(dirInstr)); 
 for i=1:length(dirInstr)
     instrFid = fopen(fullfile(loadPathInstr, dirInstr(i).name),'r','n','UTF-8'); 
     while ~feof(instrFid)
-        expParam.taskInstruction{i} = [expParam.taskInstruction{i}, fgets(instrFid)]; 
+        cfg.taskInstruction{i} = [cfg.taskInstruction{i}, fgets(instrFid)]; 
     end
     fclose(instrFid); 
 end
@@ -316,13 +316,13 @@ end
 % for each pattern/track (each sequence), there can be specific
 % instructions, which explains some important concepts that should be learned by the
 % participants. 
-expParam.beforeSeqInstruction = cell(1,length(cfg.patterns)); 
-expParam.afterSeqInstruction = cell(1,length(cfg.patterns)); 
+cfg.beforeSeqInstruction = cell(1,length(cfg.patterns)); 
+cfg.afterSeqInstruction = cell(1,length(cfg.patterns)); 
 
 % also, for each sequence, we can specify unique instructions to be
 % displayed during sound presentation
-expParam.duringSeqInstruction_part1 = cell(1,length(cfg.patterns)); 
-expParam.duringSeqInstruction_part2 = cell(1,length(cfg.patterns)); 
+cfg.duringSeqInstruction_part1 = cell(1,length(cfg.patterns)); 
+cfg.duringSeqInstruction_part2 = cell(1,length(cfg.patterns)); 
 
 
 % get filenames for the instruction textfiles of different categories (sort
@@ -366,11 +366,11 @@ for pati=1:length(cfg.patterns)
         end
     else
         % if not, just write empty text
-        expParam.beforeSeqInstruction{pati} = ''; 
+        cfg.beforeSeqInstruction{pati} = ''; 
         warning(sprintf('no instructions found before pattern %d',pati)); 
     end    
     % assignn the resulting cell to the expParam structure
-    expParam.beforeSeqInstruction{pati} = beforeSeqInstructionTmp; 
+    cfg.beforeSeqInstruction{pati} = beforeSeqInstructionTmp; 
     
     
     % --- AFTER each sequence --- 
@@ -391,11 +391,11 @@ for pati=1:length(cfg.patterns)
         end
     else
         % if not, just write empty text
-        expParam.afterSeqInstruction{pati} = ''; 
+        cfg.afterSeqInstruction{pati} = ''; 
         warning(sprintf('no instructions found after pattern %d',pati)); 
     end    
     % assignn the resulting cell to the expParam structure
-    expParam.afterSeqInstruction{pati} = afterSeqInstructionTmp; 
+    cfg.afterSeqInstruction{pati} = afterSeqInstructionTmp; 
     
     
     % --- DURING each sequence (part 1) ---
@@ -406,10 +406,10 @@ for pati=1:length(cfg.patterns)
         tmptxt = []; 
         while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
         fclose(instrFid); 
-        expParam.duringSeqInstruction_part1{pati} = tmptxt; 
+        cfg.duringSeqInstruction_part1{pati} = tmptxt; 
     else
         % if not, just write empty text
-        expParam.duringSeqInstruction_part1{pati} = ''; 
+        cfg.duringSeqInstruction_part1{pati} = ''; 
         warning(sprintf('no instructions found during pattern %d (part 1)',pati)); 
     end   
     
@@ -421,10 +421,10 @@ for pati=1:length(cfg.patterns)
         tmptxt = []; 
         while ~feof(instrFid); tmptxt = [tmptxt, fgets(instrFid)]; end
         fclose(instrFid); 
-        expParam.duringSeqInstruction_part2{pati} = tmptxt; 
+        cfg.duringSeqInstruction_part2{pati} = tmptxt; 
     else
         % if not, just write empty text
-        expParam.duringSeqInstruction_part2{pati} = ''; 
+        cfg.duringSeqInstruction_part2{pati} = ''; 
         warning(sprintf('no instructions found during pattern %d (part 2)',pati)); 
     end    
     

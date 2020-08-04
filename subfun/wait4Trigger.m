@@ -1,6 +1,6 @@
 function wait4Trigger(cfg)
 
-if strcmp(cfg.device,'scanner')
+if strcmp(cfg.testingDevice,'mri')
     
     fprintf('Waiting for trigger \n');
     
