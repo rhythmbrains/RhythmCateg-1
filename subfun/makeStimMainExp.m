@@ -33,13 +33,13 @@ end
 %% make envelope for the individual sound event
 
 % number of samples for the onset ramp (proportion of gridIOI)
-ramponSamples   = round(cfg.eventRampon * cfg.fs);
+ramponSamples   = round(cfg.pattern.eventRampon * cfg.fs);
 
 % number of samples for the offset ramp (proportion of gridIOI)
-rampoffSamples  = round(cfg.eventRampoff * cfg.fs);
+rampoffSamples  = round(cfg.pattern.eventRampoff * cfg.fs);
 
 % individual sound event duration defined as proportion of gridIOI
-envEvent = ones(1, round(cfg.soundDur * cfg.fs));
+envEvent = ones(1, round(cfg.pattern.eventDur * cfg.fs));
 
 % make the linear ramps
 envEvent(1:ramponSamples) = envEvent(1:ramponSamples) .* linspace(0,1,ramponSamples);
@@ -54,7 +54,7 @@ envEvent(end-rampoffSamples+1:end) = envEvent(end-rampoffSamples+1:end) .* linsp
 % cycles, set it to 1
 % how many times the pattern will be repeated/cycle through
 if isfield(cfg,'nCyclesPerPattern')
-    nCycles = cfg.nCyclesPerPattern;
+    nCycles = cfg.pattern.nCyclesPerPattern;
 else
     nCycles = 1;
 end
