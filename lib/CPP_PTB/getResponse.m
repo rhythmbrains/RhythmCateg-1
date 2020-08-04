@@ -1,4 +1,4 @@
-function responseEvents = getResponse(action, cfg, expParameters, getOnlyPress)
+function responseEvents = getResponse(action,cfg, getOnlyPress)
 % wrapper function to use KbQueue
 % The queue will be listening to key presses on the response box as defined
 %  in the cfg structure : see setParameters for more details.
@@ -62,7 +62,7 @@ switch action
         % Clean and realease any queue that might be opened
         KbQueueRelease(responseBox);
         
-        keysOfInterest = setKeysOfInterest(expParameters);
+        keysOfInterest = setKeysOfInterest(cfg);
         
         % Create the keyboard queue to collect responses.
         KbQueueCreate(responseBox, keysOfInterest);
@@ -94,12 +94,12 @@ switch action
         
 end
 
-talkToMe(action, expParameters);
+talkToMe(action, cfg);
 
 end
 
 
-function keysOfInterest = setKeysOfInterest(expParameters)
+function keysOfInterest = setKeysOfInterest(cfg)
 % list all the response keys we want KbQueue to listen to
 % by default we listen to all keys
 % but if responseKey is set in the parameters we override this
@@ -108,13 +108,13 @@ keysOfInterest = ones(1,256);
 
 fprintf('\n Will be listening for key presses on : ')
 
-if isfield(expParameters, 'responseKey') && ~isempty(expParameters.responseKey)
+if isfield(cfg, 'responseKey') && ~isempty(cfg.responseKey)
 
-    responseTargetKeys = nan(1,numel(expParameters.responseKey));
+    responseTargetKeys = nan(1,numel(cfg.responseKey));
     
-    for iKey = 1:numel(expParameters.responseKey)
-        fprintf('\n  - %s ', expParameters.responseKey{iKey})
-        responseTargetKeys(iKey) = KbName(expParameters.responseKey(iKey));
+    for iKey = 1:numel(cfg.responseKey)
+        fprintf('\n  - %s ', cfg.responseKey{iKey})
+        responseTargetKeys(iKey) = KbName(cfg.responseKey(iKey));
     end
     
     keysOfInterest(responseTargetKeys) = 1;
@@ -156,10 +156,10 @@ end
 end
 
 
-function talkToMe(action, expParameters)
+function talkToMe(action, cfg)
 
-if ~isfield(expParameters, 'verbose') || isempty(expParameters.verbose)
-    expParameters.verbose = false;
+if ~isfield(cfg, 'verbose') || isempty(cfg.verbose)
+    cfg.verbose = false;
 end
 
 switch action
@@ -172,13 +172,13 @@ switch action
         
     case 'check'
         
-        if expParameters.verbose
+        if cfg.verbose
             fprintf('\n checking recent keypresses\n')
         end
         
     case 'flush'
         
-        if expParameters.verbose
+        if cfg.verbose
             fprintf('\n reinitialising keyboard queue\n')
         end
         

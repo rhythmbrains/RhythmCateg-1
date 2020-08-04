@@ -1,4 +1,4 @@
-function     [cfg,expParam] = getMainExpParameters(cfg,expParam)
+function     cfg = getPitchParameters(cfg)
 % this function generates audio sequences to be played in the man
 % experiment
 
@@ -100,7 +100,7 @@ cfg.interStepInterval = (cfg.interSegmInterval * cfg.nSegmPerStep) + ...
 % how many steps are in the whole sequence
 % how many repetition of grouped segment [ABBB] in the whole sequence
 % if debug for behav exp, cut it short! 
-if cfg.debug && strcmpi(cfg.device,'pc')
+if cfg.debug.do && strcmpi(cfg.testingDevice,'pc')
     cfg.nStepsPerSequence = 1;
 else
     cfg.nStepsPerSequence = 5;
@@ -128,7 +128,7 @@ cfg.differF0 = 277.183; % this is also logspaced
 
 % calculate required amplitude gain
 % butchered this part with adding cfg.differ - change in the future ! ! !
-if expParam.equateSoundAmp
+if cfg.equateSoundAmp
     cfg.F0sAmpGain = equalizePureTones([cfg.F0s,cfg.differF0],[], []);
 else
     cfg.F0sAmpGain = ones(1,cfg.nF0+1);
@@ -192,13 +192,13 @@ cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
 
 %% Task Instructions
 % fMRI instructions
-expParam.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
+cfg.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
 
 % ------------------------------------------------
 % instruction showing info about sequence curation 
 % ------------------------------------------------
 
-expParam.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.SequenceDur/60), ...
+cfg.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.SequenceDur/60), ...
                             'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n']; 
                            
 % ------------------------------
@@ -206,7 +206,7 @@ expParam.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\
 % ------------------------------
 
 % this is general instruction displayed after each sequence
-expParam.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
+cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
                             'You can have a break. \n\n',...
                             'Good luck!\n\n']; 
 

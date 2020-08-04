@@ -33,13 +33,13 @@ end
 %% make envelope for the individual sound event
 
 % number of samples for the onset ramp (proportion of gridIOI)
-ramponSamples   = round(cfg.eventRampon * cfg.fs);
+ramponSamples   = round(cfg.pattern.eventRampon * cfg.fs);
 
 % number of samples for the offset ramp (proportion of gridIOI)
-rampoffSamples  = round(cfg.eventRampoff * cfg.fs);
+rampoffSamples  = round(cfg.pattern.eventRampoff * cfg.fs);
 
 % individual sound event duration defined as proportion of gridIOI
-envEvent = ones(1, round(cfg.soundDur * cfg.fs));
+envEvent = ones(1, round(cfg.pattern.eventDur * cfg.fs));
 
 % make the linear ramps
 envEvent(1:ramponSamples) = envEvent(1:ramponSamples) .* linspace(0,1,ramponSamples);
@@ -54,7 +54,7 @@ envEvent(end-rampoffSamples+1:end) = envEvent(end-rampoffSamples+1:end) .* linsp
 % cycles, set it to 1
 % how many times the pattern will be repeated/cycle through
 if isfield(cfg,'nCyclesPerPattern')
-    nCycles = cfg.nCyclesPerPattern;
+    nCycles = cfg.pattern.nCyclesPerPattern;
 else
     nCycles = 1;
 end
@@ -94,16 +94,14 @@ if isTask
     % find the corresponding cfg.targetSound
     targetSoundIdx = cfg.isTask.F0Idx;
     currTargetS = cfg.targetSounds{1,targetSoundIdx};
-    
-%     % take 1 channel
-%     % later on adapt for stereo
-%     currTargetS =  currTargetS(2,:);
  
     % find first N non-zero element
     % numEvent defined in getParam.m
     idxTask = find(pattern);
     if cfg.isTask.numEvent < length(idxTask)
-        idxTask = idxTask(1:cfg.isTask.numEvent);
+        %for now, take the second tone in pattern as target
+        firstEventIdx = idxTask(1);
+        idxTask = idxTask(2:1+cfg.isTask.numEvent);
     end
     
     for iEvent = 1:length(pattern)
@@ -112,11 +110,28 @@ if isTask
         currEnv = smallEnv{iEvent};
         currTime = smallT{iEvent};
         
-        % insert piano key when thre's target
+%         if iEvent ==firstID
+%         % rms the base sine wave
+%         referenceS = sin(2*pi*currF0*currTime);
+%         referenceS = referenceS.* currEnv;
+%         rmsRefS = rms(referenceS);
+%         end
+        
+        % insert piano key when there's target
         if ismember(iEvent,idxTask) % target - piano key
+            
+            % apply envelop to the target 
             currS = currTargetS.*currEnv;
+            
+            % rms the deviant/target tone  
+           % rmsTargetS = rms(currS);
+            
+            % correct for the rms differences in each channel
+          %  currS = currS*(rmsRefS/rmsTargetS);
+         % final_wave = [ target_wav*(rms_reference(1)/rms_target(1))]
+           
+           
             % not amp here
-            % yes amp
             % apply the amplitude
             % currS = currS.* currAmp;
             
