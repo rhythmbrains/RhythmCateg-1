@@ -49,7 +49,7 @@ end
 
 responseEvents = struct;
 
-responseBox = cfg.responseBox;
+responseBox = cfg.keyboard.responseBox;
 
 switch action
     

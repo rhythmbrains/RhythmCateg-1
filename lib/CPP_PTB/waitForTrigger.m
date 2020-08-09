@@ -28,24 +28,24 @@ if strcmpi(cfg.testingDevice, 'mri')
     msg = 'Waiting for trigger';
         talkToMe(cfg, msg);
         
-        while triggerCounter < cfg.numTriggers
+        while triggerCounter < cfg.mri.triggerNb
         
         keyCode = []; %#ok<NASGU>
         
         [~, keyCode] = KbPressWait(deviceNumber);
         
-        if strcmp(KbName(keyCode), cfg.triggerKey)
+        if strcmp(KbName(keyCode), cfg.mri.triggerKey)
             
             triggerCounter = triggerCounter + 1 ;
             
             % msg = sprintf(' Trigger %i', triggerCounter);
             msg = ['Experiment starting in ',...
-                num2str(cfg.numTriggers-triggerCounter),'...'];
+                num2str(cfg.mri.triggerNb-triggerCounter),'...'];
             
             talkToMe(cfg, msg);
             
             % we only wait if this is not the last trigger
-            if triggerCounter < cfg.numTriggers
+            if triggerCounter < cfg.mri.triggerNb
                 pauseBetweenTriggers(cfg);
             end
             
@@ -74,8 +74,8 @@ function pauseBetweenTriggers(cfg)
 % catch several triggers in one go.
 
 waitTime = 0.5;
-if ~isempty(cfg.bids.MRI.RepetitionTime)
-    waitTime = cfg.bids.MRI.RepetitionTime / 2;
+if ~isempty(cfg.bids.mri.RepetitionTime)
+    waitTime = cfg.bids.mri.RepetitionTime / 2;
 end
 
 WaitSecs(waitTime);

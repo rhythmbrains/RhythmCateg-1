@@ -12,7 +12,7 @@ AssertOpenGL;
 
 
 %%
-PsychJavaTrouble;
+%PsychJavaTrouble;
 
 % Make sure keyboard mapping is the same on all supported operating systems
 % Apple MacOS/X, MS-Windows and GNU/Linux:
@@ -40,7 +40,7 @@ cfg.screen             = max(Screen('Screens'));
 % PsychImaging('PrepareConfiguration');
 
 % init PTB with different options in concordance to the Debug Parameters
-if cfg.debug
+if cfg.debug.do
 
     % set to one because we don not care about time
     Screen('Preference', 'SkipSyncTests', 2);
