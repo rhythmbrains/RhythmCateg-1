@@ -49,6 +49,10 @@ cfg.fmriTask = true;                % is it really useful?
 cfg.task.name = task;                % should be calling behav or fmri
 cfg.subject.askGrpSess = [0 0]; % it won't ask you about group or session
 
+% set and load all the subject input to run the experiment
+cfg = userInputs(cfg);
+cfg = createFilename(cfg);
+
 %% monitor
 % Monitor parameters - fMRI - CHANGE with fMRI parameters
 cfg.monitorWidth  	  = 42;  % Monitor Width in cm
@@ -67,15 +71,22 @@ cfg.text.size         = 30; %18
 
     
 %% sound levels
-% assuming that participant will do the task with headphones
-cfg.baseAmp = 0.85; 
-% i think this cannot be smaller than cfg.Amp! ! !
-cfg.PTBInitVolume = 1; 
+cfg.baseAmp = 0.5;
+cfg.PTBInitVolume = 0.3;
 
+%  boolean for equating the dB across different tones for behavioral exp
+cfg.equateSoundAmp = 1;
 
-
+% BIDS non-compatible logfile folder
+cfg.dir.output = fullfile(...
+    fileparts(mfilename('fullpath')), ...
+    'output');
+    
 if strcmpi(cfg.testingDevice, 'mri')
     
+    cfg.baseAmp = 0.99; 
+    cfg.PTBInitVolume = 1; 
+
     %  boolean for equating the dB across different tones for behavioral exp
     cfg.equateSoundAmp = 0;
     
@@ -83,17 +94,6 @@ if strcmpi(cfg.testingDevice, 'mri')
     cfg.dir.output = fullfile(...
         fileparts(mfilename('fullpath')),'..', ...
         'output');
-    
-else
-    
-    %  boolean for equating the dB across different tones for behavioral exp
-    cfg.equateSoundAmp = 1;
-    
-    % BIDS non-compatible logfile folder
-    cfg.dir.output = fullfile(...
-        fileparts(mfilename('fullpath')), ...
-        'output');
-    
 end
 
 %% audio other parameters
@@ -126,17 +126,15 @@ cfg.pauseSeq = 1; % give a pause of below seconds in between sequences
 
 % define ideal number of sequences to be made
 % multiple of 3 is balanced design
-if strcmpi(cfg.testingDevice,'pc')
-    cfg.pattern.numSequences = 6;
-    if cfg.debug.do
-        cfg.pattern.numSequences = 2;
-    end
-      
-elseif strcmpi(cfg.testingDevice,'mri')
+cfg.pattern.numSequences = 6;
 
+if cfg.debug.do
+     cfg.pattern.numSequences = 2;
+end
+      
+if strcmpi(cfg.testingDevice,'mri')
     cfg.pattern.numSequences = 9;
     cfg.pattern.numSeq4Run = 1; % for an fMRI run time calculation
-
 end
 
 
@@ -173,11 +171,12 @@ if strcmpi(cfg.testingDevice,'mri')
     % piano keys 
     % read the audio files and insert them into cfg
     targetList = dir(fullfile(soundpath,'stimuli/Piano*.wav'));
+    
     for isound = 1:length(targetList)
         [S,cfg.fs] = audioread(fullfile('stimuli',targetList(isound).name));
-        cfg.targetSounds{isound} = S';
+        cfg.isTask.targetSounds{isound} = S';
     end
-    
+ 
 end
 
 
