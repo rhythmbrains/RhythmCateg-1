@@ -14,12 +14,12 @@ initEnv()
 % Get parameters by providing task name, device and debugmode
 cfg = getParams('RhythmCategFT', 'mri', 0);
 
-% set and load all the subject input to run the experiment
-cfg = userInputs(cfg);
-cfg = createFilename(cfg);
+% % set and load all the subject input to run the experiment
+% cfg = userInputs(cfg);
+% cfg = createFilename(cfg);
 
-% create randomized sequence for 9 runs when run =1
-cfg = makefMRISeqDesign(cfg);
+% % create randomized sequence for 9 runs when run =1
+% cfg = makefMRISeqDesign(cfg);
 
 % get time point at the beginning of the script (machine time)
 cfg.timing.scriptStartTime = GetSecs();
@@ -57,7 +57,7 @@ try
 
     
     % Show instructions for fMRI task 
-    displayInstr(cfg.fmriTaskInst, cfg);
+    displayInstr(cfg.instruc.fmriTask, cfg);
 
 
     % wait for space key to be pressed by the experimenter
@@ -168,7 +168,7 @@ try
     % wait while fMRI is ongoing
     % stay here till audio stops
     reachHereTime = (GetSecs - cfg.experimentStart);
-    audioDuration = (cfg.SequenceDur * cfg.numSeq4Run);
+    audioDuration = (cfg.pattern.SequenceDur * cfg.pattern.numSeq4Run);
 
     %     % exp duration + delays - script reaching to till point
     %     WaitSecs(audioDuration + expParam.timing.onsetDelay + ...
@@ -179,7 +179,7 @@ try
             cfg.timing.onsetDelay + cfg.timing.endDelay)
 
         % check if key is pressed
-        [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard);
+        [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard.keyboard); 
 
         % terminate if quit-button pressed
         if find(keyCode) == cfg.escapeKey
