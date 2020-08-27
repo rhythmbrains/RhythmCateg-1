@@ -116,7 +116,7 @@ s = sin(2*pi*currF0*t);
 s = s.* env;
 % apply the amplitude
 s = s.* currAmp;
-rmsev = rms(s)
+%rmsev = rms(s)
 s =[];
 
 if isTask
@@ -154,7 +154,7 @@ if strcmpi(cfg.testingDevice,'mri')
             
             % no amp change in target
             % check point
-            rmstar = rms(currS)
+           % rmstar = rms(currS)
         else % no target = sine wave
             currS = sin(2*pi*currF0*currTime);
             currS = currS.* currEnv;
@@ -164,7 +164,7 @@ if strcmpi(cfg.testingDevice,'mri')
             
             % apply the amplitude
             currS = currS.* currAmp;
-            rmsev = rms(currS)
+           % rmsev = rms(currS)
         end
         
         %assign it to big array
