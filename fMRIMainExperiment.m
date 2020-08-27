@@ -161,7 +161,7 @@ try
 
     % save current sequence information (without the audio, which can
     % be easily resynthesized)
-    currSeq(1).outAudio = [];
+%    currSeq(1).outAudio = [];
     cfg.data(seqi).seq = currSeq;
 
     %% Wait for audio and delays to catch up
@@ -182,7 +182,7 @@ try
         [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard.keyboard); 
 
         % terminate if quit-button pressed
-        if find(keyCode) == cfg.escapeKey
+        if find(keyCode) == cfg.keyboard.escapeKey
             error('Experiment terminated by user...');
         end
     end

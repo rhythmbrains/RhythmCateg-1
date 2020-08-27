@@ -273,7 +273,7 @@ switch lower(cfg.testingDevice)
     cfg.keyboard.responseKey = {'space','d','a','c','b'}; % a and d are important ones
     
     %esc key for both behav and fmri exp
-    cfg.escapeKey       = KbName('ESCAPE'); % press ESCAPE at response time to quit
+    cfg.keyboard.escapeKey   = KbName('ESCAPE'); % press ESCAPE at response time to quit
    % cfg.keyboard.escapeKey = 'ESCAPE'; %use this with the latest CPP_PTB
    % repo
 

@@ -279,7 +279,7 @@ cfg.isTask.rmsEvent = rms(s);
 
 % rms the target
 % find the biggest rms among the target sounds
-for i = length(cfg.isTask.targetSounds)
+for i = 1:length(cfg.isTask.targetSounds)
     % apply env
     currTargetS = cfg.isTask.targetSounds{i}.*EventEnv.*cfg.baseAmp;%
     % take rms of all target sounds
