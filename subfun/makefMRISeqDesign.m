@@ -36,7 +36,8 @@ if strcmp(cfg.testingDevice,'mri')
     if cfg.subject.runNb == 1
         
         % get the design
-        DesignFullExp = getAllSeqDesign(cfg.pattern.patternSimple, cfg.pattern.patternComplex, cfg);
+        [DesignFullExp, ~] = getAllSeqDesign(cfg.pattern.patternSimple,...
+                                    cfg.pattern.patternComplex, cfg);
         % DesginFullExp (runNum, stepNum,segmentNum,patternNum)
         
         if cfg.fmriTask
@@ -51,34 +52,55 @@ if strcmp(cfg.testingDevice,'mri')
             idxCategA = contains(DesignFullExp(:),cfg.pattern.labelCategA);
             idxCategB = contains(DesignFullExp(:),cfg.pattern.labelCategB);
             
-            %count the number of categA and categB
+            %count the number of patterns categA and categB
             categANum = sum(idxCategA);
             categBNum = sum(idxCategB);
-            
+%             % count the number of tones categA and categB
+%             categAToneNum = sum(ToneNum(idxCategA));
+%             categBToneNum = sum(ToneNum(idxCategB));
+
             % take the 10%
-            cfg.pattern.categANumTask = round(categANum*0.1);
-            cfg.pattern.categBNumTask = round(categBNum*0.1);
-            
+            % of patterns
+            cfg.pattern.categANumTarget = round(categANum*0.1);
+            cfg.pattern.categBNumTarget = round(categBNum*0.1);
+%             % of tones
+%             cfg.pattern.categAToneNumTarget = round(categAToneNum*0.1);
+%             cfg.pattern.categBToneNumTarget = round(categBToneNum*0.1);
+
             %create zero array
             categA = zeros(categANum,1);
             categB = zeros(categBNum,1);
             
+%             categATone = zeros(categAToneNum,1);
+%             categBTone = zeros(categBToneNum,1);
+            
             %assign 1s to indicate the targets
-            categA(1:cfg.pattern.categANumTask) = 1;
-            categB(1:cfg.pattern.categBNumTask) = 1;
+            categA(1:cfg.pattern.categANumTarget) = 1;
+            categB(1:cfg.pattern.categBNumTarget) = 1;
             
             %and shuffle the order or target across seq (runs), steps, segments, ...
             idxCategATarget = Shuffle(categA);
             idxCategBTarget = Shuffle(categB);
-            
-%             %insert control
-%             % dont put target into first pattern of sequence
-%             DesignFullExp(:)
-%             idx = find(DesignFullExp(:,1,1,1))
-            
+           
+   
             %save it to expParams for using the order in makeSequence.m
             cfg.fMRItaskidx(idxCategA)= idxCategATarget;
             cfg.fMRItaskidx(idxCategB)= idxCategBTarget;
+            
+            % control for all the beginning on runs == beginning of
+            % sequences
+            % A(irun,1,1,1) is equal to A(irun)
+            for irun=1:length(cfg.fMRItaskidx)
+                if cfg.fMRItaskidx(irun) == 1
+                    
+                    idxCategATarget = Shuffle(categA);
+                    cfg.fMRItaskidx(idxCategA)= idxCategATarget;
+                    cfg.fMRItaskidx(irun)
+                    
+                end
+            end
+
+            
             
         end
         

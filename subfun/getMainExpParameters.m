@@ -170,7 +170,7 @@ cfg.pattern.labelCategB = 'complex';
 %%%%%%%%%%%%
 % ! important, the order of arguments matters ! -> getAllSeqDesign(categA, categB, ...)
 %%%%%%%%%%%%
-cfg.pattern.seqDesignFullExp = getAllSeqDesign(cfg.pattern.patternSimple, ...
+[cfg.pattern.seqDesignFullExp,~] = getAllSeqDesign(cfg.pattern.patternSimple, ...
     cfg.pattern.patternComplex,cfg);
 % generate example audio for volume setting
 % added F0s-amplitude because the relative dB set in volume adjustment in
