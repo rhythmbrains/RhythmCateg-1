@@ -270,7 +270,7 @@ switch lower(cfg.testingDevice)
     
     % it'll only look for space press -
     % later on change with the responseBox indices/numbers! ! !
-    cfg.keyboard.responseKey = {'space','d','a'};
+    cfg.keyboard.responseKey = {'space','d','a','c','b'}; % a and d are important ones
     
     %esc key for both behav and fmri exp
     cfg.escapeKey       = KbName('ESCAPE'); % press ESCAPE at response time to quit
