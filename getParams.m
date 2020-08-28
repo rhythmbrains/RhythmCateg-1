@@ -94,6 +94,7 @@ if strcmpi(cfg.testingDevice, 'mri')
     cfg.dir.output = fullfile(...
         fileparts(mfilename('fullpath')),'..', ...
         'output');
+    
 end
 
 %% audio other parameters
@@ -153,7 +154,7 @@ if strcmpi(cfg.testingDevice,'mri')
     cfg.lineWidthPix                 = 4;    % Set the line width (in Pixels) for our fixation cross
     cfg.xDisplacementFixCross        = 0;    % Manual displacement of the fixation cross
     cfg.yDisplacementFixCross        = 0;    % Manual displacement of the fixation cross
-    cfg.fixationCrossColor           = cfg.white;
+    cfg.fixationCrossColor           = cfg.gray;
     
     %calculate the location coord for cross
     cfg.xCoords = [-cfg.fixCrossDimPix cfg.fixCrossDimPix 0 0] ...
