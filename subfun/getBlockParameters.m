@@ -207,19 +207,16 @@ end
 %% Task Instructions
 
 % fMRI instructions
-cfg.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
+cfg.instruc.fmriTask = 'Fixate to the cross & count the piano tones\n \n\n';
 
 % ------------------------------------------------
 % instruction showing info about sequence curation 
 % ------------------------------------------------
-
-cfg.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.SequenceDur/60), ...
-                            'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n']; 
-                           
+cfg.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.pattern.SequenceDur/60), ...
+                            'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n'];                       
 % ------------------------------
 % sequence-specific instructions
 % ------------------------------
-
 % this is general instruction displayed after each sequence
 cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
                             'You can have a break. \n\n',...
