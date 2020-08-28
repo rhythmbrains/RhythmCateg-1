@@ -205,7 +205,7 @@ end
 %% Task Instructions
 % refractor below
 % fMRI instructions
-cfg.instruc.fmriTask = 'Fixate to the cross & count the deviant tone\n \n\n';
+cfg.instruc.fmriTask = 'Fixate to the cross & count the piano tones\n \n\n';
 
 % -------------------
 % intro instructions  # 1

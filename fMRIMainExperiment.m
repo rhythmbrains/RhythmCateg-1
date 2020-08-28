@@ -195,7 +195,7 @@ try
     % % %
     % give visual feedback?
     % % %
-    displayInstr('Please indicate by pressing button, how many times you detected pitch changes\n\n\n', cfg);
+    displayInstr('Please indicate by pressing button, how many times you detected piano tones\n\n\n', cfg);
 
     % wait for participant to press button
     WaitSecs(cfg.timing.endResponseDelay);
