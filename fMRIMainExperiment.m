@@ -12,7 +12,7 @@ initEnv()
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name, device and debugmode
-cfg = getParams('RhythmCategFT', 'mri', 0);
+cfg = getParams('RhythmCategBlock', 'mri', 0);
 
 % % set and load all the subject input to run the experiment
 % cfg = userInputs(cfg);

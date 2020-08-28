@@ -100,7 +100,8 @@ if strcmp(cfg.testingDevice,'mri')
                 end
             end
 
-            
+            %consider adding another control for two consecuitve patterns
+            %having target
             
         end
         
