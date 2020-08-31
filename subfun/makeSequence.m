@@ -299,6 +299,10 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             end
             
             % make audio 
+%             [patternAudio,patternEnv] = makeStimMainExp(currPattern, ...
+%                 cfg, currGridIOI, ...
+%                 currF0,currAmp);
+            
             [patternAudio,~] = makeStimMainExp(currPattern, ...
                 cfg, currGridIOI, ...
                 currF0,currAmp);
@@ -311,6 +315,10 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             % array of structures to save memory...
             seq(1).outAudio(currAudioIdx +1:currAudioIdx +...
                 length(patternAudio)) = patternAudio; 
+            
+%             seq(1).outEnv(currAudioIdx +1:currAudioIdx +...
+%                 length(patternEnv)) = patternEnv;
+            
             
             seq(cPat,1).patternID   = currPatID;
             seq(cPat,1).segmentCateg   = currCategLabel;
@@ -326,6 +334,7 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             seq(cPat,1).gridIOI     = currGridIOI;
             seq(cPat,1).patternAmp  = currAmp;
 
+            
             % get pattern info e.g. PE and LHL
             seq(cPat,1).PE4        = patterns2choose(currPatIdx).PE4;
             seq(cPat,1).minPE4     = patterns2choose(currPatIdx).minPE4;
@@ -333,6 +342,7 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             seq(cPat,1).LHL24      = patterns2choose(currPatIdx).LHL24;
             seq(cPat,1).minLHL24   = patterns2choose(currPatIdx).minLHL24;
             seq(cPat,1).rangeLHL24 = patterns2choose(currPatIdx).rangeLHL24;
+            
             
             % --------------------------------------------------
             % update current time point

@@ -26,10 +26,10 @@ end
 
 if isfield(cfg,'fMRItaskidx')
     isTask = cfg.isTask.Idx;
+    
 else
     isTask =[];
 end
-
 %% make envelope for the individual sound event
 
 % number of samples for the onset ramp (proportion of gridIOI)
@@ -45,7 +45,7 @@ envEvent = ones(1, round(cfg.pattern.eventDur * cfg.fs));
 envEvent(1:ramponSamples) = envEvent(1:ramponSamples) .* linspace(0,1,ramponSamples);
 envEvent(end-rampoffSamples+1:end) = envEvent(end-rampoffSamples+1:end) .* linspace(1,0,rampoffSamples);
 
-
+%[~, envEvent] = makeEvent(cfg,currF0);
 
 %% synthesize whole pattern
 
@@ -67,7 +67,6 @@ env = zeros(1,length(t));
 smallEnv = cell(1,length(pattern));
 smallT = cell(1,length(pattern));
 c=0;
-s =[];
 
 for cyclei=1:nCycles
     for i=1:length(pattern)
@@ -87,22 +86,58 @@ for cyclei=1:nCycles
 end
 
 
-% create carrier according to isTask
+%% calculate the rms for normalisation
+% events idx in the pattern
+idxTask = find(pattern);
+
+% % take the first event/tone for rms
+% firstEventIdx = idxTask(1);
+
+% % calculate the rms of an event
+% EventT = smallT{firstEventIdx};
+% EventEnv = smallEnv{firstEventIdx};
+% rmsEvent = rms(sin(2*pi*currF0*EventT).*EventEnv .* currAmp);
+
+% % find the biggest rms among the target sounds
+% for i = length(cfg.isTask.targetSounds)
+%     % apply env
+%     currTargetS = cfg.isTask.targetSounds{i}.*EventEnv;
+%     % take rms of all target sounds
+%     rmsAllTarget(i) = rms(currTargetS); %#ok<AGROW>
+% end
+% % use the smallest target rms as reference
+% rmsTarget = max(rmsAllTarget);
+
+%% create carrier according to isTask/testingDevice
+
+% create carrier
+s = sin(2*pi*currF0*t);
+% apply envelope to the carrier
+s = s.* env;
+% apply the amplitude
+s = s.* currAmp;
+%rmsev = rms(s)
+s =[];
+
 if isTask
-    
-    % check the current F0
-    % find the corresponding cfg.targetSound
+
+    % check the current F0 & find the corresponding cfg.targetSound
     targetSoundIdx = cfg.isTask.F0Idx;
-    currTargetS = cfg.targetSounds{1,targetSoundIdx};
+    currTargetS = cfg.isTask.targetSounds{targetSoundIdx}; %cfg.targetSounds{1,targetSoundIdx}
  
     % find first N non-zero element
-    % numEvent defined in getParam.m
-    idxTask = find(pattern);
+    % number of targets (numEvent) in a pattern is defined in getParam.m
     if cfg.isTask.numEvent < length(idxTask)
-        %for now, take the second tone in pattern as target
-        firstEventIdx = idxTask(1);
+        % take the second tone in pattern as target
         idxTask = idxTask(2:1+cfg.isTask.numEvent);
     end
+    
+end
+
+if strcmpi(cfg.testingDevice,'mri')
+    
+    %use rms ratio for target
+    currAmp = cfg.isTask.rmsRatio;
     
     for iEvent = 1:length(pattern)
         
@@ -110,50 +145,33 @@ if isTask
         currEnv = smallEnv{iEvent};
         currTime = smallT{iEvent};
         
-%         if iEvent ==firstID
-%         % rms the base sine wave
-%         referenceS = sin(2*pi*currF0*currTime);
-%         referenceS = referenceS.* currEnv;
-%         rmsRefS = rms(referenceS);
-%         end
         
         % insert piano key when there's target
-        if ismember(iEvent,idxTask) % target - piano key
+        if isTask && ismember(iEvent,idxTask) % target - piano key
             
-            % apply envelop to the target 
+            % apply envelop to the target
             currS = currTargetS.*currEnv;
             
-            % rms the deviant/target tone  
-           % rmsTargetS = rms(currS);
-            
-            % correct for the rms differences in each channel
-          %  currS = currS*(rmsRefS/rmsTargetS);
-         % final_wave = [ target_wav*(rms_reference(1)/rms_target(1))]
-           
-           
-            % not amp here
-            % apply the amplitude
-            % currS = currS.* currAmp;
-            
-        else % no target = sine wave   
+            % no amp change in target
+            % check point
+           % rmstar = rms(currS)
+        else % no target = sine wave
             currS = sin(2*pi*currF0*currTime);
             currS = currS.* currEnv;
+            
+            %             % normalise the tone with the target rms
+            %             currS = currS.*(cfg.isTask.rmsTarget/cfg.isTask.rmsEvent);
+            
             % apply the amplitude
             currS = currS.* currAmp;
+           % rmsev = rms(currS)
         end
         
         %assign it to big array
         s = [s currS];
     end
+end
 
-    
-else
-    % create carrier
-    s = sin(2*pi*currF0*t);
-    % apply envelope to the carrier
-    s = s.* env;
-    % apply the amplitude
-    s = s.* currAmp;
 end
 
 
@@ -162,7 +180,7 @@ end
 
 
 % % to visualise 1 pattern
-% figure; plot(t,s);
+ %figure; plot(t,s);
 % ylim([-1.5,1.5])
 
 

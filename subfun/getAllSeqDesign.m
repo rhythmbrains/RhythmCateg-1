@@ -1,4 +1,4 @@
-function seqDesignFullExp = getAllSeqDesign(categA,categB,cfg)
+function [seqDesignFullExp, seqDesignToneNumber] = getAllSeqDesign(categA,categB,cfg)
 
 % this function designs the sequences for the whole experiment in a way
 % that the number of times each pattern is included is counterbalanced and
@@ -18,6 +18,10 @@ patterns2choose = [patterns2chooseA, patterns2chooseB];
 
 % allocate result with dimension: sequence x step x segm x pattern
 seqDesignFullExp = cell(cfg.pattern.numSequences, ...
+    cfg.pattern.nStepsPerSequence, cfg.pattern.nSegmPerStep, ...
+    cfg.pattern.nPatternPerSegment); 
+
+seqDesignToneNumber = zeros(cfg.pattern.numSequences, ...
     cfg.pattern.nStepsPerSequence, cfg.pattern.nSegmPerStep, ...
     cfg.pattern.nPatternPerSegment); 
 
@@ -48,11 +52,12 @@ for seqi=1:cfg.pattern.numSequences
                 
                 % get its ID tag
                 chosenPatID = patterns2choose{segmi}(chosenPatIdx).ID; 
-                
+                chosenToneNumID = patterns2choose{segmi}(chosenPatIdx).n_sounds;
                 % write pattern ID to the result
                 % dims: [seq x step x segm x pat]
                 seqDesignFullExp{seqi,stepi,segmi,pati} = chosenPatID; 
-
+                seqDesignToneNumber(seqi,stepi,segmi,pati) = chosenToneNumID;
+                
                 % remove the picked pattern from the available pool
                 patterns2choose{segmi}(chosenPatIdx) = []; 
                 

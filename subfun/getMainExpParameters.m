@@ -119,7 +119,20 @@ cfg.pattern.SequenceDur = (cfg.pattern.interStepInterval * ...
                            cfg.pattern.nStepsPerSequence); 
 fprintf('\n\nsequence duration is: %.1f minutes\n',cfg.pattern.SequenceDur/60);
 
+%================================================================
+% The pitch changes are controlled by the Boolean variables below. 
+% NOTE: the parameters work together hierarchically, i.e. if you set
+% cfg.changePitchCycle = TRUE, then it's obvious that pitch will be changed
+% also every segment and step...
 
+% change pitch for each new pattern cycle
+cfg.pattern.changePitchCycle 	= 1;
+% change pitch for each segment
+cfg.pattern.changePitchSegm 	= 0;           
+% change pitch for each segment-category (every time A changes to B or the other way around)
+cfg.pattern.changePitchCategory = 0;    
+% change pitch for each step
+cfg.pattern.changePitchStep 	= 0;  
 
 %% construct pitch features of the stimulus 
 % the pitch (F0) of the tones making up the patterns can vary 
@@ -137,123 +150,76 @@ else
     cfg.pattern.F0sAmpGain = ones(1,cfg.pattern.nF0);
 end
 
+
 % use the requested gain of each tone to adjust the base amplitude
 cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain; 
 
-
-%================================================================
-% The pitch changes are controlled by the Boolean variables below. 
-% NOTE: the parameters work together hierarchically, i.e. if you set
-% cfg.changePitchCycle = TRUE, then it's obvious that pitch will be changed
-% also every segment and step...
-
-% change pitch for each new pattern cycle
-cfg.pattern.changePitchCycle 	= 1;
-% change pitch for each segment
-cfg.pattern.changePitchSegm 	= 0;           
-% change pitch for each segment-category (every time A changes to B or the other way around)
-cfg.pattern.changePitchCategory = 0;    
-% change pitch for each step
-cfg.pattern.changePitchStep 	= 0;     
-
-
 %% create two sets of patterns
-
-% read from txt files
-grahnPatSimple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
-grahnPatComplex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
-
-% get different metrics of the patterns
-cfg.pattern.patternSimple = getPatternInfo(grahnPatSimple, 'simple',cfg); 
-cfg.pattern.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg); 
-
-
+cfg = readPatternText(cfg);
 %% generate sequence
 
 % get pattern IDs for all sequences used in the experiment
 % this is to make sure each pattern is used equal number of times in the
 % whole experiment
-
+cfg.pattern.labelCategA = 'simple'; 
+cfg.pattern.labelCategB = 'complex';
 % for exp like fmri that we will present 1 sequence per run, we are
 % creating full exp design in the first run and saving it for the other
 % runs to call .mat file
 
-cfg.pattern.labelCategA = 'simple'; 
-cfg.pattern.labelCategB = 'complex'; 
-
 %%%%%%%%%%%%
-% ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
+% ! important, the order of arguments matters ! -> getAllSeqDesign(categA, categB, ...)
 %%%%%%%%%%%%
-if strcmp(cfg.testingDevice,'pc')
-    cfg.pattern.seqDesignFullExp = getAllSeqDesign(cfg.pattern.patternSimple, ...
-                                    cfg.pattern.patternComplex,cfg);
-end
-
-%% generate example audio for volume setting
+[cfg.pattern.seqDesignFullExp,~] = getAllSeqDesign(cfg.pattern.patternSimple, ...
+    cfg.pattern.patternComplex,cfg);
+% generate example audio for volume setting
 % added F0s-amplitude because the relative dB set in volume adjustment in
 % PychPortAudio will be used in the mainExp
+% if there no if-loop here, during mri exp, it goes to makeStimMainExp and
+% crashes.! 
+if strcmp(cfg.testingDevice,'pc')
 cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
-    cfg.pattern.gridIOIs(end), cfg.pattern.F0s(end), cfg.pattern.F0sAmps(end) ), 2,1); 
+    cfg.pattern.gridIOIs(end), cfg.pattern.F0s(end), cfg.pattern.F0sAmps(end) ), 2,1);
+                                makeStimMainExp(pattern, cfg, currGridIOI, currF0,varargin)
+end
 
+if strcmp(cfg.testingDevice,'mri') 
+    % create randomized sequence for 9 runs when run =1
+    % overwrites cfg.pattern.seqDesignFullExp
+    cfg = makefMRISeqDesign(cfg);
+    % overwrite the base amp
+    cfg = normaliseEvent(cfg);
+    cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain * ...
+        cfg.isTask.rmsRatio; 
+    % provide an error if it amp above 1 !
+    % % %
+    
+    % % %
+    % can I normalise the target sound to make the max [-1 1]
+    % to increase the amplitude of whole sounds?
+    % % %
+end
 
 
 
 %% Task Instructions
-
-% fMRI instructions
-cfg.fmriTaskInst = 'Fixate to the cross & count the deviant tone\n \n\n';
-
-
- 
-
+% refractor below
 % -------------------
-% intro instructions
+% intro instructions  # 1
 % -------------------
-% These need to be saved in separate files, named: 'instrMainExpIntro#'
-% The text in each file will be succesively (based on #) displayed on 
-% the screen at the begining of the experiment. Every time, the script 
-% will wait for a keypress. 
-
-dirInstr = dir(fullfile(loadPathInstr,'instrMainExpIntro*')); 
-cfg.introInstruction = cell(1,length(dirInstr)); 
-for i=1:length(dirInstr)
-    instrFid = fopen(fullfile(loadPathInstr, dirInstr(i).name),'r','n','UTF-8'); 
-    while ~feof(instrFid)
-        cfg.introInstruction{i} = [cfg.introInstruction{i}, fgets(instrFid)]; 
-    end
-    fclose(instrFid); 
-end
-
+cfg = makeInstruc('instrMainExpIntro',loadPathInstr,cfg, 'introInstruction');
 % ------------------------
-% general task instructions
+% general task instructions # 2
 % ------------------------
-% This is a general summary of the instructions. Participants can toggle
-% these on the screen between sequences if they forget, or want to make
-% sure they understand their task. 
-
-dirInstr = dir(fullfile(loadPathInstr,'instrMainExpGeneral')); 
-cfg.generalInstruction = ''; 
-instrFid = fopen(fullfile(loadPathInstr, dirInstr.name),'r','n','UTF-8'); 
-while ~feof(instrFid)
-    cfg.generalInstruction = [cfg.generalInstruction, fgets(instrFid)]; 
-end
-fclose(instrFid); 
-
-
-
+cfg = makeInstruc('instrMainExpGeneral',loadPathInstr,cfg, 'generalInstruction');
 % ------------------------------------------------
 % instruction showing info about sequence curation 
 % ------------------------------------------------
-
 cfg.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.pattern.SequenceDur/60), ...
-                            'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n']; 
-    
-
-                        
+                            'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n'];                       
 % ------------------------------
 % sequence-specific instructions
 % ------------------------------
-
 % this is general instruction displayed after each sequence
 cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
                             'You can have a break. \n\n',...
@@ -284,3 +250,40 @@ end
 end
 
 
+function cfg = readPatternText(cfg)
+
+% read from txt files
+grahnPatSimple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
+grahnPatComplex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
+
+% get different metrics of the patterns
+cfg.pattern.patternSimple = getPatternInfo(grahnPatSimple, 'simple',cfg); 
+cfg.pattern.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg); 
+
+end
+
+function cfg = normaliseEvent(cfg)
+
+% make the env and sound for 1 event
+[s, EventEnv] = makeEvent(cfg);
+s = s .*cfg.baseAmp;
+
+% calculate the rms of an event
+cfg.isTask.rmsEvent = rms(s);
+
+% rms the target
+% find the biggest rms among the target sounds
+for i = 1:length(cfg.isTask.targetSounds)
+    % apply env
+    currTargetS = cfg.isTask.targetSounds{i}.*EventEnv.*cfg.baseAmp;%
+    % take rms of all target sounds
+    rmsAllTarget(i) = rms(currTargetS); %#ok<AGROW>
+end
+% use the smallest target rms as reference
+cfg.isTask.rmsTarget = max(rmsAllTarget);
+
+%overwrite the baseAmp with normalised value
+cfg.isTask.rmsRatio = cfg.isTask.rmsTarget/cfg.isTask.rmsEvent;
+
+
+end
