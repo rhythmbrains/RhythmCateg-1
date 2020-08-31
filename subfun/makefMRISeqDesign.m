@@ -10,7 +10,7 @@ function cfg = makefMRISeqDesign(cfg)
 % depending on the expParam.runNb parameter, it should be causiously
 % embedded. (e.g. after the script gets runNb)
 % if debug, put back run =1 so in the main script sequence =runNb ==1
-if cfg.debug.do 
+if cfg.debug.do
     cfg.subject.runNb = 1;
 end
 
@@ -18,10 +18,10 @@ end
 savepath = fullfile(fileparts(mfilename('fullpath')),'../');
 
 %% Get counterbalanced sequences according to the total fMRI RUNs
-% to do! 
+% to do!
 % ADD SHUFFLE ORDER FOR STARTING WITH A OR B CATEG for BLOCK DESING !
 
-% to do! 
+% to do!
 % CREATE counterbalanced sequences for every 3 sequence then multiply with
 % 3 (in case they stop fMRI, or we want ot increase to 12 runs)
 % expParam.numSequences = 3
@@ -32,93 +32,78 @@ savepath = fullfile(fileparts(mfilename('fullpath')),'../');
 % getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
 %%%%%%%%%%%%
 
-if strcmp(cfg.testingDevice,'mri')
-    if cfg.subject.runNb == 1
-        
-        % get the design
-        [DesignFullExp, ~] = getAllSeqDesign(cfg.pattern.patternSimple,...
-                                    cfg.pattern.patternComplex, cfg);
-        % DesginFullExp (runNum, stepNum,segmentNum,patternNum)
-        
-        if cfg.fmriTask
-            %create an empty cell to store the task==1s and 0s
-            cfg.fMRItaskidx =  zeros(...
-                cfg.pattern.numSequences, ...
-                cfg.pattern.nStepsPerSequence,...
-                cfg.pattern.nSegmPerStep, ...
-                cfg.pattern.nPatternPerSegment);
-            
-            % find the categA and categB
-            idxCategA = contains(DesignFullExp(:),cfg.pattern.labelCategA);
-            idxCategB = contains(DesignFullExp(:),cfg.pattern.labelCategB);
-            
-            %count the number of patterns categA and categB
-            categANum = sum(idxCategA);
-            categBNum = sum(idxCategB);
-%             % count the number of tones categA and categB
-%             categAToneNum = sum(ToneNum(idxCategA));
-%             categBToneNum = sum(ToneNum(idxCategB));
 
-            % take the 10%
-            % of patterns
-            cfg.pattern.categANumTarget = round(categANum*0.1);
-            cfg.pattern.categBNumTarget = round(categBNum*0.1);
-%             % of tones
-%             cfg.pattern.categAToneNumTarget = round(categAToneNum*0.1);
-%             cfg.pattern.categBToneNumTarget = round(categBToneNum*0.1);
+if cfg.subject.runNb == 1
+    
+    % get the design
+    [DesignFullExp, ~] = getAllSeqDesign(cfg.pattern.patternSimple,...
+        cfg.pattern.patternComplex, cfg);
+    % DesginFullExp (runNum, stepNum,segmentNum,patternNum)
+    
+    %create an empty cell to store the task==1s and 0s
+    cfg.fMRItaskidx =  zeros(...
+        cfg.pattern.numSequences, ...
+        cfg.pattern.nStepsPerSequence,...
+        cfg.pattern.nSegmPerStep, ...
+        cfg.pattern.nPatternPerSegment);
+    
+    % find the categA and categB
+    idxCategA = contains(DesignFullExp(:),cfg.pattern.labelCategA);
+    idxCategB = contains(DesignFullExp(:),cfg.pattern.labelCategB);
+    
+    %count the number of patterns categA and categB
+    categANum = sum(idxCategA);
+    categBNum = sum(idxCategB);
 
-            %create zero array
-            categA = zeros(categANum,1);
-            categB = zeros(categBNum,1);
+    
+    % take the 10%
+    % of patterns
+    cfg.pattern.categANumTarget = round(categANum*0.1);
+    cfg.pattern.categBNumTarget = round(categBNum*0.1);
+
+    
+    %create zero array
+    categA = zeros(categANum,1);
+    categB = zeros(categBNum,1);
+
+    
+    %assign 1s to indicate the targets
+    categA(1:cfg.pattern.categANumTarget) = 1;
+    categB(1:cfg.pattern.categBNumTarget) = 1;
+    
+    %and shuffle the order or target across seq (runs), steps, segments, ...
+    idxCategATarget = Shuffle(categA);
+    idxCategBTarget = Shuffle(categB);
+    
+    
+    %save it to expParams for using the order in makeSequence.m
+    cfg.fMRItaskidx(idxCategA)= idxCategATarget;
+    cfg.fMRItaskidx(idxCategB)= idxCategBTarget;
+    
+    % control for all the beginning on runs == beginning of
+    % sequences
+    % A(irun,1,1,1) is equal to A(irun)
+    for irun=1:length(cfg.fMRItaskidx)
+        if cfg.fMRItaskidx(irun) == 1
             
-%             categATone = zeros(categAToneNum,1);
-%             categBTone = zeros(categBToneNum,1);
-            
-            %assign 1s to indicate the targets
-            categA(1:cfg.pattern.categANumTarget) = 1;
-            categB(1:cfg.pattern.categBNumTarget) = 1;
-            
-            %and shuffle the order or target across seq (runs), steps, segments, ...
             idxCategATarget = Shuffle(categA);
-            idxCategBTarget = Shuffle(categB);
-           
-   
-            %save it to expParams for using the order in makeSequence.m
             cfg.fMRItaskidx(idxCategA)= idxCategATarget;
-            cfg.fMRItaskidx(idxCategB)= idxCategBTarget;
-            
-            % control for all the beginning on runs == beginning of
-            % sequences
-            % A(irun,1,1,1) is equal to A(irun)
-            for irun=1:length(cfg.fMRItaskidx)
-                if cfg.fMRItaskidx(irun) == 1
-                    
-                    idxCategATarget = Shuffle(categA);
-                    cfg.fMRItaskidx(idxCategA)= idxCategATarget;
-                    cfg.fMRItaskidx(irun)
-                    
-                end
-            end
-
-            %consider adding another control for two consecuitve patterns
-            %having target
+            cfg.fMRItaskidx(irun)
             
         end
-        
-        %save the Design
-        save([savepath,'SeqDesign'],'DesignFullExp','cfg');
-        cfg.pattern.seqDesignFullExp = DesignFullExp;
-        
-    else
-        
-        design = load([savepath,'SeqDesign']);
-        cfg.pattern.seqDesignFullExp = design.DesignFullExp;
-        cfg.fMRItaskidx = design.cfg.fMRItaskidx;
-        
     end
+
     
-
+    %save the Design
+    save([savepath,'SeqDesign'],'DesignFullExp','cfg');
+    cfg.pattern.seqDesignFullExp = DesignFullExp;
+    
+else
+    
+    design = load([savepath,'SeqDesign']);
+    cfg.pattern.seqDesignFullExp = design.DesignFullExp;
+    cfg.fMRItaskidx = design.cfg.fMRItaskidx;
+    
 end
-
 
 end

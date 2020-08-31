@@ -204,9 +204,6 @@ end
 
 %% Task Instructions
 % refractor below
-% fMRI instructions
-cfg.instruc.fmriTask = 'Fixate to the cross & count the piano tones\n \n\n';
-
 % -------------------
 % intro instructions  # 1
 % -------------------
@@ -267,15 +264,12 @@ end
 
 function cfg = normaliseEvent(cfg)
 
-%mini subfunction to normalise sound event according to the target rms
-
 % make the env and sound for 1 event
 [s, EventEnv] = makeEvent(cfg);
 s = s .*cfg.baseAmp;
 
 % calculate the rms of an event
 cfg.isTask.rmsEvent = rms(s);
-
 
 % rms the target
 % find the biggest rms among the target sounds
