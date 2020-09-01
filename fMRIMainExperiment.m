@@ -46,16 +46,14 @@ try
     responseFile.extraColumns = cfg.responseExtraColumns;
     responseFile  = saveEventsFile('open_stim', cfg, responseFile);
 
-    disp(cfg);
+%     disp(cfg);
+    % standByScreen(cfg);
+    % Show instructions for fMRI task 
+    displayInstr(cfg.task.instruction, cfg);
 
-    % Show experiment instruction
-    standByScreen(cfg);
-%     % Show instructions for fMRI task 
-%     displayInstr(cfg.instruc.fmriTask, cfg);
-% 
-% 
-%     % wait for space key to be pressed by the experimenter
-%     pressSpaceForMe;
+
+    % wait for space key to be pressed by the experimenter
+    pressSpaceForMe;
 
     % prepare the KbQueue to collect responses
     getResponse('init', cfg.keyboard.responseBox, cfg);
@@ -120,8 +118,6 @@ try
 
         % adding outher interest
         currSeq(iPattern, 1).sequenceNum = seqi;
-
-        % calculate the task/target number
         target(iPattern, 1) = currSeq(iPattern, 1).isTask;
 
     end
