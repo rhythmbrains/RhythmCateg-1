@@ -46,11 +46,9 @@ try
     responseFile.extraColumns = cfg.responseExtraColumns;
     responseFile  = saveEventsFile('open_stim', cfg, responseFile);
 
-%     disp(cfg);
-    % standByScreen(cfg);
-    % Show instructions for fMRI task 
-    displayInstr(cfg.task.instruction, cfg);
-
+    %     disp(cfg);
+    % Show instructions for fMRI task
+    standByScreen(cfg);
 
     % wait for space key to be pressed by the experimenter
     pressSpaceForMe;
