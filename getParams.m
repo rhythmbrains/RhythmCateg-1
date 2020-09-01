@@ -39,8 +39,8 @@ cfg.dir.output = fullfile(...
 
 %% Debug mode settings
 cfg.debug.do        = false ;  
-cfg.debug.transpWin = false;     % To test the script with trasparent full size screen
-cfg.debug.smallWin  = false;
+cfg.debug.transpWin = false ;     % To test the script with trasparent full size screen
+cfg.debug.smallWin  = false ;
 cfg.verbose         = 1;        % add here and there some explanations with if verbose is ON. 
 % cfg.verbose = false;
     
