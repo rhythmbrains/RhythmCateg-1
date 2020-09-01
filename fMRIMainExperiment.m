@@ -192,8 +192,9 @@ try
     cfg.timing.scriptEndTime = GetSecs - cfg.experimentStart;
 
     % clear the buffer & stop key checks
-    getResponse('flush', cfg.keyboard.responseBox);
     getResponse('stop', cfg.keyboard.responseBox);
+    getResponse('release', cfg.keyboard.responseBox);
+
 
     %% save
     % Close the logfiles (tsv)   - BIDS
