@@ -111,7 +111,12 @@ if strcmpi(cfg.testingDevice,'mri')
 
     %Task
     cfg.task.instruction = 'Fixate to the cross & count the piano tones\n \n\n';
-
+    cfg.task.instructionPress = ['Please indicate by pressing button, '...
+                                 'how many times you detected piano tones\n\n\n'];
+    cfg.task.instructionEnd = ['DONE. \n\n\nTHANK YOU FOR PARTICIPATING '...
+                               ':)\n\n\n Soon we will take you out!'];
+    cfg.task.instructionCont = ['This run is over. We will shortly start'...
+                                'the following!'];
     % set default for no-task 
     cfg.isTask.Idx = 0;
     

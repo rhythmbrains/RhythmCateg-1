@@ -165,9 +165,9 @@ try
     % record exp ending time
     cfg.timing.fMRIendTime = GetSecs - cfg.experimentStart;
 
-    %% Check last button presses & wrap up
-    % instructions
-    displayInstr('Please indicate by pressing button, how many times you detected piano tones\n\n\n', cfg);
+    %% Check button presses
+    % instructions to press
+    displayInstr(cfg.task.instructionPress, cfg);
 
     % wait for participant to press button
     WaitSecs(cfg.timing.endResponseDelay);
@@ -179,10 +179,10 @@ try
 
     %% wrapping up
     % last screen
-    if cfg.subject.runNb == 666 || cfg.subject.runNb == cfg.pattern.numSequences
-        displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)\n\n\n Soon we will take you out!', cfg);
+    if cfg.debug.do || cfg.subject.runNb == cfg.pattern.numSequences
+        displayInstr(cfg.task.instructionEnd, cfg);
     else
-        displayInstr('This run is over. We will shortly start the following!', cfg);
+        displayInstr(cfg.task.instructionCont, cfg);
     end
 
     % wait for ending the screen/exp
