@@ -166,33 +166,16 @@ try
     cfg.timing.fMRIendTime = GetSecs - cfg.experimentStart;
 
     %% Check last button presses & wrap up
-    % % %
-    % give visual feedback?
-    % % %
+    % instructions
     displayInstr('Please indicate by pressing button, how many times you detected piano tones\n\n\n', cfg);
 
     % wait for participant to press button
     WaitSecs(cfg.timing.endResponseDelay);
 
-    % write down buffered responses after waiting for response
-    responseEvents = getResponse('check', cfg.keyboard.responseBox, cfg);
-
-    % save responses here
-    responseEvents(1).fileID = responseFile(1).fileID;
-    responseEvents(1).extraColumns = responseFile(1).extraColumns;
-
-    % savethe target number
+    % save response & target
+    responseEvents = collectAndSaveResponses(cfg, ...
+        responseFile, cfg.experimentStart);
     responseEvents(1).target = sum(target);
-
-    % checks if something to save exist
-    if isfield(responseEvents, 'onset')
-        for iResp = 1:size(responseEvents, 1)
-            responseEvents(iResp, 1).onset = responseEvents(iResp).onset - ...
-                cfg.experimentStart;
-        end
-
-        saveEventsFile('save', cfg, responseEvents);
-    end
 
     %% wrapping up
     % last screen
