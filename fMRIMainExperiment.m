@@ -31,10 +31,8 @@ try
     % Init the experiment
     [cfg] = initPTB(cfg);
 
-    % create event file and get file ID - used for event logging - BIDS
+    % create  logfile with extra columns to save - BIDS
     logFile.extraColumns = cfg.extraColumns;
-    
-    % dummy call to initialize the logFile variable
     [logFile]  = saveEventsFile('open', cfg, logFile);
 
     % set the real length we really want
@@ -44,20 +42,20 @@ try
     % actual inititalization
     logFile = saveEventsFile('open', cfg, logFile);
     
-    % define the extra columns: 
-    % they will be added to the tsv files in the order the user input them
-    responseFile.extraColumns = {'keyName', 'pressed', 'target'};
-    
-    % open stimulation logfile - used for counting button press
+    % create response file - used for counting button press
+    responseFile.extraColumns = cfg.responseExtraColumns;
     responseFile  = saveEventsFile('open_stim', cfg, responseFile);
 
-    
-    % Show instructions for fMRI task 
-    displayInstr(cfg.instruc.fmriTask, cfg);
+    disp(cfg);
 
-
-    % wait for space key to be pressed by the experimenter
-    pressSpaceForMe;
+    % Show experiment instruction
+    standByScreen(cfg);
+%     % Show instructions for fMRI task 
+%     displayInstr(cfg.instruc.fmriTask, cfg);
+% 
+% 
+%     % wait for space key to be pressed by the experimenter
+%     pressSpaceForMe;
 
     % prepare the KbQueue to collect responses
     getResponse('init', cfg.keyboard.responseBox, cfg);

@@ -124,6 +124,9 @@ if strcmpi(cfg.testingDevice,'mri')
     'gridIOI', 'patternAmp', 'minPE4', 'rangePE4', 'minLHL24', ...
     'rangeLHL24', 'LHL24', 'PE4'};
 
+    % response columns
+    cfg.responseExtraColumns = {'keyName', 'pressed', 'target'};
+
 end
 
 
