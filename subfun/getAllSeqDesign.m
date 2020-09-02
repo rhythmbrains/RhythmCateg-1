@@ -1,4 +1,4 @@
-function [seqDesignFullExp, seqDesignToneNumber] = getAllSeqDesign(categA,categB,cfg)
+function [seqDesignFullExp, seqDesignToneNumber] = getAllSeqDesign(categA,categB,cfg,varargin)
 
 % this function designs the sequences for the whole experiment in a way
 % that the number of times each pattern is included is counterbalanced and
@@ -6,7 +6,11 @@ function [seqDesignFullExp, seqDesignToneNumber] = getAllSeqDesign(categA,categB
 
 % of course, the possibility of full counterbalancing depends on the number
 % of sequences, steps, segments, and patterns requested in the experiment
-
+if nargin>3
+    numSequences = varargin{1};
+else
+    numSequences = cfg.pattern.numSequences;
+end
 
 % create a separate "reservoir" with available patterns for each segment 
 % (e.g. A, B, B, B)
@@ -17,15 +21,15 @@ patterns2choose = [patterns2chooseA, patterns2chooseB];
 
 
 % allocate result with dimension: sequence x step x segm x pattern
-seqDesignFullExp = cell(cfg.pattern.numSequences, ...
+seqDesignFullExp = cell(numSequences, ...
     cfg.pattern.nStepsPerSequence, cfg.pattern.nSegmPerStep, ...
     cfg.pattern.nPatternPerSegment); 
 
-seqDesignToneNumber = zeros(cfg.pattern.numSequences, ...
+seqDesignToneNumber = zeros(numSequences, ...
     cfg.pattern.nStepsPerSequence, cfg.pattern.nSegmPerStep, ...
     cfg.pattern.nPatternPerSegment); 
 
-for seqi=1:cfg.pattern.numSequences
+for seqi=1:numSequences
 
     for stepi=1:cfg.pattern.nStepsPerSequence 
 
