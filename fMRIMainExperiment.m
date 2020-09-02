@@ -87,6 +87,7 @@ try
         [currSeq.outAudio;currSeq.outAudio]);
     PsychPortAudio('Start', cfg.audio.pahandle);
     onset = GetSecs;
+    
     %% save timing and sequence info
     % ===========================================
     % log into matlab structure
@@ -94,7 +95,6 @@ try
     cfg.timing.seqi = iSequence;
     cfg.timing.currSeqStartTime = onset;
     cfg.timing.experimentStart = cfg.experimentStart;
-    % save (machine) onset time for the current sequence info 
     cfg.data(iSequence).currSeqStartTime = onset;
     cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume', cfg.audio.pahandle);
     %    currSeq(1).outAudio = [];
@@ -104,46 +104,7 @@ try
     % stimulus save for BIDS
     % ===========================================
     target = collectAndSaveEvents(cfg, logFile, currSeq,iSequence, onset);
-    
-%     % write into logfile
-%     currSeq(1).fileID = logFile(1).fileID;
-%     currSeq(1).extraColumns = logFile(1).extraColumns;
-% 
-%     % adding columns in currSeq for BIDS format
-%     for iPattern = 1:numel(currSeq)
-% 
-%         % correcting onsets for fMRI trigger onset
-%         currSeq(iPattern, 1).onset  = currSeq(iPattern, 1).onset + ...
-%             onset - cfg.experimentStart;
-%         currSeq(iPattern, 1).segmentOnset = currSeq(iPattern, 1).segmentOnset ...
-%             + onset - cfg.experimentStart;
-%         currSeq(iPattern, 1).stepOnset = currSeq(iPattern, 1).stepOnset ...
-%             + onset - cfg.experimentStart;
-% 
-%         % adding compulsory BIDS structures
-%         currSeq(iPattern, 1).trial_type  = 'dummy';
-%         currSeq(iPattern, 1).duration    = 0;
-% 
-%         % adding other interest
-%         currSeq(iPattern, 1).sequenceNum = iSequence;
-%         target(iPattern, 1) = currSeq(iPattern, 1).isTask;
-% 
-%     end
-%     
-% 
-%     saveEventsFile('save', cfg, currSeq);
-
-
-    % ===========================================
-    % log into matlab structure
-    % ===========================================
-
-%     % save (machine) onset time for the current sequence info 
-%     cfg.data(iSequence).currSeqStartTime = onset;
-%     cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume', cfg.audio.pahandle);
-%     %    currSeq(1).outAudio = [];
-%     cfg.data(iSequence).seq = currSeq;
-%     
+   
     %% Wait for audio and delays to catch up
     % stay here till audio stops & check esc key press
     waitAndCheckEsc(cfg);
