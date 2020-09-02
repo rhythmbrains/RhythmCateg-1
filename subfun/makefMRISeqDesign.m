@@ -84,12 +84,14 @@ if cfg.subject.runNb == 1
     % sequences
     % A(irun,1,1,1) is equal to A(irun)
     for irun=1:length(cfg.fMRItaskidx)
-        if cfg.fMRItaskidx(irun) == 1
+        while cfg.fMRItaskidx(irun) == 1
             
             idxCategATarget = Shuffle(categA);
             cfg.fMRItaskidx(idxCategA)= idxCategATarget;
-            cfg.fMRItaskidx(irun)
             
+        end
+        if cfg.fMRItaskidx(irun)
+                sprintf('There''s a target in the first pattern!');
         end
     end
 
