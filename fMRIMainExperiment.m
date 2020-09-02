@@ -1,3 +1,6 @@
+
+%%
+
 % Clear all the previous stuff
 if ~ismac
     close all;
@@ -21,21 +24,24 @@ cfg = getParams('RhythmCategFT');
 % % create randomized sequence for 9 runs when run =1
 % cfg = makefMRISeqDesign(cfg);
 
-% get time point at the beginning of the script (machine time)
-cfg.timing.scriptStartTime = GetSecs();
 
 %% Experiment
 
 % Safety loop: close the screen if code crashes
 try
+    
+    %% Init Experiment
+    % get time point at the beginning of the script (machine time)
+    cfg.timing.scriptStartTime = GetSecs();
+
     % Init the experiment
     [cfg] = initPTB(cfg);
 
     % create  logfile with extra columns to save - BIDS
     logFile.extraColumns = cfg.extraColumns;
-    [logFile]  = saveEventsFile('open', cfg, logFile);
+    [logFile]  = saveEventsFile('open', cfg, logFile); %dummy initialise
 
-    % set the real length we really want
+    % set the real length of columns
     logFile(1).extraColumns.LHL24.length = 12;
     logFile(1).extraColumns.PE4.length = 12;
 
@@ -47,11 +53,9 @@ try
     responseFile  = saveEventsFile('open_stim', cfg, responseFile);
 
     %     disp(cfg);
-    % Show instructions for fMRI task
+    
+    % Show instructions for fMRI task & wait for space press
     standByScreen(cfg);
-
-    % wait for space key to be pressed by the experimenter
-    pressSpaceForMe;
 
     % prepare the KbQueue to collect responses
     getResponse('init', cfg.keyboard.responseBox, cfg);
@@ -60,106 +64,89 @@ try
     % wait for trigger from fMRI
     waitForTrigger(cfg);
     
+    %% Start Experiment
     % show fixation cross + get timestamp
     cfg = getExperimentStart(cfg);
-
-    %   % write down buffered responses
-    %   responseEvents = getResponse('check', cfg, expParam,1);
 
     % wait for dummy fMRI scans
     WaitSecs(cfg.timing.onsetDelay);
 
-    %% play sequences
-
     % take the runNb corresponding sequence
-    seqi = cfg.subject.runNb;
+    iSequence = cfg.subject.runNb;
 
     % prep for BIDS saving structures
     currSeq = struct();
     responseEvents = struct();
 
     % construct sequence
-    currSeq = makeSequence(cfg, seqi);
-
+    currSeq = makeSequence(cfg, iSequence);
+    
+    %% play sequences
     % fill the buffer % start sound presentation
     PsychPortAudio('FillBuffer', cfg.audio.pahandle, ...
         [currSeq.outAudio;currSeq.outAudio]);
     PsychPortAudio('Start', cfg.audio.pahandle);
     onset = GetSecs;
-
-    % save params for later call in BIDS saving
-    cfg.timing.seqi = seqi;
+    %% save timing and sequence info
+    % ===========================================
+    % log into matlab structure
+    % ===========================================
+    cfg.timing.seqi = iSequence;
     cfg.timing.currSeqStartTime = onset;
     cfg.timing.experimentStart = cfg.experimentStart;
+    % save (machine) onset time for the current sequence info 
+    cfg.data(iSequence).currSeqStartTime = onset;
+    cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume', cfg.audio.pahandle);
+    %    currSeq(1).outAudio = [];
+    cfg.data(iSequence).seq = currSeq;
+    
     % ===========================================
     % stimulus save for BIDS
     % ===========================================
-
-    % write into logfile
-    currSeq(1).fileID = logFile(1).fileID;
-    currSeq(1).extraColumns = logFile(1).extraColumns;
-
-    % adding columns in currSeq for BIDS format
-    for iPattern = 1:numel(currSeq)
-
-        % correcting onsets for fMRI trigger onset
-        currSeq(iPattern, 1).onset  = currSeq(iPattern, 1).onset + ...
-            onset - cfg.experimentStart;
-        currSeq(iPattern, 1).segmentOnset = currSeq(iPattern, 1).segmentOnset ...
-            + onset - cfg.experimentStart;
-        currSeq(iPattern, 1).stepOnset = currSeq(iPattern, 1).stepOnset ...
-            + onset - cfg.experimentStart;
-
-        % adding compulsory BIDS structures
-        currSeq(iPattern, 1).trial_type  = 'dummy';
-        currSeq(iPattern, 1).duration    = 0;
-
-        % adding outher interest
-        currSeq(iPattern, 1).sequenceNum = seqi;
-        target(iPattern, 1) = currSeq(iPattern, 1).isTask;
-
-    end
+    target = collectAndSaveEvents(cfg, logFile, currSeq,iSequence, onset);
     
-
-    saveEventsFile('save', cfg, currSeq);
+%     % write into logfile
+%     currSeq(1).fileID = logFile(1).fileID;
+%     currSeq(1).extraColumns = logFile(1).extraColumns;
+% 
+%     % adding columns in currSeq for BIDS format
+%     for iPattern = 1:numel(currSeq)
+% 
+%         % correcting onsets for fMRI trigger onset
+%         currSeq(iPattern, 1).onset  = currSeq(iPattern, 1).onset + ...
+%             onset - cfg.experimentStart;
+%         currSeq(iPattern, 1).segmentOnset = currSeq(iPattern, 1).segmentOnset ...
+%             + onset - cfg.experimentStart;
+%         currSeq(iPattern, 1).stepOnset = currSeq(iPattern, 1).stepOnset ...
+%             + onset - cfg.experimentStart;
+% 
+%         % adding compulsory BIDS structures
+%         currSeq(iPattern, 1).trial_type  = 'dummy';
+%         currSeq(iPattern, 1).duration    = 0;
+% 
+%         % adding other interest
+%         currSeq(iPattern, 1).sequenceNum = iSequence;
+%         target(iPattern, 1) = currSeq(iPattern, 1).isTask;
+% 
+%     end
+%     
+% 
+%     saveEventsFile('save', cfg, currSeq);
 
 
     % ===========================================
     % log into matlab structure
     % ===========================================
 
-    % save (machine) onset time for the current sequence info 
-    cfg.data(seqi).currSeqStartTime = onset;
-    cfg.data(seqi).ptbVolume = PsychPortAudio('Volume', cfg.audio.pahandle);
-%    currSeq(1).outAudio = [];
-    cfg.data(seqi).seq = currSeq;
-
+%     % save (machine) onset time for the current sequence info 
+%     cfg.data(iSequence).currSeqStartTime = onset;
+%     cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume', cfg.audio.pahandle);
+%     %    currSeq(1).outAudio = [];
+%     cfg.data(iSequence).seq = currSeq;
+%     
     %% Wait for audio and delays to catch up
-    % wait while fMRI is ongoing
-    % stay here till audio stops
-    reachHereTime = (GetSecs - cfg.experimentStart);
-    audioDuration = (cfg.pattern.SequenceDur * cfg.pattern.numSeq4Run);
-
-    %     % exp duration + delays - script reaching to till point
-    %     WaitSecs(audioDuration + expParam.timing.onsetDelay + ...
-    %         expParam.timing.endDelay - reachHereTime);
-
-    %     % Check for experiment abortion from operator
-    %     checkAbort(cfg, cfg.keyboard.keyboard);
-            
-    % stay in the loop until the sequence ends
-    while GetSecs  < (cfg.experimentStart + audioDuration + ...
-            cfg.timing.onsetDelay + cfg.timing.endDelay)
-
-        % check if key is pressed
-        [keyIsDown, ~, keyCode] = KbCheck(cfg.keyboard.keyboard); 
-
-        % terminate if quit-button pressed
-        if keyIsDown && keyCode(KbName(cfg.keyboard.escapeKey))
-            error('Experiment terminated by user...');
-        end
-    end
-
+    % stay here till audio stops & check esc key press
+    waitAndCheckEsc(cfg);
 
     %%
     % record exp ending time
@@ -173,9 +160,10 @@ try
     WaitSecs(cfg.timing.endResponseDelay);
 
     % save response & target
+    cfg.target = target;
     responseEvents = collectAndSaveResponses(cfg, ...
         responseFile, cfg.experimentStart);
-    responseEvents(1).target = sum(target);
+    
 
     %% wrapping up
     % last screen
