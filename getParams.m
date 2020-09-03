@@ -39,7 +39,7 @@ cfg.dir.output = fullfile(...
 
 %% Debug mode settings
 cfg.debug.do        = false ;  
-cfg.debug.transpWin = false;     % To test the script with trasparent full size screen
+cfg.debug.transpWin = true ;     % To test the script with trasparent full size screen
 cfg.debug.smallWin  = false;
 cfg.verbose         = 1;        % add here and there some explanations with if verbose is ON. 
 % cfg.verbose = false;
@@ -82,16 +82,18 @@ cfg.pauseSeq = 1; % give a pause of below seconds in between sequences
 % define ideal number of sequences to be made
 % multiple of 3 is balanced design
 cfg.pattern.numSequences = 6;
-      
+
+if cfg.debug.do
+     cfg.pattern.numSequences = 2;
+end
+
 if strcmpi(cfg.testingDevice,'mri')
     cfg.pattern.numSequences = 9;
     cfg.pattern.numSeq4Run = 1; % for an fMRI run time calculation
     cfg.pattern.extraSeqNum = 3; % extra session for piloting
 end
 
-if cfg.debug.do
-     cfg.pattern.numSequences = 2;
-end
+
 
 %% fMRI task
 % display a fixation cross during the fMRI run
