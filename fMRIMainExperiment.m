@@ -14,15 +14,9 @@ end
 initEnv()
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
-% Get parameters by providing task name, device and debugmode
+% Get parameters by providing task name
 cfg = getParams('RhythmCategFT');
 
-% % set and load all the subject input to run the experiment
-% cfg = userInputs(cfg);
-% cfg = createFilename(cfg);
-
-% % create randomized sequence for 9 runs when run =1
-% cfg = makefMRISeqDesign(cfg);
 
 
 %% Experiment
@@ -159,6 +153,8 @@ try
         save(matFile, '-v7.3');
     end
 
+    createJson(cfg, cfg);
+    
     % clean the workspace
     cleanUp;
 

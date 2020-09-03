@@ -6,9 +6,10 @@ function cfg = makefMRISeqDesign(cfg)
 % getAllSeqDesign.m
 % makeStimMainExp.m
 
-% In the future it can be embedded into getParams.m script but since it's
-% depending on the expParam.runNb parameter, it should be causiously
-% embedded. (e.g. after the script gets runNb)
+% It is embedded into getParams.m script but since it's
+% depending on the expParam.runNb parameter, one should be causious on
+% changing the function's location.(e.g. after the script gets runNb)
+
 % if debug, put back run =1 so in the main script sequence =runNb ==1
 runNb = cfg.subject.runNb;
 
@@ -20,25 +21,28 @@ end
 savepath = fullfile(fileparts(mfilename('fullpath')),'../');
 
 %% Get counterbalanced sequences according to the total fMRI RUNs
+%%%%%%%%%%%%
 % to do!
 % ADD SHUFFLE ORDER FOR STARTING WITH A OR B CATEG for BLOCK DESING !
-
+%%%%%%%%%%%%
 
 %%%%%%%%%%%%
 % ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
 % getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
 %%%%%%%%%%%%
 
+%%%%%%%%%%%%
+% keep in mind:
+% DesginFullExp (runNum, stepNum,segmentNum,patternNum)
+%%%%%%%%%%%%
 
 if runNb == 1
     
     % get the design
     [DesignFullExp, ~] = getAllSeqDesign(cfg.pattern.patternSimple,...
         cfg.pattern.patternComplex, cfg);
-    % DesginFullExp (runNum, stepNum,segmentNum,patternNum)
 
     cfg = addRandomizedTask(cfg,DesignFullExp,cfg.pattern.numSequences);
-    
     
     %save the Design
     save([savepath,'SeqDesign'],'DesignFullExp','cfg');
@@ -73,6 +77,7 @@ if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
     DesignFullExp = cfg.pattern.seqDesignFullExp;
     save([savepath,'SeqDesign'],'DesignFullExp','cfg','extracfg');
     
+    fprintf('new sequence design and task added! Wohoo!\n\n');
 end
 
 
