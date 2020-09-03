@@ -21,6 +21,10 @@ function seq = makeSequence(cfg,seqi,varargin)
 %
 %
 
+if cfg.debug.do
+    seqi = 1;
+end
+    
 %% allocate variables to log
 
 % main output structure (we'll put everything else into it)

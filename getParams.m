@@ -82,10 +82,6 @@ cfg.pauseSeq = 1; % give a pause of below seconds in between sequences
 % define ideal number of sequences to be made
 % multiple of 3 is balanced design
 cfg.pattern.numSequences = 6;
-
-if cfg.debug.do
-     cfg.pattern.numSequences = 2;
-end
       
 if strcmpi(cfg.testingDevice,'mri')
     cfg.pattern.numSequences = 9;
@@ -93,7 +89,9 @@ if strcmpi(cfg.testingDevice,'mri')
     cfg.pattern.extraSeqNum = 3; % extra session for piloting
 end
 
-
+if cfg.debug.do
+     cfg.pattern.numSequences = 2;
+end
 
 %% fMRI task
 % display a fixation cross during the fMRI run
