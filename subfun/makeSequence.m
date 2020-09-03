@@ -289,8 +289,8 @@ for stepi=1:cfg.pattern.nStepsPerSequence
 
             
             % First, check for fmri task exists?
-            if isfield(cfg,'fMRItaskidx')
-                cfg.isTask.Idx = cfg.fMRItaskidx(seqi,stepi,segmi,pati);
+            if isfield(cfg.pattern,'taskIdxMatrix')
+                cfg.isTask.Idx = cfg.pattern.taskIdxMatrix(seqi,stepi,segmi,pati);
                 % the current F0s index is used for finding the
                 % targetSound
                 cfg.isTask.F0Idx = currF0idx;

@@ -90,6 +90,7 @@ end
 if strcmpi(cfg.testingDevice,'mri')
     cfg.pattern.numSequences = 9;
     cfg.pattern.numSeq4Run = 1; % for an fMRI run time calculation
+    cfg.pattern.extraSeqNum = 3; % extra session for piloting
 end
 
 
