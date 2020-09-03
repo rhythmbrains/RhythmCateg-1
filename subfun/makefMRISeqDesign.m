@@ -53,7 +53,7 @@ else
 end
 
 
-% for extra sessions Design adding
+%% Adding extra sessions design matrix
 if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
     
     %create design matrix
@@ -61,15 +61,16 @@ if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
         cfg.pattern.patternComplex, cfg, cfg.pattern.extraSeqNum);
     
     %create task matrix
-    extracfg = addRandomizedTask(cfg,extraSeqDesign);
+    extracfg = addRandomizedTask(cfg,extraSeqDesign,cfg.pattern.extraSeqNum);
     
     % add and assign new design with task
-    DesignFullExp = [DesignFullExp; extraSeqDesign];
-    cfg.pattern.seqDesignFullExp = DesignFullExp;
+    cfg.pattern.seqDesignFullExp = [cfg.pattern.seqDesignFullExp; ...
+        extraSeqDesign];
     cfg.pattern.taskIdxMatrix = [cfg.pattern.taskIdxMatrix; ...
         extracfg.pattern.taskIdxMatrix];
     
     %save
+    DesignFullExp = cfg.pattern.seqDesignFullExp;
     save([savepath,'SeqDesign'],'DesignFullExp','cfg','extracfg');
     
 end
