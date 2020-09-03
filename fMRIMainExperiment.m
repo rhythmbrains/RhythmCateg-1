@@ -153,7 +153,7 @@ try
         save(matFile, '-v7.3');
     end
 
-    createJson(cfg, cfg);
+    createJson(cfg, 'func');
     
     % clean the workspace
     cleanUp;
@@ -168,13 +168,12 @@ catch
     else
         save(matFile, '-v7.3');
     end
-
-    % Close the logfiles - BIDS
-    saveEventsFile('close', cfg, logFile);
-    saveEventsFile('close', cfg, responseFile);
+% 
+%     % Close the logfiles - BIDS
+%     saveEventsFile('close', cfg, logFile);
+%     saveEventsFile('close', cfg, responseFile);
 
     % clean the workspace
     cleanUp;
-
     psychrethrow(psychlasterror);
 end
