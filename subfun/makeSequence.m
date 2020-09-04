@@ -21,6 +21,10 @@ function seq = makeSequence(cfg,seqi,varargin)
 %
 %
 
+if cfg.debug.do
+    seqi = 1;
+end
+    
 %% allocate variables to log
 
 % main output structure (we'll put everything else into it)
@@ -35,7 +39,7 @@ seq.gridIOI = zeros(1, cfg.pattern.nPatternPerSegment * ...
     cfg.pattern.nSegmPerStep * cfg.pattern.nStepsPerSequence); 
 
 % segment-category (A or B) for each pattern in the sequence 
-seq.segmCateg = cell(1, cfg.pattern.nPatternPerSegment * ...
+seq.segmentCateg = cell(1, cfg.pattern.nPatternPerSegment * ...
     cfg.pattern.nSegmPerStep * cfg.pattern.nStepsPerSequence); 
 
 % onset time of each pattern
@@ -289,8 +293,8 @@ for stepi=1:cfg.pattern.nStepsPerSequence
 
             
             % First, check for fmri task exists?
-            if isfield(cfg,'fMRItaskidx')
-                cfg.isTask.Idx = cfg.fMRItaskidx(seqi,stepi,segmi,pati);
+            if isfield(cfg.pattern,'taskIdxMatrix')
+                cfg.isTask.Idx = cfg.pattern.taskIdxMatrix(seqi,stepi,segmi,pati);
                 % the current F0s index is used for finding the
                 % targetSound
                 cfg.isTask.F0Idx = currF0idx;

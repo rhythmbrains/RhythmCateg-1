@@ -15,7 +15,7 @@
 function initEnv
 
     octaveVersion = '4.0.3';
-    matlabVersion = '9.2.0'; % check with lap stimulation laptop version
+    matlabVersion = '9.1.0'; % check with lap stimulation laptop version
 
     if isOctave
 
@@ -51,7 +51,7 @@ function initEnv
     else % MATLAB ----------------------------
 
         if verLessThan('matlab', matlabVersion)
-            error('Sorry, minimum required version is R2017b. :(');
+            error('Sorry, minimum required version is R2016b. :(');
         end
 
     end
@@ -77,7 +77,7 @@ function retval = isOctave
     persistent cacheval   % speeds up repeated calls
 
     if isempty (cacheval)
-        cacheval = (exist ("OCTAVE_VERSION", "builtin") > 0);
+        cacheval = (exist ('OCTAVE_VERSION', 'builtin') > 0);
     end
 
     retval = cacheval;

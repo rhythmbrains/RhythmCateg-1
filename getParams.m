@@ -40,8 +40,8 @@ cfg.dir.output = fullfile(...
 %% Debug mode settings
 cfg.debug.do        = false ;  
 cfg.debug.transpWin = false ;     % To test the script with trasparent full size screen
-cfg.debug.smallWin  = false ;
-cfg.verbose         = 1;        % add here and there some explanations with if verbose is ON. 
+cfg.debug.smallWin  = false;
+cfg.verbose         = true;        % add here and there some explanations with if verbose is ON. 
 % cfg.verbose = false;
     
 %% MRI settings
@@ -86,10 +86,11 @@ cfg.pattern.numSequences = 6;
 if cfg.debug.do
      cfg.pattern.numSequences = 2;
 end
-      
+
 if strcmpi(cfg.testingDevice,'mri')
     cfg.pattern.numSequences = 9;
     cfg.pattern.numSeq4Run = 1; % for an fMRI run time calculation
+    cfg.pattern.extraSeqNum = 3; % extra session for piloting
 end
 
 
@@ -111,7 +112,12 @@ if strcmpi(cfg.testingDevice,'mri')
 
     %Task
     cfg.task.instruction = 'Fixate to the cross & count the piano tones\n \n\n';
-
+    cfg.task.instructionPress = ['Please indicate by pressing button, '...
+                                 'how many times you detected piano tones\n\n\n'];
+    cfg.task.instructionEnd = ['DONE. \n\n\nTHANK YOU FOR PARTICIPATING '...
+                               ':)\n\n\n Soon we will take you out!'];
+    cfg.task.instructionCont = ['This run is over. We will shortly start'...
+                                'the following!'];
     % set default for no-task 
     cfg.isTask.Idx = 0;
     

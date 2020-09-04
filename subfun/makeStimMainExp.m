@@ -24,7 +24,7 @@ else
     currAmp = varargin{1};
 end
 
-if isfield(cfg,'fMRItaskidx')
+if isfield(cfg.pattern,'taskIdxMatrix')
     isTask = cfg.isTask.Idx;
     
 else
