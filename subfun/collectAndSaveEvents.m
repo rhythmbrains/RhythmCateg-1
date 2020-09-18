@@ -18,7 +18,7 @@ for iPattern = 1:numel(currentSequence)
         currentSequence(iPattern, 1).stepOnset + audioOnset - experimentStart;
     
     % adding compulsory BIDS structures
-    currentSequence(iPattern, 1).trial_type  = 'dummy';
+    currentSequence(iPattern, 1).trial_type  = currentSequence(iPattern, 1).segmentCateg; %'dummy'
     currentSequence(iPattern, 1).duration    = 0;
     
     % adding other interest
