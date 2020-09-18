@@ -15,7 +15,7 @@ initEnv()
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name
-cfg = getParams('RhythmCategFT');
+cfg = getParams('RhythmCategBlock');
 
 
 
