@@ -19,7 +19,7 @@ for iPattern = 1:numel(currentSequence)
     
     % adding compulsory BIDS structures
     currentSequence(iPattern, 1).trial_type  = currentSequence(iPattern, 1).segmentCateg; %'dummy'
-    currentSequence(iPattern, 1).duration    = 0;
+    currentSequence(iPattern, 1).duration    = 2.28;
     
     % adding other interest
     currentSequence(iPattern, 1).sequenceNum = SeqNum;
