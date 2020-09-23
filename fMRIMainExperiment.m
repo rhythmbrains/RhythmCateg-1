@@ -11,7 +11,7 @@ else
 end
 
 % make sure we got access to all the required functions and inputs
-initEnv()
+initEnv();
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name
@@ -154,6 +154,7 @@ try
     end
 
     createJson(cfg, 'func');
+    %createJson(cfg, cfg);
     
     % clean the workspace
     cleanUp;
@@ -168,10 +169,7 @@ catch
     else
         save(matFile, '-v7.3');
     end
-% 
-%     % Close the logfiles - BIDS
-%     saveEventsFile('close', cfg, logFile);
-%     saveEventsFile('close', cfg, responseFile);
+
 
     % clean the workspace
     cleanUp;
