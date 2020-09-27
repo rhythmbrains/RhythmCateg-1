@@ -5,8 +5,8 @@
 if ~ismac
     close all;
     clear Screen;
-else
-    clc;
+elss
+    clc
     clear;
 end
 
