@@ -17,9 +17,21 @@ for iPattern = 1:numel(currentSequence)
     currentSequence(iPattern, 1).stepOnset = ...
         currentSequence(iPattern, 1).stepOnset + audioOnset - experimentStart;
     
-    % adding compulsory BIDS structures
-    currentSequence(iPattern, 1).trial_type  = currentSequence(iPattern, 1).segmentCateg; %'dummy'
-    currentSequence(iPattern, 1).duration    = 2.28;
+        % adding compulsory BIDS structures
+        if mod(iPattern,4) == 1
+            currentSequence(iPattern, 1).trial_type  = ['block_', ...
+                currentSequence(iPattern, 1).segmentCateg];
+            currentSequence(iPattern, 1).duration = 9.12;
+        else
+          currentSequence(iPattern, 1).trial_type  = ...
+              currentSequence(iPattern, 1).segmentCateg;
+            currentSequence(iPattern, 1).duration    = 2.28;  
+        end
+  
+    
+%     % adding compulsory BIDS structures
+%     currentSequence(iPattern, 1).trial_type  = currentSequence(iPattern, 1).segmentCateg; %'dummy'
+%     currentSequence(iPattern, 1).duration    = 2.28;
     
     % adding other interest
     currentSequence(iPattern, 1).sequenceNum = SeqNum;
