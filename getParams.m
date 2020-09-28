@@ -38,8 +38,8 @@ cfg.dir.output = fullfile(...
     'output');
 
 %% Debug mode settings
-cfg.debug.do        = false ;  
-cfg.debug.transpWin = false ;     % To test the script with trasparent full size screen
+cfg.debug.do        = true ;  
+cfg.debug.transpWin = true ;     % To test the script with trasparent full size screen
 cfg.debug.smallWin  = false;
 cfg.verbose         = true;        % add here and there some explanations with if verbose is ON. 
 % cfg.verbose = false;
@@ -117,7 +117,7 @@ if strcmpi(cfg.testingDevice,'mri')
     cfg.task.instructionEnd = ['DONE. \n\n\nTHANK YOU FOR PARTICIPATING '...
                                ':)\n\n\n Soon we will take you out!'];
     cfg.task.instructionCont = ['This run is over. We will shortly start'...
-                                'the following!'];
+                                ' the following!'];
     % set default for no-task 
     cfg.isTask.Idx = 0;
     
@@ -233,16 +233,16 @@ cfg.dir.output = fullfile(...
 cfg.mri.triggerKey = 's';
 cfg.mri.triggerNb = 1; % for hyberpand insert 4 here! ! ! 
 
-cfg.mri.repetitionTime = 2.55;
+cfg.mri.repetitionTime = 2.6;
 
 cfg.bids.MRI.Instructions = 'Fixate to the cross & count the piano tones';
 cfg.bids.MRI.TaskDescription = [];
 
 
 %Number of seconds before the rhythmic sequence (exp) are presented
-cfg.timing.onsetDelay = 3 *cfg.mri.repetitionTime;
+cfg.timing.onsetDelay = 2 *cfg.mri.repetitionTime; %5.2s
 % Number of seconds after the end of all stimuli before ending the fmri run!
-cfg.timing.endDelay = 3 * cfg.mri.repetitionTime;
+cfg.timing.endDelay = 4 * cfg.mri.repetitionTime; %10.4s
 
 
 % ending timings for fMRI
@@ -257,11 +257,12 @@ end
 
 function cfg = setMonitor(cfg)
 
-%cfg.diameterAperture  = 8;   % Diameter/length of side of aperture in Visual angles
 
 % Monitor parameters for PTB
+cfg.skipSyncTests = 1;
+
 cfg.text.font         = 'Arial'; %'Courier New'
-cfg.text.size         = 30; %18
+cfg.text.size         = 48; %18
 
 
 % Monitor parameters for PTB
