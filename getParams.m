@@ -233,7 +233,7 @@ cfg.dir.output = fullfile(...
 cfg.mri.triggerKey = 's';
 cfg.mri.triggerNb = 1; % for hyberpand insert 4 here! ! ! 
 
-cfg.mri.repetitionTime = 2.651;
+cfg.mri.repetitionTime = 2.600;
 
 cfg.bids.MRI.Instructions = 'Fixate to the cross & count the piano tones';
 cfg.bids.MRI.TaskDescription = [];
