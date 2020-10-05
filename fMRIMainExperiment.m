@@ -56,14 +56,13 @@ try
     getResponse('start', cfg.keyboard.responseBox);
 
     % wait for trigger from fMRI
-    waitForTrigger(cfg);
+    cfg.experimentStart = waitForTrigger(cfg);
     
     %% Start Experiment
     % show fixation cross + get timestamp
-    cfg = getExperimentStart(cfg);
-
-    % wait for dummy fMRI scans
-    WaitSecs(cfg.timing.onsetDelay);
+    %cfg = getFixationCross(cfg);
+    drawFixation(cfg);
+    Screen('Flip', cfg.screen.win);
 
     % take the runNb corresponding sequence
     iSequence = cfg.subject.runNb;
@@ -75,23 +74,25 @@ try
     % construct sequence
     currSeq = makeSequence(cfg, iSequence);
     
+    
     %% play sequences
     % fill the buffer % start sound presentation
     PsychPortAudio('FillBuffer', cfg.audio.pahandle, ...
         [currSeq.outAudio;currSeq.outAudio]);
-    PsychPortAudio('Start', cfg.audio.pahandle);
-    onset = GetSecs;
+    
+    % wait for baseline delays and then start the audio
+    onset = PsychPortAudio('Start', cfg.audio.pahandle, [], ...
+        cfg.experimentStart + cfg.timing.onsetDelay,1);
     
     %% save timing and sequence info
     % ===========================================
     % log into matlab structure
     % ===========================================
-    cfg.timing.seqi = iSequence;
-    cfg.timing.currSeqStartTime = onset;
+    cfg.timing.sequenceNb = iSequence;
+    cfg.timing.sequenceStart = onset;
     cfg.timing.experimentStart = cfg.experimentStart;
-    cfg.data(iSequence).currSeqStartTime = onset;
+    cfg.data(iSequence).sequenceStart = onset;
     cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume', cfg.audio.pahandle);
-    %    currSeq(1).outAudio = [];
     cfg.data(iSequence).seq = currSeq;
     
     % ===========================================
@@ -105,7 +106,7 @@ try
 
     %%
     % record exp ending time
-    cfg.timing.fMRIendTime = GetSecs - cfg.experimentStart;
+    cfg.timing.fMRIDuration = GetSecs - cfg.experimentStart;
 
     %% Check button presses
     % instructions to press
@@ -132,7 +133,7 @@ try
     WaitSecs(cfg.timing.endScreenDelay);
 
     % record script ending time
-    cfg.timing.scriptEndTime = GetSecs - cfg.experimentStart;
+    cfg.timing.scriptDuration = GetSecs - cfg.experimentStart;
 
     % clear the buffer & stop key checks
     getResponse('stop', cfg.keyboard.responseBox);
