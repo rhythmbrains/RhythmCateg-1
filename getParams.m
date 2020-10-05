@@ -233,7 +233,7 @@ cfg.dir.output = fullfile(...
 cfg.mri.triggerKey = 's';
 cfg.mri.triggerNb = 1; % for hyberpand insert 4 here! ! ! 
 
-cfg.mri.repetitionTime = 2.6;
+cfg.mri.repetitionTime = 2.651;
 
 cfg.bids.MRI.Instructions = 'Fixate to the cross & count the piano tones';
 cfg.bids.MRI.TaskDescription = [];
@@ -288,6 +288,7 @@ function cfg = setAudio(cfg)
 % sampling rate
 cfg.audio.fs = 44100; 
 %cfg.audio.initVolume = 1;
+%cfg.audio.requestedLatency = 1;
 
 %  boolean for equating the dB across different tones for behavioral exp
 cfg.equateSoundAmp = 1;
