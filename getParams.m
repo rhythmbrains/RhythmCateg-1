@@ -38,8 +38,8 @@ cfg.dir.output = fullfile(...
     'output');
 
 %% Debug mode settings
-cfg.debug.do        = true ;  
-cfg.debug.transpWin = true ;     % To test the script with trasparent full size screen
+cfg.debug.do        = false ;  
+cfg.debug.transpWin = false ;     % To test the script with trasparent full size screen
 cfg.debug.smallWin  = false;
 cfg.verbose         = true;        % add here and there some explanations with if verbose is ON. 
 % cfg.verbose = false;
@@ -233,7 +233,7 @@ cfg.dir.output = fullfile(...
 cfg.mri.triggerKey = 's';
 cfg.mri.triggerNb = 1; % for hyberpand insert 4 here! ! ! 
 
-cfg.mri.repetitionTime = 2.6;
+cfg.mri.repetitionTime = 2.651;
 
 cfg.bids.MRI.Instructions = 'Fixate to the cross & count the piano tones';
 cfg.bids.MRI.TaskDescription = [];
@@ -261,6 +261,7 @@ function cfg = setMonitor(cfg)
 % Monitor parameters for PTB
 cfg.skipSyncTests = 1;
 
+% Text format 
 cfg.text.font         = 'Arial'; %'Courier New'
 cfg.text.size         = 48; %18
 
@@ -274,10 +275,10 @@ cfg.color.background = cfg.color.black;
 cfg.text.color = cfg.color.grey;
 
 % Monitor parameters
-% if strcmpi(cfg.testingDevice, 'mri')
-%     cfg.screen.monitorWidth = 25;
-%     cfg.screen.monitorDistance = 95;
-% end
+    if strcmpi(cfg.testingDevice, 'mri')
+        cfg.screen.monitorWidth = 69.8;
+        cfg.screen.monitorDistance = 170;
+    end
 end
 
 
