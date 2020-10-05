@@ -5,8 +5,8 @@
 if ~ismac
     close all;
     clear Screen;
-elss
-    clc
+else
+    clc;
     clear;
 end
 
@@ -46,7 +46,6 @@ try
     responseFile.extraColumns = cfg.responseExtraColumns;
     responseFile  = saveEventsFile('open_stim', cfg, responseFile);
 
-    %     disp(cfg);
     
     % Show instructions for fMRI task & wait for space press
     standByScreen(cfg);

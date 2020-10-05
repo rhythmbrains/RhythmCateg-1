@@ -288,7 +288,7 @@ function cfg = setAudio(cfg)
 % sampling rate
 cfg.audio.fs = 44100; 
 %cfg.audio.initVolume = 1;
-%cfg.audio.requestedLatency = 1;
+%cfg.audio.requestedLatency = 2;
 
 %  boolean for equating the dB across different tones for behavioral exp
 cfg.equateSoundAmp = 1;
