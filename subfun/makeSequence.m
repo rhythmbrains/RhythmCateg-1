@@ -275,6 +275,8 @@ for stepi=1:cfg.pattern.nStepsPerSequence
                     currF0 = cfg.pattern.F0s(currF0idx);
                     currAmp = cfg.pattern.F0sAmps(currF0idx);
                     
+                    % display(currF0);
+                    
                     % if pitch changes CHANGE_PITCH == 0
                 else
                     currF0 = cfg.pattern.F0s(currF0idx);
@@ -292,11 +294,11 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             currPattern = patterns2choose(currPatIdx).pattern;
 
             
-            % First, check for fmri task exists?
+            % First, check for fmri task exists
             if isfield(cfg.pattern,'taskIdxMatrix')
                 cfg.isTask.Idx = cfg.pattern.taskIdxMatrix(seqi,stepi,segmi,pati);
                 % the current F0s index is used for finding the
-                % targetSound
+                % taskSound
                 cfg.isTask.F0Idx = currF0idx;
             else 
                 cfg.isTask.Idx = 0;
