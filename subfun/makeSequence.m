@@ -238,32 +238,59 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             % % %
             % last checkpoint is if fixed-pitch  is requested for
             % CategB
-            if isfield(cfg,'fixedPitchCategB')
+            if isfield(cfg.pattern,'fixedPitchCategB')
                 
                 % only categB is with fixed pitch
                 if cfg.pattern.fixedPitchCategB && strcmpi(currPatternCateg,'complex')
                     %assign to the different pitch to categB
                     currF0 = cfg.pattern.differF0;
                     currAmp = cfg.pattern.F0sAmps(end);
+                    currF0idx = cfg.pattern.nF0 + 1; % 5th pitch !!!!!!!!
                     
                 elseif cfg.pattern.fixedPitchCategB && strcmpi(currPatternCateg,'simple')
                     
-                    pitch2ChooseIdx = 1:length(cfg.pattern.F0s);
-                    % remove F0 used in the previous iteration (to prevent
-                    % repetition in the sequence)
-                    pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = [];
-                    % randomly select new F0 idx
-                    currF0idx = randsample(pitch2ChooseIdx,1);
+                    
+                    % counterbalance the pitches across patterns
+                    if mod(pati, numPitch) == 1
+                        
+                        %reset the counter
+                        cPitch = 1;
+                        
+                        % shuffle the F0 array & get one F0
+                        arrayPitchIdx = Shuffle(1:numPitch);
+                        pitch2ChooseIdx = arrayPitchIdx(cPitch);
+                        
+                        % prevent repetition of pitch in sequential
+                        % patterns
+                        while pitch2ChooseIdx == currF0idx
+                            
+                            % shuffle the F0 array & get one F0
+                            arrayPitchIdx = Shuffle(1:numPitch);
+                            pitch2ChooseIdx = arrayPitchIdx(cPitch);
+                            
+                        end
+                        
+                    else
+                        % increase pitch counter
+                        cPitch = cPitch+1;
+                        % get the following F0
+                        pitch2ChooseIdx = arrayPitchIdx(cPitch);
+                    end
+
+                    
+                    % assign the index to current F0 index
+                    currF0idx = pitch2ChooseIdx; 
                     
                     %assign the randomly chosen ones to current pitch
                     currF0 = cfg.pattern.F0s(currF0idx);
                     currAmp = cfg.pattern.F0sAmps(currF0idx);
 
+
                 end
             end 
 
             
-            if ~isfield(cfg,'fixedPitchCategB') || ~ cfg.pattern.fixedPitchCategB
+            if ~isfield(cfg.pattern,'fixedPitchCategB') || ~ cfg.pattern.fixedPitchCategB
                 % if fixedPitchCategB is not defined
                 if CHANGE_PITCH && length(cfg.pattern.F0s)>1
                     
