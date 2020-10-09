@@ -116,7 +116,7 @@ try
 
     % save response & target
     cfg.target = target;
-    responseEvents = collectAndSaveResponses(cfg, ...
+    responseEvents = collectAndSave(cfg, ...
         responseFile, cfg.experimentStart);
     
 
