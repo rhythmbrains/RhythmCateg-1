@@ -23,9 +23,10 @@ cfg.pattern.eventRampoff         = 0.020; % s
 
 % Make sure the total ramp durations are not longer than tone duration. 
 if (cfg.pattern.eventRampon+cfg.pattern.eventRampoff) > cfg.pattern.eventDur
-    error(sprintf('The summed duration of onset+offset ramps (%g ms) is longer than requensted tone duration (%g ms).',...
+    error(['The summed duration of onset+offset ramps (%d ms)',...
+        ' is longer than requensted tone duration (%d ms).'],...
                   (cfg.pattern.eventRampon + cfg.pattern.eventRampoff)*1e3, ...
-                  cfg.pattern.eventDur * 1e3)); 
+                  cfg.pattern.eventDur * 1e3); 
 end
 
 
@@ -54,9 +55,10 @@ cfg.pattern.changeGridIOIStep       = 0;
 
 % Make sure the tone duration is not longer than smallest gridIOI. 
 if cfg.pattern.eventDur >  cfg.pattern.minGridIOI
-    error(sprintf('Requested tone duration (%g ms) is longer than shortest gridIOI (%g ms).',...
-                  cfg.pattern.eventDur * 1e3, ...
-                  cfg.pattern.minGridIOI * 1e3)); 
+    error(['The summed duration of onset+offset ramps (%d ms)',...
+        ' is longer than requensted tone duration (%d ms).'],...
+                  (cfg.pattern.eventRampon + cfg.pattern.eventRampoff)*1e3, ...
+                  cfg.pattern.eventDur * 1e3); 
 end
 
 %% construct segment
@@ -134,22 +136,24 @@ cfg.pattern.changePitchCategory = 0;
 cfg.pattern.changePitchStep 	= 0;  
 
 % refuse to pitch-change in categB
-cfg.fixedPitchCategB   = 1;
+cfg.pattern.fixedPitchCategB   = 1;
 
 %% construct pitch features of the stimulus 
 % the pitch (F0) of the tones making up the patterns can vary 
 % (it can be selected randomly from a set of possible values)
 
-%for this design, we want categ A and B having sifferent pitches (A will
-%have 5 pitches differing, B will only have 1 pitch)
+%for this design, we want categ A and B having different pitches (A will
+%have 4 pitches differing, B will only have 1 pitch)
 cfg.pattern.minF0 	= 349.228; % 350 or 349.228 minimum possible F0
-cfg.pattern.maxF0 	= 880; % 900 or 880 maximum possible F0
-cfg.pattern.nF0 	= 5; % number of unique F0-values between the limits
+cfg.pattern.maxF0 	= 698.4563; % 900 or 880 maximum possible F0
+cfg.pattern.nF0 	= 4; % number of unique F0-values between the limits
 cfg.pattern.F0s 	= logspace(log10(cfg.pattern.minF0),...
                       log10(cfg.pattern.maxF0),cfg.pattern.nF0); 
 
-cfg.differF0 = 277.183; % this is also logspaced
+
+cfg.pattern.differF0 = 277.183; % this is also logspaced
 % calculate required amplitude gain
+
 % butchered this part with adding cfg.differ - change in the future ! ! !
 if cfg.equateSoundAmp
     cfg.pattern.F0sAmpGain =  equalizePureTones([cfg.F0s,cfg.pattern.differF0],[], []);
@@ -195,19 +199,16 @@ cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain * ...
 
 %% Task Instructions
 % fMRI instructions
-cfg.fmriTaskInst = ['Fixate to the cross & count the deviant tone\n \n\n'];
+cfg.instruc.fmriTask = 'Fixate to the cross & count the piano tones\n \n\n';
 
 % ------------------------------------------------
 % instruction showing info about sequence curation 
 % ------------------------------------------------
-
-cfg.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.SequenceDur/60), ...
-                            'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n']; 
-                           
+cfg.trialDurInstruction = [sprintf('Trial duration will be: %.1f minutes\n\n',cfg.pattern.SequenceDur/60), ...
+                            'Set your volume now. \n\n\nThen start the experiment whenever ready...\n\n'];                       
 % ------------------------------
 % sequence-specific instructions
 % ------------------------------
-
 % this is general instruction displayed after each sequence
 cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
                             'You can have a break. \n\n',...
@@ -230,7 +231,6 @@ cfg.pattern.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg);
 end
 
 function cfg = normaliseEvent(cfg)
-
 %mini subfunction to normalise sound event according to the target rms
 
 % make the env and sound for 1 event
@@ -243,7 +243,7 @@ cfg.isTask.rmsEvent = rms(s);
 
 % rms the target
 % find the biggest rms among the target sounds
-for i = length(cfg.isTask.targetSounds)
+for i = 1:length(cfg.isTask.targetSounds)
     % apply env
     currTargetS = cfg.isTask.targetSounds{i}.*EventEnv.*cfg.baseAmp;%
     % take rms of all target sounds

@@ -90,24 +90,6 @@ end
 % events idx in the pattern
 idxTask = find(pattern);
 
-% % take the first event/tone for rms
-% firstEventIdx = idxTask(1);
-
-% % calculate the rms of an event
-% EventT = smallT{firstEventIdx};
-% EventEnv = smallEnv{firstEventIdx};
-% rmsEvent = rms(sin(2*pi*currF0*EventT).*EventEnv .* currAmp);
-
-% % find the biggest rms among the target sounds
-% for i = length(cfg.isTask.targetSounds)
-%     % apply env
-%     currTargetS = cfg.isTask.targetSounds{i}.*EventEnv;
-%     % take rms of all target sounds
-%     rmsAllTarget(i) = rms(currTargetS); %#ok<AGROW>
-% end
-% % use the smallest target rms as reference
-% rmsTarget = max(rmsAllTarget);
-
 %% create carrier according to isTask/testingDevice
 
 % create carrier
@@ -124,7 +106,9 @@ if isTask
     % check the current F0 & find the corresponding cfg.targetSound
     targetSoundIdx = cfg.isTask.F0Idx;
     currTargetS = cfg.isTask.targetSounds{targetSoundIdx}; %cfg.targetSounds{1,targetSoundIdx}
- 
+    
+    display(targetSoundIdx);
+
     % find first N non-zero element
     % number of targets (numEvent) in a pattern is defined in getParam.m
     if cfg.isTask.numEvent < length(idxTask)
@@ -173,11 +157,6 @@ if strcmpi(cfg.testingDevice,'mri')
 end
 
 end
-
-
-
-
-
 
 % % to visualise 1 pattern
  %figure; plot(t,s);

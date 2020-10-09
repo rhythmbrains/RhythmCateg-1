@@ -25,9 +25,10 @@ cfg.pattern.eventRampoff         = 0.020; % s
 
 % Make sure the total ramp durations are not longer than tone duration. 
 if (cfg.pattern.eventRampon+cfg.pattern.eventRampoff) > cfg.pattern.eventDur
-    error(sprintf('The summed duration of onset+offset ramps (%g ms) is longer than requensted tone duration (%g ms).',...
+    error(['The summed duration of onset+offset ramps (%d ms)',...
+        ' is longer than requensted tone duration (%d ms).'],...
                   (cfg.pattern.eventRampon + cfg.pattern.eventRampoff)*1e3, ...
-                  cfg.pattern.eventDur * 1e3)); 
+                  cfg.pattern.eventDur * 1e3); 
 end
 
 %% construct pattern (smallest item in sequence)
@@ -138,8 +139,8 @@ cfg.pattern.changePitchStep 	= 0;
 % the pitch (F0) of the tones making up the patterns can vary 
 % (it can be selected randomly from a set of possible values)
 cfg.pattern.minF0 	= 349.228; % 350 or 349.228 minimum possible F0
-cfg.pattern.maxF0 	= 880; % 900 or 880 maximum possible F0
-cfg.pattern.nF0 	= 5; % number of unique F0-values between the limits
+cfg.pattern.maxF0 	= 698.4563; % 900 or 880 maximum possible F0
+cfg.pattern.nF0 	= 4; % number of unique F0-values between the limits
 cfg.pattern.F0s 	= logspace(log10(cfg.pattern.minF0),...
                       log10(cfg.pattern.maxF0),cfg.pattern.nF0); 
 

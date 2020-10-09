@@ -15,7 +15,7 @@ initEnv();
 
 % Define the task = 'RhythmCategFT', 'PitchFT', 'RhythmCategBlock'
 % Get parameters by providing task name
-cfg = getParams('RhythmCategBlock');
+cfg = getParams('PitchFT');
 
 
 
@@ -116,7 +116,7 @@ try
 
     % save response & target
     cfg.target = target;
-    responseEvents = collectAndSaveResponses(cfg, ...
+    responseEvents = collectAndSave(cfg, ...
         responseFile, cfg.experimentStart);
     
 
