@@ -83,6 +83,9 @@ seq.outAudio = zeros(1,round(cfg.pattern.SequenceDur*cfg.fs));
 % % audio envelop  of the sequence
 % seq.outEnvelop = zeros(1,round(cfg.pattern.SequenceDur*cfg.fs)); 
 
+% carries pitches length 
+numPitch = cfg.pattern.nF0;
+
 %% initialize counters 
 
 % currently chosen F0 index (indexing value in cfg.pattern.F0s, initialize to 1)
@@ -97,8 +100,8 @@ cPat = 1;
 % current time point in the sequence as we go through the loops
 currTimePoint = 0; 
 
-
-
+% pitch counter 
+cPitch = 1;
 
 %% loop over steps
 for stepi=1:cfg.pattern.nStepsPerSequence
@@ -258,26 +261,47 @@ for stepi=1:cfg.pattern.nStepsPerSequence
 
                 end
             end 
+
             
             if ~isfield(cfg,'fixedPitchCategB') || ~ cfg.pattern.fixedPitchCategB
                 % if fixedPitchCategB is not defined
                 if CHANGE_PITCH && length(cfg.pattern.F0s)>1
                     
-                    % get F0s to choose from
-                    pitch2ChooseIdx = 1:length(cfg.pattern.F0s);
-                    % remove F0 used in the previous iteration (to prevent
-                    % repetition in the sequence)
-                    pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = [];
-                    % randomly select new F0 idx
-                    currF0idx = randsample(pitch2ChooseIdx,1);
+                    % counterbalance the pitches across patterns
+                    if mod(pati, numPitch) == 1
+                        
+                        %reset the counter
+                        cPitch = 1;
+                        
+                        % shuffle the F0 array & get one F0
+                        arrayPitchIdx = Shuffle(1:numPitch);
+                        pitch2ChooseIdx = arrayPitchIdx(cPitch);
+                        
+                        % prevent repetition of pitch in sequential
+                        % patterns
+                        while pitch2ChooseIdx == currF0idx
+                            
+                            % shuffle the F0 array & get one F0
+                            arrayPitchIdx = Shuffle(1:numPitch);
+                            pitch2ChooseIdx = arrayPitchIdx(cPitch);
+                            
+                        end
+                        
+                    else
+                        % increase pitch counter
+                        cPitch = cPitch+1;
+                        % get the following F0
+                        pitch2ChooseIdx = arrayPitchIdx(cPitch);
+                    end
+
+                    
+                    % assign the index to current F0 index
+                    currF0idx = pitch2ChooseIdx; 
                     
                     %assign the randomly chosen ones to current pitch
                     currF0 = cfg.pattern.F0s(currF0idx);
                     currAmp = cfg.pattern.F0sAmps(currF0idx);
-                    
-                    % display(currF0);
-                    
-                    % if pitch changes CHANGE_PITCH == 0
+
                 else
                     currF0 = cfg.pattern.F0s(currF0idx);
                     currAmp = cfg.pattern.F0sAmps(currF0idx);
