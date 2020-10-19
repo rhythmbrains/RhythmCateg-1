@@ -39,20 +39,27 @@ savepath = fullfile(fileparts(mfilename('fullpath')),'../');
 if runNb == 1
     
     % get the design
-    [DesignFullExp, ~] = getAllSeqDesign(cfg.pattern.patternA,...
-        cfg.pattern.patternB, cfg);
-
-    cfg = addRandomizedTask(cfg,DesignFullExp,cfg.pattern.numSequences);
+    [DesignFullExp, DesignSegment, DesignToneF0] = getAllSeqDesign(...
+                                        cfg.pattern.patternA,...
+                                        cfg.pattern.patternB, cfg);
+                                    
+    % add Task according to SegmentLabels
+    cfg = addRandomizedTask(cfg,DesignSegment,cfg.pattern.numSequences);
     
     %save the Design
-    save([savepath,'SeqDesign'],'DesignFullExp','cfg');
+    save([savepath,'SeqDesign'],'DesignFullExp','DesignSegment','DesignToneF0','cfg');
     cfg.pattern.seqDesignFullExp = DesignFullExp;
+    cfg.pattern.seqDesignSegment = DesignSegment;
+    cfg.pattern.seqDesignToneF0 = DesignToneF0;
     
 else
     
     design = load([savepath,'SeqDesign']);
     cfg.pattern.seqDesignFullExp = design.DesignFullExp;
     cfg.pattern.taskIdxMatrix = design.cfg.pattern.taskIdxMatrix; 
+    cfg.pattern.seqDesignSegment = design.cfg.pattern.seqDesignSegment;
+    cfg.pattern.seqDesignToneF0 = design.cfg.pattern.seqDesignToneF0;
+
     
 end
 
@@ -61,11 +68,11 @@ end
 if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
     
     %create design matrix
-    [extraSeqDesign,~] = getAllSeqDesign(cfg.pattern.patternA,...
+    [extraSeqDesign,extraSeqSegment,extraSeqToneF0] = getAllSeqDesign(cfg.pattern.patternA,...
         cfg.pattern.patternB, cfg, cfg.pattern.extraSeqNum);
     
     %create task matrix
-    extracfg = addRandomizedTask(cfg,extraSeqDesign,cfg.pattern.extraSeqNum);
+    extracfg = addRandomizedTask(cfg,extraSeqSegment,cfg.pattern.extraSeqNum);
     
     % add and assign new design with task
     cfg.pattern.seqDesignFullExp = [cfg.pattern.seqDesignFullExp; ...
@@ -73,9 +80,18 @@ if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
     cfg.pattern.taskIdxMatrix = [cfg.pattern.taskIdxMatrix; ...
         extracfg.pattern.taskIdxMatrix];
     
+    cfg.pattern.seqDesignSegment = [cfg.pattern.seqDesignSegment; ...
+        extraSeqSegment]; 
+    
+    cfg.pattern.seqDesignToneF0 = [cfg.pattern.seqDesignToneF0; ...
+        extraSeqToneF0];
+    
+    
     %save
     DesignFullExp = cfg.pattern.seqDesignFullExp;
-    save([savepath,'SeqDesign'],'DesignFullExp','cfg','extracfg');
+    save([savepath,'SeqDesign'],'DesignFullExp','DesignSegment',...
+                                'cfg','extracfg','extraSeqSegment',...
+                                'DesignToneF0','extraSeqToneF0');
     
     fprintf('new sequence design and task added! Wohoo!\n\n');
 end
@@ -92,9 +108,9 @@ taskIdxMatrix =  zeros(...
     cfg.pattern.nSegmPerStep, ...
     cfg.pattern.nPatternPerSegment);
     
-% find the categA and categB
-idxCategA = contains(Design(:),cfg.pattern.labelCategA);
-idxCategB = contains(Design(:),cfg.pattern.labelCategB);
+% find the categA and categB from SegmentLabel
+idxCategA = contains(Design(:),cfg.pattern.labelSegmentA);
+idxCategB = contains(Design(:),cfg.pattern.labelSegmentB);
 
 %count the number of patterns categA and categB
 categANum = sum(idxCategA);

@@ -1,13 +1,6 @@
 function     cfg = getPitchParameters(cfg)
-% this function generates audio sequences to be played in the man
+% this function generates PitchFT audio sequences to be played in the man
 % experiment
-
-
-% % %
-% start the sequence with one B-category segment that will be discarded during analysis
-% % %
-
-
 
 %% contruct individual sound events (that will make up each pattern)
 
@@ -126,8 +119,6 @@ fprintf('\n\nsequence duration is: %.1f minutes\n',cfg.pattern.SequenceDur/60);
 % cfg.changePitchCycle = TRUE, then it's obvious that pitch will be changed
 % also every segment and step...
 
-% change pitch in every tone/event
-cfg.pattern.changeTone          = 1;
 % change pitch for each new pattern cycle
 cfg.pattern.changePitchCycle 	= 1;
 % change pitch for each segment
@@ -136,9 +127,10 @@ cfg.pattern.changePitchSegm 	= 0;
 cfg.pattern.changePitchCategory = 0;    
 % change pitch for each step
 cfg.pattern.changePitchStep 	= 0;  
-
 % refuse to pitch-change in categB
 cfg.pattern.fixedPitchCategB   = 1;
+% change pitch in every tone/event
+cfg.pattern.changePitchTone     = 1;
 
 %% construct pitch features of the stimulus 
 % the pitch (F0) of the tones making up the patterns can vary 
@@ -170,10 +162,18 @@ cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain;
 %% create two sets of patterns
 
 % define which pattern IDs to generate sequences 
-cfg.pattern.labelCategA = 'simple'; 
+cfg.pattern.labelCategA = 'complex'; 
 cfg.pattern.labelCategB = 'complex';
 
-cfg = readPatternText(cfg);
+[cfg.pattern.patternA, cfg.pattern.patternB] = readPatternText(cfg);
+
+% add segment labels as "A" and "B"
+cfg.pattern.labelSegmentA = 'A';
+cfg.pattern.labelSegmentB = 'B';
+
+% assign in the patternInfo structure
+[cfg.pattern.patternA.segmentLabel]  = deal('A');
+[cfg.pattern.patternB.segmentLabel]  = deal('B');
 %% generate sequence
 
 % create randomized sequence 
@@ -208,7 +208,7 @@ cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
     
 end
 
-function cfg = readPatternText(cfg)
+function [patternA,patternB] = readPatternText(cfg)
 
 % read from txt files
 grahnPatA = loadIOIRatiosFromTxt(...
@@ -221,8 +221,8 @@ grahnPatB = loadIOIRatiosFromTxt(...
                                         cfg.pattern.labelCategB,'.txt'])); 
 
 % get different metrics of the patterns
-cfg.pattern.patternA = getPatternInfo(grahnPatA, cfg.pattern.labelCategA,cfg); 
-cfg.pattern.patternB = getPatternInfo(grahnPatB, cfg.pattern.labelCategB, cfg); 
+patternA = getPatternInfo(grahnPatA, cfg.pattern.labelCategA,cfg); 
+patternB = getPatternInfo(grahnPatB, cfg.pattern.labelCategB, cfg); 
 
 end
 

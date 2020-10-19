@@ -163,7 +163,15 @@ cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain;
 cfg.pattern.labelCategA = 'simple'; 
 cfg.pattern.labelCategB = 'complex';
 
-cfg = readPatternText(cfg);
+[cfg.pattern.patternA, cfg.pattern.patternB] = readPatternText(cfg);
+
+% add segment labels as "A" and "B"
+cfg.pattern.labelSegmentA = 'A';
+cfg.pattern.labelSegmentB = 'B';
+
+% assign in the patternInfo structure
+[cfg.pattern.patternA.segmentLabel]  = deal('A');
+[cfg.pattern.patternB.segmentLabel]  = deal('B');
 
 %% generate sequence
 
@@ -214,7 +222,7 @@ cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
 end
 
 
-function cfg = readPatternText(cfg)
+function [patternA,patternB] = readPatternText(cfg)
 
 % read from txt files
 grahnPatA = loadIOIRatiosFromTxt(...
@@ -227,8 +235,8 @@ grahnPatB = loadIOIRatiosFromTxt(...
                                         cfg.pattern.labelCategB,'.txt'])); 
 
 % get different metrics of the patterns
-cfg.pattern.patternA = getPatternInfo(grahnPatA, cfg.pattern.labelCategA,cfg); 
-cfg.pattern.patternB = getPatternInfo(grahnPatB, cfg.pattern.labelCategB, cfg); 
+patternA = getPatternInfo(grahnPatA, cfg.pattern.labelCategA,cfg); 
+patternB = getPatternInfo(grahnPatB, cfg.pattern.labelCategB, cfg); 
 
 end
 

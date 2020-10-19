@@ -15,7 +15,6 @@ function patternInfo=getPatternInfo(patterns, categName, cfg, varargin)
 %     patternInfo: 
 % 
 
-       
 
 patternInfo = struct();
 
@@ -109,7 +108,6 @@ for pati=1:length(patterns)
     patternInfo(pati).minLHL24 = min(LHL24); 
     patternInfo(pati).minLHL26 = min(LHL26); 
     patternInfo(pati).minLHL36 = min(LHL36); 
-    
     
 end
 

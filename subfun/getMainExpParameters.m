@@ -134,6 +134,8 @@ cfg.pattern.changePitchSegm 	= 0;
 cfg.pattern.changePitchCategory = 0;    
 % change pitch for each step
 cfg.pattern.changePitchStep 	= 0;  
+% change pitch in every tone/event
+cfg.pattern.changePitchTone     = 0;
 
 %% construct pitch features of the stimulus 
 % the pitch (F0) of the tones making up the patterns can vary 
@@ -161,7 +163,15 @@ cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain;
 cfg.pattern.labelCategA = 'simple'; 
 cfg.pattern.labelCategB = 'complex';
 
-cfg = readPatternText(cfg);
+[cfg.pattern.patternA, cfg.pattern.patternB] = readPatternText(cfg);
+
+% add segment labels as "A" and "B"
+cfg.pattern.labelSegmentA = 'A';
+cfg.pattern.labelSegmentB = 'B';
+
+% assign in the patternInfo structure
+[cfg.pattern.patternA.segmentLabel]  = deal('A');
+[cfg.pattern.patternB.segmentLabel]  = deal('B');
 %% generate sequence
 % for exp like fmri that we will present 1 sequence per run, we are
 % creating full exp design in the first run and saving it for the other
@@ -250,7 +260,7 @@ end
 end
 
 
-function cfg = readPatternText(cfg)
+function [patternA,patternB] = readPatternText(cfg)
 
 % read from txt files
 grahnPatA = loadIOIRatiosFromTxt(...
@@ -263,8 +273,8 @@ grahnPatB = loadIOIRatiosFromTxt(...
                                         cfg.pattern.labelCategB,'.txt'])); 
 
 % get different metrics of the patterns
-cfg.pattern.patternA = getPatternInfo(grahnPatA, cfg.pattern.labelCategA,cfg); 
-cfg.pattern.patternB = getPatternInfo(grahnPatB, cfg.pattern.labelCategB, cfg); 
+patternA = getPatternInfo(grahnPatA, cfg.pattern.labelCategA,cfg); 
+patternB = getPatternInfo(grahnPatB, cfg.pattern.labelCategB, cfg); 
 
 end
 

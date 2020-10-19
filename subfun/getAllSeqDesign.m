@@ -1,4 +1,5 @@
-function [seqDesignFullExp, seqDesignToneNumber] = getAllSeqDesign(categA,categB,cfg,varargin)
+function [seqDesignFullExp, seqDesignSegment, seqDesignToneF0] = getAllSeqDesign(categA,categB,cfg,varargin)
+% [seqDesignFullExp, seqDesignToneNumber] = getAllSeqDesign(categA,categB,cfg,varargin)
 
 % this function designs the sequences for the whole experiment in a way
 % that the number of times each pattern is included is counterbalanced and
@@ -21,13 +22,34 @@ patterns2choose = [patterns2chooseA, patterns2chooseB];
 
 
 % allocate result with dimension: sequence x step x segm x pattern
+% allocate for patternID CELL
 seqDesignFullExp = cell(numSequences, ...
     cfg.pattern.nStepsPerSequence, cfg.pattern.nSegmPerStep, ...
     cfg.pattern.nPatternPerSegment); 
-
-seqDesignToneNumber = zeros(numSequences, ...
+% allocate for segmentLabel CELL
+seqDesignSegment = cell(numSequences, ...
     cfg.pattern.nStepsPerSequence, cfg.pattern.nSegmPerStep, ...
     cfg.pattern.nPatternPerSegment); 
+
+
+% allocate for Tone Numbers ARRAY
+seqDesignPatNb = zeros(numSequences, ...
+    cfg.pattern.nStepsPerSequence, cfg.pattern.nSegmPerStep, ...
+    cfg.pattern.nPatternPerSegment); 
+
+% allocate for pitch/F0 ARRAY
+seqDesignToneF0 = zeros(numSequences, ...
+    cfg.pattern.nStepsPerSequence, cfg.pattern.nSegmPerStep, ...
+    cfg.pattern.nPatternPerSegment, cfg.pattern.nGridPoints); 
+
+
+
+
+
+% currently chosen F0 index (indexing value in cfg.pattern.F0s, initialize to 1)
+currF0idx = 1; 
+
+counter = 1;
 
 for seqi=1:numSequences
 
@@ -56,11 +78,45 @@ for seqi=1:numSequences
                 
                 % get its ID tag
                 chosenPatID = patterns2choose{segmi}(chosenPatIdx).ID; 
-                chosenToneNumID = patterns2choose{segmi}(chosenPatIdx).n_sounds;
+                chosenPatNb = patterns2choose{segmi}(chosenPatIdx).n_sounds;
+               
+                chosenSegmentID = patterns2choose{segmi}(chosenPatIdx).segmentLabel;
+               
+%                % change pitch in every tone/event
+                if cfg.pattern.changePitchTone && strcmp(chosenSegmentID,'A') 
+                   
+                   whichTone = find(patterns2choose{segmi}(chosenPatIdx).pattern);
+                   
+                   for iTone=1:chosenPatNb
+                       
+                       if mod(counter,cfg.pattern.nF0) == 1
+                           counter = 1;
+                           disp('-----')
+                           arrayPitchIdx = Shuffle(1:cfg.pattern.nF0);
+                           
+                           % prevent repetition of pitch in sequential
+                           while arrayPitchIdx(1) == currF0idx
+                               % shuffle the F0 array & get one F0
+                               arrayPitchIdx = Shuffle(1:cfg.pattern.nF0);
+                           end
+
+                       end
+
+                       % assign
+                       currF0idx = arrayPitchIdx(counter); 
+                       
+                       disp(currF0idx)
+                       
+                       seqDesignToneF0(seqi,stepi,segmi,pati,whichTone(iTone)) = currF0idx; 
+                       counter = counter + 1;
+                   end
+                end
+                   
                 % write pattern ID to the result
                 % dims: [seq x step x segm x pat]
                 seqDesignFullExp{seqi,stepi,segmi,pati} = chosenPatID; 
-                seqDesignToneNumber(seqi,stepi,segmi,pati) = chosenToneNumID;
+                seqDesignPatNb(seqi,stepi,segmi,pati) = chosenPatNb;
+                seqDesignSegment{seqi,stepi,segmi,pati} = chosenSegmentID;
                 
                 % remove the picked pattern from the available pool
                 patterns2choose{segmi}(chosenPatIdx) = []; 
@@ -75,7 +131,6 @@ if all(cellfun(@isempty, patterns2choose))
 else
     disp('ouch, the experiment is NOT fully counterbalanced :(')
 end
-
 
 
 

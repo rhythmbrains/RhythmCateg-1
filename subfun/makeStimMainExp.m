@@ -67,6 +67,7 @@ env = zeros(1,length(t));
 smallEnv = cell(1,length(pattern));
 smallT = cell(1,length(pattern));
 c=0;
+s = [];
 
 for cyclei=1:nCycles
     for i=1:length(pattern)
@@ -91,23 +92,9 @@ end
 idxTask = find(pattern);
 
 %% create carrier according to isTask/testingDevice
-
-% create carrier
-s = sin(2*pi*currF0*t);
-% apply envelope to the carrier
-s = s.* env;
-% apply the amplitude
-s = s.* currAmp;
-%rmsev = rms(s)
-s =[];
-
 if isTask
 
-    % check the current F0 & find the corresponding cfg.targetSound
-    targetSoundIdx = cfg.isTask.F0Idx;
-    currTargetS = cfg.isTask.targetSounds{targetSoundIdx}; %cfg.targetSounds{1,targetSoundIdx}
-    
-    display(targetSoundIdx);
+    % display(targetSoundIdx);
 
     % find first N non-zero element
     % number of targets (numEvent) in a pattern is defined in getParam.m
@@ -116,6 +103,15 @@ if isTask
         idxTask = idxTask(2:1+cfg.isTask.numEvent);
     end
     
+    % check the current F0 & find the corresponding cfg.targetSound
+    if length(cfg.isTask.F0Idx) == 1
+        targetSoundIdx = cfg.isTask.F0Idx;  
+    else
+        targetSoundIdx = cfg.isTask.F0Idx(idxTask);
+    end
+    
+    currTargetS = cfg.isTask.targetSounds{targetSoundIdx}; %cfg.targetSounds{1,targetSoundIdx}
+
 end
 
 if strcmpi(cfg.testingDevice,'mri')
@@ -135,20 +131,28 @@ if strcmpi(cfg.testingDevice,'mri')
             
             % apply envelop to the target
             currS = currTargetS.*currEnv;
+
+        % no target = sine wave
+        else 
             
-            % no amp change in target
-            % check point
-           % rmstar = rms(currS)
-        else % no target = sine wave
-            currS = sin(2*pi*currF0*currTime);
-            currS = currS.* currEnv;
-            
-            %             % normalise the tone with the target rms
-            %             currS = currS.*(cfg.isTask.rmsTarget/cfg.isTask.rmsEvent);
-            
-            % apply the amplitude
-            currS = currS.* currAmp;
-           % rmsev = rms(currS)
+            if length(currF0)>1
+                if pattern(iEvent)
+                    currS = sin(2*pi*currF0(iEvent)*currTime);
+                    currS = currS.* currEnv;
+                    % apply the amplitude
+                    currS = currS.* currAmp;
+                else
+                    currS = sin(2*pi*currF0(1)*currTime);
+                    currS = currS.* currEnv;
+                    % apply the amplitude
+                    currS = currS.* currAmp;
+                end
+            else
+                currS = sin(2*pi*currF0*currTime);
+                currS = currS.* currEnv;
+                % apply the amplitude
+                currS = currS.* currAmp;
+            end
         end
         
         %assign it to big array
