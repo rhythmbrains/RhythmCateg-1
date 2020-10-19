@@ -39,8 +39,8 @@ savepath = fullfile(fileparts(mfilename('fullpath')),'../');
 if runNb == 1
     
     % get the design
-    [DesignFullExp, ~] = getAllSeqDesign(cfg.pattern.patternSimple,...
-        cfg.pattern.patternComplex, cfg);
+    [DesignFullExp, ~] = getAllSeqDesign(cfg.pattern.patternA,...
+        cfg.pattern.patternB, cfg);
 
     cfg = addRandomizedTask(cfg,DesignFullExp,cfg.pattern.numSequences);
     
@@ -61,8 +61,8 @@ end
 if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
     
     %create design matrix
-    [extraSeqDesign,~] = getAllSeqDesign(cfg.pattern.patternSimple,...
-        cfg.pattern.patternComplex, cfg, cfg.pattern.extraSeqNum);
+    [extraSeqDesign,~] = getAllSeqDesign(cfg.pattern.patternA,...
+        cfg.pattern.patternB, cfg, cfg.pattern.extraSeqNum);
     
     %create task matrix
     extracfg = addRandomizedTask(cfg,extraSeqDesign,cfg.pattern.extraSeqNum);

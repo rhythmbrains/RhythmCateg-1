@@ -51,7 +51,7 @@ seq.onset = nan(1, cfg.pattern.nPatternPerSegment * ...
 % put together all the patterns from both categories, we will pick from
 % this using the unique ID of each pattern (we know which IDs we want from
 % the output of getAllSeq function. 
-patterns2choose = [cfg.pattern.patternSimple,cfg.pattern.patternComplex]; 
+patterns2choose = [cfg.pattern.patternA,cfg.pattern.patternB]; 
 
 
 % each pattern will have its own ID (integer number; patterns with the same
@@ -68,13 +68,6 @@ patterns2choose = [cfg.pattern.patternSimple,cfg.pattern.patternComplex];
 
 seq.patternID = cell(1, cfg.pattern.nPatternPerSegment * ...
     cfg.pattern.nSegmPerStep * cfg.pattern.nStepsPerSequence); 
-
-% % THIS IS UNUSED
-% % cell array, each element is a grid representation of the chosen pattern
-% % (successively as the sequence unfolds)
-% seq.outPatterns = cell(1, cfg.pattern.nPatternPerSegment * ...
-% cfg.pattern.nSegmPerStep * cfg.pattern.nStepsPerSequence);
-% % % 
 
 
 % audio waveform of the sequence

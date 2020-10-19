@@ -158,25 +158,18 @@ cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain;
 
 
 %% create two sets of patterns
-cfg = readPatternText(cfg);
-%% generate sequence
 
+% define which pattern IDs to generate sequences 
 cfg.pattern.labelCategA = 'simple'; 
 cfg.pattern.labelCategB = 'complex';
-% for exp like fmri that we will present 1 sequence per run, we are
-% creating full exp design in the first run and saving it for the other
-% runs to call .mat file
 
-%%%%%%%%%%%%
-% ! important, the order of arguments matters ! -> getAllSeqDesign(categA, categB, ...)
-%%%%%%%%%%%%
-cfg.pattern.seqDesignFullExp = getAllSeqDesign(cfg.pattern.patternSimple, ...
-    cfg.pattern.patternComplex,cfg);
-% generate example audio for volume setting
-% added F0s-amplitude because the relative dB set in volume adjustment in
-% PychPortAudio will be used in the mainExp
-% if there no if-loop here, during mri exp, it goes to makeStimMainExp and
-% crashes.! 
+cfg = readPatternText(cfg);
+
+%% generate sequence
+
+cfg.pattern.seqDesignFullExp = getAllSeqDesign(cfg.pattern.patternA, ...
+    cfg.pattern.patternB,cfg);
+
 if strcmp(cfg.testingDevice,'pc')
 cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
     cfg.pattern.gridIOIs(end), cfg.pattern.F0s(end), cfg.pattern.F0sAmps(end) ), 2,1);
@@ -193,13 +186,6 @@ if strcmp(cfg.testingDevice,'mri')
     
     cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain * ...
         cfg.isTask.rmsRatio; 
-    % provide an error if it amp above 1 !
-    % % %
-    
-    % % %
-    % can I normalise the target sound to make the max [-1 1]
-    % to increase the amplitude of whole sounds?
-    % % %
 end
 
 
@@ -231,12 +217,18 @@ end
 function cfg = readPatternText(cfg)
 
 % read from txt files
-grahnPatSimple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
-grahnPatComplex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
+grahnPatA = loadIOIRatiosFromTxt(...
+                                fullfile('stimuli',...
+                                        ['Grahn2007_',...
+                                        cfg.pattern.labelCategA,'.txt'])); 
+grahnPatB = loadIOIRatiosFromTxt(...
+                                fullfile('stimuli',...
+                                        ['Grahn2007_',...
+                                        cfg.pattern.labelCategB,'.txt'])); 
 
 % get different metrics of the patterns
-cfg.pattern.patternSimple = getPatternInfo(grahnPatSimple, 'simple',cfg); 
-cfg.pattern.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg); 
+cfg.pattern.patternA = getPatternInfo(grahnPatA, cfg.pattern.labelCategA,cfg); 
+cfg.pattern.patternB = getPatternInfo(grahnPatB, cfg.pattern.labelCategB, cfg); 
 
 end
 

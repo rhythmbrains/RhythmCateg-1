@@ -126,6 +126,8 @@ fprintf('\n\nsequence duration is: %.1f minutes\n',cfg.pattern.SequenceDur/60);
 % cfg.changePitchCycle = TRUE, then it's obvious that pitch will be changed
 % also every segment and step...
 
+% change pitch in every tone/event
+cfg.pattern.changeTone          = 1;
 % change pitch for each new pattern cycle
 cfg.pattern.changePitchCycle 	= 1;
 % change pitch for each segment
@@ -166,35 +168,23 @@ end
 cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain; 
 
 %% create two sets of patterns
+
+% define which pattern IDs to generate sequences 
+cfg.pattern.labelCategA = 'simple'; 
+cfg.pattern.labelCategB = 'complex';
+
 cfg = readPatternText(cfg);
 %% generate sequence
 
-% get pattern IDs for all sequences used in the experiment
-% this is to make sure each pattern is used equal number of times in the
-% whole experiment
-cfg.pattern.labelCategA = 'simple'; 
-cfg.pattern.labelCategB = 'complex';
-% for exp like fmri that we will present 1 sequence per run, we are
-% creating full exp design in the first run and saving it for the other
-% runs to call .mat file
-
-% create randomized sequence for 9 runs when run =1
+% create randomized sequence 
 % overwrites cfg.pattern.seqDesignFullExp
 cfg = makefMRISeqDesign(cfg);
 
 % overwrite the base amp
 cfg = normaliseEvent(cfg);
+
 cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain * ...
     cfg.isTask.rmsRatio;
-
-% provide an error if it amp above 1 !
-% % %
-
-% % %
-% can I normalise the target sound to make the max [-1 1]
-% to increase the amplitude of whole sounds?
-% % %
-
 
 
 %% Task Instructions
@@ -221,12 +211,18 @@ end
 function cfg = readPatternText(cfg)
 
 % read from txt files
-grahnPatSimple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
-grahnPatComplex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
+grahnPatA = loadIOIRatiosFromTxt(...
+                                fullfile('stimuli',...
+                                        ['Grahn2007_',...
+                                        cfg.pattern.labelCategA,'.txt'])); 
+grahnPatB = loadIOIRatiosFromTxt(...
+                                fullfile('stimuli',...
+                                        ['Grahn2007_',...
+                                        cfg.pattern.labelCategB,'.txt'])); 
 
 % get different metrics of the patterns
-cfg.pattern.patternSimple = getPatternInfo(grahnPatSimple, 'simple',cfg); 
-cfg.pattern.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg); 
+cfg.pattern.patternA = getPatternInfo(grahnPatA, cfg.pattern.labelCategA,cfg); 
+cfg.pattern.patternB = getPatternInfo(grahnPatB, cfg.pattern.labelCategB, cfg); 
 
 end
 
