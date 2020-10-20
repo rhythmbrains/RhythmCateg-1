@@ -135,6 +135,8 @@ cfg.pattern.changePitchSegm 	= 0;
 cfg.pattern.changePitchCategory = 0;    
 % change pitch for each step
 cfg.pattern.changePitchStep 	= 0;  
+% change pitch in every tone/event
+cfg.pattern.changePitchTone     = 0;
 
 %% construct pitch features of the stimulus 
 % the pitch (F0) of the tones making up the patterns can vary 
