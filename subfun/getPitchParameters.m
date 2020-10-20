@@ -1,13 +1,6 @@
 function     cfg = getPitchParameters(cfg)
-% this function generates audio sequences to be played in the man
+% this function generates PitchFT audio sequences to be played in the man
 % experiment
-
-
-% % %
-% start the sequence with one B-category segment that will be discarded during analysis
-% % %
-
-
 
 %% contruct individual sound events (that will make up each pattern)
 
@@ -134,9 +127,10 @@ cfg.pattern.changePitchSegm 	= 0;
 cfg.pattern.changePitchCategory = 0;    
 % change pitch for each step
 cfg.pattern.changePitchStep 	= 0;  
-
 % refuse to pitch-change in categB
 cfg.pattern.fixedPitchCategB   = 1;
+% change pitch in every tone/event
+cfg.pattern.changePitchTone     = 1;
 
 %% construct pitch features of the stimulus 
 % the pitch (F0) of the tones making up the patterns can vary 
@@ -166,35 +160,31 @@ end
 cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain; 
 
 %% create two sets of patterns
-cfg = readPatternText(cfg);
+
+% define which pattern IDs to generate sequences 
+cfg.pattern.labelCategA = 'complex'; 
+cfg.pattern.labelCategB = 'complex';
+
+[cfg.pattern.patternA, cfg.pattern.patternB] = readPatternText(cfg);
+
+% add segment labels as "A" and "B"
+cfg.pattern.labelSegmentA = 'A';
+cfg.pattern.labelSegmentB = 'B';
+
+% assign in the patternInfo structure
+[cfg.pattern.patternA.segmentLabel]  = deal('A');
+[cfg.pattern.patternB.segmentLabel]  = deal('B');
 %% generate sequence
 
-% get pattern IDs for all sequences used in the experiment
-% this is to make sure each pattern is used equal number of times in the
-% whole experiment
-cfg.pattern.labelCategA = 'simple'; 
-cfg.pattern.labelCategB = 'complex';
-% for exp like fmri that we will present 1 sequence per run, we are
-% creating full exp design in the first run and saving it for the other
-% runs to call .mat file
-
-% create randomized sequence for 9 runs when run =1
+% create randomized sequence 
 % overwrites cfg.pattern.seqDesignFullExp
 cfg = makefMRISeqDesign(cfg);
 
 % overwrite the base amp
 cfg = normaliseEvent(cfg);
+
 cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain * ...
     cfg.isTask.rmsRatio;
-
-% provide an error if it amp above 1 !
-% % %
-
-% % %
-% can I normalise the target sound to make the max [-1 1]
-% to increase the amplitude of whole sounds?
-% % %
-
 
 
 %% Task Instructions
@@ -218,15 +208,21 @@ cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
     
 end
 
-function cfg = readPatternText(cfg)
+function [patternA,patternB] = readPatternText(cfg)
 
 % read from txt files
-grahnPatSimple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
-grahnPatComplex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
+grahnPatA = loadIOIRatiosFromTxt(...
+                                fullfile('stimuli',...
+                                        ['Grahn2007_',...
+                                        cfg.pattern.labelCategA,'.txt'])); 
+grahnPatB = loadIOIRatiosFromTxt(...
+                                fullfile('stimuli',...
+                                        ['Grahn2007_',...
+                                        cfg.pattern.labelCategB,'.txt'])); 
 
 % get different metrics of the patterns
-cfg.pattern.patternSimple = getPatternInfo(grahnPatSimple, 'simple',cfg); 
-cfg.pattern.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg); 
+patternA = getPatternInfo(grahnPatA, cfg.pattern.labelCategA,cfg); 
+patternB = getPatternInfo(grahnPatB, cfg.pattern.labelCategB, cfg); 
 
 end
 

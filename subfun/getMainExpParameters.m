@@ -134,6 +134,8 @@ cfg.pattern.changePitchSegm 	= 0;
 cfg.pattern.changePitchCategory = 0;    
 % change pitch for each step
 cfg.pattern.changePitchStep 	= 0;  
+% change pitch in every tone/event
+cfg.pattern.changePitchTone     = 0;
 
 %% construct pitch features of the stimulus 
 % the pitch (F0) of the tones making up the patterns can vary 
@@ -156,14 +158,21 @@ end
 cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain; 
 
 %% create two sets of patterns
-cfg = readPatternText(cfg);
-%% generate sequence
 
-% get pattern IDs for all sequences used in the experiment
-% this is to make sure each pattern is used equal number of times in the
-% whole experiment
+% define which pattern IDs to generate sequences 
 cfg.pattern.labelCategA = 'simple'; 
 cfg.pattern.labelCategB = 'complex';
+
+[cfg.pattern.patternA, cfg.pattern.patternB] = readPatternText(cfg);
+
+% add segment labels as "A" and "B"
+cfg.pattern.labelSegmentA = 'A';
+cfg.pattern.labelSegmentB = 'B';
+
+% assign in the patternInfo structure
+[cfg.pattern.patternA.segmentLabel]  = deal('A');
+[cfg.pattern.patternB.segmentLabel]  = deal('B');
+%% generate sequence
 % for exp like fmri that we will present 1 sequence per run, we are
 % creating full exp design in the first run and saving it for the other
 % runs to call .mat file
@@ -171,8 +180,8 @@ cfg.pattern.labelCategB = 'complex';
 %%%%%%%%%%%%
 % ! important, the order of arguments matters ! -> getAllSeqDesign(categA, categB, ...)
 %%%%%%%%%%%%
-[cfg.pattern.seqDesignFullExp,~] = getAllSeqDesign(cfg.pattern.patternSimple, ...
-    cfg.pattern.patternComplex,cfg);
+[cfg.pattern.seqDesignFullExp,~] = getAllSeqDesign(cfg.pattern.patternA, ...
+    cfg.pattern.patternB,cfg);
 % generate example audio for volume setting
 % added F0s-amplitude because the relative dB set in volume adjustment in
 % PychPortAudio will be used in the mainExp
@@ -251,15 +260,21 @@ end
 end
 
 
-function cfg = readPatternText(cfg)
+function [patternA,patternB] = readPatternText(cfg)
 
 % read from txt files
-grahnPatSimple = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_simple.txt')); 
-grahnPatComplex = loadIOIRatiosFromTxt(fullfile('stimuli','Grahn2007_complex.txt')); 
+grahnPatA = loadIOIRatiosFromTxt(...
+                                fullfile('stimuli',...
+                                        ['Grahn2007_',...
+                                        cfg.pattern.labelCategA,'.txt'])); 
+grahnPatB = loadIOIRatiosFromTxt(...
+                                fullfile('stimuli',...
+                                        ['Grahn2007_',...
+                                        cfg.pattern.labelCategB,'.txt'])); 
 
 % get different metrics of the patterns
-cfg.pattern.patternSimple = getPatternInfo(grahnPatSimple, 'simple',cfg); 
-cfg.pattern.patternComplex = getPatternInfo(grahnPatComplex, 'complex', cfg); 
+patternA = getPatternInfo(grahnPatA, cfg.pattern.labelCategA,cfg); 
+patternB = getPatternInfo(grahnPatB, cfg.pattern.labelCategB, cfg); 
 
 end
 

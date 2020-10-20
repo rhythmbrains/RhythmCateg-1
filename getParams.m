@@ -48,6 +48,9 @@ cfg.verbose         = true;        % add here and there some explanations with i
 
 cfg.testingDevice = 'mri';
 cfg.eyeTracker.do = false;          % Set to 'true' if you are testing in MRI and want to record ET data
+
+% PsychPortAudio('GetDevices')
+%  cfg.audio.devIdx = 5;
 cfg.audio.do = true;
 
 %set visual

@@ -2,9 +2,8 @@ function seq = makeSequence(cfg,seqi,varargin)
 % This function constructs a stimulus sequence.
 % by using makeStimMainExp.m script
 
-% it's also using getAllSeqDesign.m to get the (counterbalanced) 
-% order of the patterns with the given run number==seqi (fmri) or
-% expParam.numSequences == seqi (behav)
+% it's also depending on getAllSeqDesign.m output with the given 
+% run number==seqi (fmri) or expParam.numSequences == seqi (behav)
 
 
 % ------
@@ -51,7 +50,7 @@ seq.onset = nan(1, cfg.pattern.nPatternPerSegment * ...
 % put together all the patterns from both categories, we will pick from
 % this using the unique ID of each pattern (we know which IDs we want from
 % the output of getAllSeq function. 
-patterns2choose = [cfg.pattern.patternSimple,cfg.pattern.patternComplex]; 
+patterns2choose = [cfg.pattern.patternA,cfg.pattern.patternB]; 
 
 
 % each pattern will have its own ID (integer number; patterns with the same
@@ -68,13 +67,6 @@ patterns2choose = [cfg.pattern.patternSimple,cfg.pattern.patternComplex];
 
 seq.patternID = cell(1, cfg.pattern.nPatternPerSegment * ...
     cfg.pattern.nSegmPerStep * cfg.pattern.nStepsPerSequence); 
-
-% % THIS IS UNUSED
-% % cell array, each element is a grid representation of the chosen pattern
-% % (successively as the sequence unfolds)
-% seq.outPatterns = cell(1, cfg.pattern.nPatternPerSegment * ...
-% cfg.pattern.nSegmPerStep * cfg.pattern.nStepsPerSequence);
-% % % 
 
 
 % audio waveform of the sequence
@@ -123,8 +115,11 @@ for stepi=1:cfg.pattern.nStepsPerSequence
         % the rest will be B
         if ismember(segmi, [1:cfg.pattern.nSegmentA])            
             currCategLabel = cfg.pattern.labelCategA; 
+            currSegmentLabel = cfg.pattern.labelSegmentA;
+            
         else
             currCategLabel = cfg.pattern.labelCategB; 
+            currSegmentLabel = cfg.pattern.labelSegmentB;
         end
         
         
@@ -146,7 +141,7 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             
             % do a quick check that the assigment of category labels is
             % consistent, if not, give a warning
-            currPatternCateg = regexp(patterns2choose(currPatIdx).ID, '\D*(?=\d.*)', 'match'); 
+            currPatternCateg = regexp(patterns2choose(currPatIdx(1)).ID, '\D*(?=\d.*)', 'match'); 
             currPatternCateg = currPatternCateg{1}; 
             if ~strcmpi(currPatternCateg,currCategLabel)
                 warning('mismatching category labels during sequence construction...'); 
@@ -234,57 +229,36 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             
             %% NEW
             % % %
-            % long ! pitches are not counterbalanced! 
+            % long !
             % % %
             % last checkpoint is if fixed-pitch  is requested for
             % CategB
             if isfield(cfg.pattern,'fixedPitchCategB')
                 
                 % only categB is with fixed pitch
-                if cfg.pattern.fixedPitchCategB && strcmpi(currPatternCateg,'complex')
-                    %assign to the different pitch to categB
+                if cfg.pattern.fixedPitchCategB && strcmpi(currSegmentLabel,'B')
+                    %assign to the 5th pitch to all categB patterns
                     currF0 = cfg.pattern.differF0;
                     currAmp = cfg.pattern.F0sAmps(end);
                     currF0idx = cfg.pattern.nF0 + 1; % 5th pitch !!!!!!!!
                     
-                elseif cfg.pattern.fixedPitchCategB && strcmpi(currPatternCateg,'simple')
+                elseif cfg.pattern.fixedPitchCategB && strcmpi(currSegmentLabel,'A')
                     
-                    
-                    % counterbalance the pitches across patterns
-                    if mod(pati, numPitch) == 1
-                        
-                        %reset the counter
-                        cPitch = 1;
-                        
-                        % shuffle the F0 array & get one F0
-                        arrayPitchIdx = Shuffle(1:numPitch);
-                        pitch2ChooseIdx = arrayPitchIdx(cPitch);
-                        
-                        % prevent repetition of pitch in sequential
-                        % patterns
-                        while pitch2ChooseIdx == currF0idx
-                            
-                            % shuffle the F0 array & get one F0
-                            arrayPitchIdx = Shuffle(1:numPitch);
-                            pitch2ChooseIdx = arrayPitchIdx(cPitch);
-                            
-                        end
-                        
-                    else
-                        % increase pitch counter
-                        cPitch = cPitch+1;
-                        % get the following F0
-                        pitch2ChooseIdx = arrayPitchIdx(cPitch);
-                    end
+                    currF0idx = squeeze(cfg.pattern.seqDesignToneF0(seqi,stepi,segmi,pati,:)); 
 
+                    currF0idxMask = currF0idx > 0; 
                     
                     % assign the index to current F0 index
-                    currF0idx = pitch2ChooseIdx; 
+                    currF0idx(currF0idx==0) = []; 
                     
                     %assign the randomly chosen ones to current pitch
-                    currF0 = cfg.pattern.F0s(currF0idx);
-                    currAmp = cfg.pattern.F0sAmps(currF0idx);
-
+                    currF0 = zeros(size(currF0idxMask)); 
+                    currF0(currF0idxMask) = cfg.pattern.F0s(currF0idx);
+                    
+                    currAmp = zeros(size(currF0idxMask)); 
+                    currAmp(currF0idxMask) = cfg.pattern.F0sAmps(currF0idx);
+                    
+                    currF0idx = squeeze(cfg.pattern.seqDesignToneF0(seqi,stepi,segmi,pati,:)); 
 
                 end
             end 
@@ -379,6 +353,7 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             
             seq(cPat,1).patternID   = currPatID;
             seq(cPat,1).segmentCateg   = currCategLabel;
+            seq(cPat,1).segmentLabel   = currSegmentLabel;
             seq(cPat,1).onset       = currTimePoint;
             seq(cPat,1).segmentNum  = segmi;
             seq(cPat,1).segmentOnset = segmentOnset;
@@ -387,9 +362,9 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             seq(cPat,1).isTask      = cfg.isTask.Idx;
             
             seq(cPat,1).pattern     = currPattern; 
-            seq(cPat,1).F0          = currF0;
+            seq(cPat,1).F0          = currF0(1);
             seq(cPat,1).gridIOI     = currGridIOI;
-            seq(cPat,1).patternAmp  = currAmp;
+            seq(cPat,1).patternAmp  = currAmp(1);
 
             
             % get pattern info e.g. PE and LHL
