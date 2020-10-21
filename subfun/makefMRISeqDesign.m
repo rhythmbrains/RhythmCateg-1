@@ -57,8 +57,8 @@ else
     design = load([savepath,'SeqDesign']);
     cfg.pattern.seqDesignFullExp = design.DesignFullExp;
     cfg.pattern.taskIdxMatrix = design.cfg.pattern.taskIdxMatrix; 
-    cfg.pattern.seqDesignSegment = design.cfg.pattern.seqDesignSegment;
-    cfg.pattern.seqDesignToneF0 = design.cfg.pattern.seqDesignToneF0;
+    cfg.pattern.seqDesignSegment = design.DesignSegment;
+    cfg.pattern.seqDesignToneF0 = design.DesignToneF0;
 
     
 end
