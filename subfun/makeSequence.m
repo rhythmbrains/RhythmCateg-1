@@ -325,6 +325,7 @@ for stepi=1:cfg.pattern.nStepsPerSequence
                 % the current F0s index is used for finding the
                 % taskSound
                 cfg.isTask.F0Idx = currF0idx;
+                
             else 
                 cfg.isTask.Idx = 0;
             end
