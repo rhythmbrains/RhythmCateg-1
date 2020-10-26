@@ -91,7 +91,7 @@ for seqi=1:numSequences
                        
                        if mod(counter,cfg.pattern.nF0) == 1
                            counter = 1;
-                           disp('-----')
+%                            disp('-----')
                            arrayPitchIdx = Shuffle(1:cfg.pattern.nF0);
                            
                            % prevent repetition of pitch in sequential
@@ -105,7 +105,7 @@ for seqi=1:numSequences
                        % assign
                        currF0idx = arrayPitchIdx(counter); 
                        
-                       disp(currF0idx)
+%                        disp(currF0idx)
                        
                        seqDesignToneF0(seqi,stepi,segmi,pati,whichTone(iTone)) = currF0idx; 
                        counter = counter + 1;

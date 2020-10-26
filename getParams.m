@@ -251,7 +251,7 @@ cfg.timing.endDelay = 4 * cfg.mri.repetitionTime; %10.4s
 % ending timings for fMRI
 cfg.timing.endScreenDelay = 2; %end the screen after thank you screen
 % delay for script ending
-cfg.timing.endResponseDelay = 13; % wait for participant to response for counts
+cfg.timing.endResponseDelay = 10; % wait for participant to response for counts
 
 
 
