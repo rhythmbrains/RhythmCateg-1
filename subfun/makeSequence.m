@@ -138,18 +138,13 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             currPatID = cfg.pattern.seqDesignFullExp{seqi,stepi,segmi,pati}; 
             currPatIdx = find(strcmp(currPatID,{patterns2choose.ID}));
 
-            % find the current segment and Categ labels  
-            currSegmentLabel = patterns2choose(currPatIdx(1)).segmentLabel; 
-            
-            % do a quick check that the assigment of category labels is
-            % consistent, if not, give a warning
+            % find if this pattern categ, simple or complex
             currPatternCateg = regexp(patterns2choose(currPatIdx(1)).ID, '\D*(?=\d.*)', 'match'); 
             currPatternCateg = currPatternCateg{1}; 
             currCategLabel = currPatternCateg;
-%             if ~strcmpi(currPatternCateg,currCategLabel)
-%                 warning('mismatching category labels during sequence construction...'); 
-%             end
             
+            %find segment info, if it's A/B
+            currSegmentLabel = cfg.pattern.seqDesignSegment{seqi,stepi,segmi,pati}; 
             
             % --------------------------------------------------
             % ----- determine if gridIOI needs to be changed ---
@@ -328,7 +323,6 @@ for stepi=1:cfg.pattern.nStepsPerSequence
                 % the current F0s index is used for finding the
                 % taskSound
                 cfg.isTask.F0Idx = currF0idx;
-                %currF0idx
 
                 
             else 
