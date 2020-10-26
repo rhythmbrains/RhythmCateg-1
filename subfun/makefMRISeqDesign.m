@@ -10,6 +10,17 @@ function cfg = makefMRISeqDesign(cfg)
 % depending on the expParam.runNb parameter, one should be causious on
 % changing the function's location.(e.g. after the script gets runNb)
 
+%%%%%%%%%%%%
+% ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
+% getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
+%%%%%%%%%%%%
+
+%%%%%%%%%%%%
+% keep in mind:
+% DesginFullExp (runNum, stepNum,segmentNum,patternNum)
+%%%%%%%%%%%%
+
+
 % if debug, put back run =1 so in the main script sequence =runNb ==1
 runNb = cfg.subject.runNb;
 
@@ -21,41 +32,35 @@ end
 savepath = fullfile(fileparts(mfilename('fullpath')),'../');
 
 %% Get counterbalanced sequences according to the total fMRI RUNs
-%%%%%%%%%%%%
-% to do!
-% ADD SHUFFLE ORDER FOR STARTING WITH A OR B CATEG for BLOCK DESING !
-%%%%%%%%%%%%
 
-%%%%%%%%%%%%
-% ! important, the order of arguments matters ! -> getAllSeq(categA, categB, ...)
-% getAllSeqDesign(cfg.patternSimple, cfg.patternComplex, cfg, expParam);
-%%%%%%%%%%%%
-
-%%%%%%%%%%%%
-% keep in mind:
-% DesginFullExp (runNum, stepNum,segmentNum,patternNum)
-%%%%%%%%%%%%
 
 if runNb == 1
     
     % get the design
-    [DesignFullExp, DesignSegment, DesignToneF0] = getAllSeqDesign(...
-                                        cfg.pattern.patternA,...
-                                        cfg.pattern.patternB, cfg);
-                                    
+    [DesignCateg, DesignSegment, DesignToneF0] = getAllSeqDesign(...
+        cfg.pattern.patternA,...
+        cfg.pattern.patternB, cfg);
+    
+    % get design pseudorandomized A/B if it's BlockDesign
+    if strcmp(cfg.task.name,'RhythmCategBlock')
+        [DesignCateg, DesignSegment] = addRandomCategOrder(cfg, ...
+            DesignCateg, ...
+            DesignSegment);
+    end
+       
     % add Task according to SegmentLabels
     cfg = addRandomizedTask(cfg,DesignSegment,cfg.pattern.numSequences);
     
     %save the Design
-    save([savepath,'SeqDesign'],'DesignFullExp','DesignSegment','DesignToneF0','cfg');
-    cfg.pattern.seqDesignFullExp = DesignFullExp;
+    save([savepath,'SeqDesign'],'DesignCateg','DesignSegment','DesignToneF0','cfg');
+    cfg.pattern.seqDesignFullExp = DesignCateg;
     cfg.pattern.seqDesignSegment = DesignSegment;
     cfg.pattern.seqDesignToneF0 = DesignToneF0;
     
 else
     
     design = load([savepath,'SeqDesign']);
-    cfg.pattern.seqDesignFullExp = design.DesignFullExp;
+    cfg.pattern.seqDesignFullExp = design.DesignCateg;
     cfg.pattern.taskIdxMatrix = design.cfg.pattern.taskIdxMatrix; 
     cfg.pattern.seqDesignSegment = design.DesignSegment;
     cfg.pattern.seqDesignToneF0 = design.DesignToneF0;
@@ -88,7 +93,7 @@ if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
     
     
     %save to be called later in runs
-    DesignFullExp = cfg.pattern.seqDesignFullExp;
+    DesignCateg = cfg.pattern.seqDesignFullExp;
     DesignSegment = cfg.pattern.seqDesignSegment;
     DesignToneF0 = cfg.pattern.seqDesignToneF0;
     save([savepath,'SeqDesign'],'DesignFullExp','DesignSegment',...
@@ -161,3 +166,50 @@ end
 cfg.pattern.taskIdxMatrix = taskIdxMatrix;
 
 end
+
+function [DesignCateg, DesignSegment] = addRandomCategOrder(cfg, DesignCateg, DesignSegment)
+
+numRun = cfg.pattern.numSequences;
+
+% if subject nb is odd choose 4 runs to change order else 5 runs
+% numRunToChange = round(numRun/2);
+if mod(cfg.subject.subjectNb,2)
+    numRunToChange = 4;
+else
+    numRunToChange = 5;
+end
+
+
+%get shuffled
+idxRuns = Shuffle(1:numRun);
+idxRuns = idxRuns(1:numRunToChange);
+
+for iRun= 1:numRunToChange
+    
+    currRun = idxRuns(iRun);
+    
+    % change Design and Segment
+    % dims: [seq x step x segm x pat]
+    % 1x5x2x4
+    currRunDesign = DesignCateg(currRun,:,:,:);
+    % flip segments - dim:3
+    flipCurrRunDesign = flip(currRunDesign, 3);
+    DesignCateg(currRun,:,:,:) = flipCurrRunDesign;
+    
+    % do the same for SegmentLabel
+    currRunSegment = DesignSegment(currRun,:,:,:);
+    flipCurrRunSegment = flip(currRunSegment, 3);
+    DesignSegment(currRun,:,:,:) = flipCurrRunSegment;
+end
+end
+
+
+
+
+
+
+
+
+
+
+

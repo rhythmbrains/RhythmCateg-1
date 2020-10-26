@@ -110,17 +110,17 @@ for stepi=1:cfg.pattern.nStepsPerSequence
         % take the  timestamp for logging the current segment time
         segmentOnset  = currTimePoint;
         
-        % Determine which segment category this is (A or B), 
-        % the first 'cfg.pattern.nSegmentA' segments will be category A, 
-        % the rest will be B
-        if ismember(segmi, [1:cfg.pattern.nSegmentA])            
-            currCategLabel = cfg.pattern.labelCategA; 
-            currSegmentLabel = cfg.pattern.labelSegmentA;
-            
-        else
-            currCategLabel = cfg.pattern.labelCategB; 
-            currSegmentLabel = cfg.pattern.labelSegmentB;
-        end
+%         % Determine which segment category this is (A or B), 
+%         % the first 'cfg.pattern.nSegmentA' segments will be category A, 
+%         % the rest will be B
+%         if ismember(segmi, [1:cfg.pattern.nSegmentA])            
+%             currCategLabel = cfg.pattern.labelCategA; 
+%             currSegmentLabel = cfg.pattern.labelSegmentA;
+%             
+%         else
+%             currCategLabel = cfg.pattern.labelCategB; 
+%             currSegmentLabel = cfg.pattern.labelSegmentB;
+%         end
         
         
         
@@ -138,14 +138,17 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             currPatID = cfg.pattern.seqDesignFullExp{seqi,stepi,segmi,pati}; 
             currPatIdx = find(strcmp(currPatID,{patterns2choose.ID}));
 
+            % find the current segment and Categ labels  
+            currSegmentLabel = patterns2choose(currPatIdx(1)).segmentLabel; 
             
             % do a quick check that the assigment of category labels is
             % consistent, if not, give a warning
             currPatternCateg = regexp(patterns2choose(currPatIdx(1)).ID, '\D*(?=\d.*)', 'match'); 
             currPatternCateg = currPatternCateg{1}; 
-            if ~strcmpi(currPatternCateg,currCategLabel)
-                warning('mismatching category labels during sequence construction...'); 
-            end
+            currCategLabel = currPatternCateg;
+%             if ~strcmpi(currPatternCateg,currCategLabel)
+%                 warning('mismatching category labels during sequence construction...'); 
+%             end
             
             
             % --------------------------------------------------
@@ -325,6 +328,8 @@ for stepi=1:cfg.pattern.nStepsPerSequence
                 % the current F0s index is used for finding the
                 % taskSound
                 cfg.isTask.F0Idx = currF0idx;
+                %currF0idx
+
                 
             else 
                 cfg.isTask.Idx = 0;
