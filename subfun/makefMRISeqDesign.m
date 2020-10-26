@@ -87,8 +87,10 @@ if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
         extraSeqToneF0];
     
     
-    %save
+    %save to be called later in runs
     DesignFullExp = cfg.pattern.seqDesignFullExp;
+    DesignSegment = cfg.pattern.seqDesignSegment;
+    DesignToneF0 = cfg.pattern.seqDesignToneF0;
     save([savepath,'SeqDesign'],'DesignFullExp','DesignSegment',...
                                 'cfg','extracfg','extraSeqSegment',...
                                 'DesignToneF0','extraSeqToneF0');
