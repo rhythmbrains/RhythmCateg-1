@@ -106,8 +106,8 @@ if strcmpi(cfg.testingDevice,'mri')
     
     %Fixation Cross
     % Used Pixels here since it really small and can be adjusted during the experiment
-    cfg.fixation.type                   = 'cross';
-    cfg.fixation.width                  = .5;   % Set the length of the lines (in Pixels) of the fixation cross
+    cfg.fixation.type                   = 'bestFixation'; %
+    cfg.fixation.width                  = .9;   % Set the length of the lines (in Pixels) of the fixation cross
     cfg.fixation.lineWidthPix           = 3;    % Set the line width (in Pixels) for our fixation cross
     cfg.fixation.xDisplacement          = 0;    % Manual displacement of the fixation cross
     cfg.fixation.yDisplacement          = 0;    % Manual displacement of the fixation cross
@@ -274,8 +274,8 @@ cfg.color.white = [255 255 255];
 cfg.color.black = [0 0 0];
 cfg.color.red = [255 0 0];
 cfg.color.grey = mean([cfg.color.black; cfg.color.white]);
-cfg.color.background = cfg.color.black;
-cfg.text.color = cfg.color.grey;
+cfg.color.background = cfg.color.grey;
+cfg.text.color = cfg.color.white;
 
 % Monitor parameters
     if strcmpi(cfg.testingDevice, 'mri')
