@@ -110,7 +110,7 @@ if isTask
         targetSoundIdx = cfg.isTask.F0Idx(idxTask);
     end
     
-    disp(targetSoundIdx);
+%     disp(targetSoundIdx);
     currTargetS = cfg.isTask.targetSounds{targetSoundIdx}; %
 
 end
