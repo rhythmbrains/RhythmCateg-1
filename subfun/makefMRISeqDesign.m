@@ -42,7 +42,7 @@ if runNb == 1
         cfg.pattern.patternB, cfg);
     
     % get design pseudorandomized A/B if it's BlockDesign
-    if strcmp(cfg.task.name,'RhythmCategBlock')
+    if strcmp(cfg.task.name,'RhythmBlock')
         [DesignCateg, DesignSegment] = addRandomCategOrder(cfg, ...
             DesignCateg, ...
             DesignSegment);
@@ -96,7 +96,7 @@ if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
     DesignCateg = cfg.pattern.seqDesignFullExp;
     DesignSegment = cfg.pattern.seqDesignSegment;
     DesignToneF0 = cfg.pattern.seqDesignToneF0;
-    save([savepath,'SeqDesign'],'DesignFullExp','DesignSegment',...
+    save([savepath,'SeqDesign'],'DesignCateg','DesignSegment',...
                                 'cfg','extracfg','extraSeqSegment',...
                                 'DesignToneF0','extraSeqToneF0');
     
