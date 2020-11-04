@@ -152,12 +152,12 @@ if strcmp(cfg.task.name,'tapTraining')
     % get tapping training parameters
     cfg = getTrainingParameters(cfg);
     
-elseif strcmp(cfg.task.name,'tapMainExp') || strcmp(cfg.task.name,'RhythmCategFT')
+elseif strcmp(cfg.task.name,'tapMainExp') || strcmp(cfg.task.name,'RhythmFT')
     
     % get main experiment parameters
     cfg = getMainExpParameters(cfg);
     
-elseif strcmp(cfg.task.name,'RhythmCategBlock')
+elseif strcmp(cfg.task.name,'RhythmBlock')
     % get main experiment parameters
     cfg = getBlockParameters(cfg);
     
@@ -236,11 +236,20 @@ cfg.dir.output = fullfile(...
 cfg.mri.triggerKey = 's';
 cfg.mri.triggerNb = 1; % for hyberpand insert 4 here! ! ! 
 
+% json sidecar file for bold data
 cfg.mri.repetitionTime = 1.75;
-
 cfg.bids.MRI.Instructions = 'Fixate to the cross & count the piano tones';
 cfg.bids.MRI.TaskDescription = [];
-
+cfg.bids.mri.SliceTiming = [0, 0.9051, 0.0603, 0.9655, 0.1206, 1.0258, 0.181, ...
+                      1.0862, 0.2413, 1.1465, 0.3017, 1.2069, 0.362, ...
+                      1.2672, 0.4224, 1.3275, 0.4827, 1.3879, 0.5431, ...
+                      1.4482, 0.6034, 1.5086, 0.6638, 1.5689, 0.7241, ...
+                      1.6293, 0.7844, 1.6896, 0.8448, 0, 0.9051, 0.0603, ...
+                      0.9655, 0.1206, 1.0258, 0.181, 1.0862, 0.2413, ...
+                      1.1465, 0.3017, 1.2069, 0.362, 1.2672, 0.4224, ...
+                      1.3275, 0.4827, 1.3879, 0.5431, 1.4482, 0.6034, ...
+                      1.5086, 0.6638, 1.5689, 0.7241, 1.6293, 0.7844, ...
+                      1.6896, 0.8448];
 
 %Number of seconds before the rhythmic sequence (exp) are presented
 cfg.timing.onsetDelay = 2 *cfg.mri.repetitionTime; %5.2s
