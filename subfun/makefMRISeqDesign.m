@@ -28,9 +28,9 @@ if cfg.debug.do
     runNb = 1;
 end
 
-% path to save output
+% path to save design matrix
 saveFileName = [cfg.fileName.base,'_SeqDesign'];
-saveFile = fullfile(fileparts(mfilename('fullpath')),'../stimuli',saveFileName);
+saveFile = fullfile(fileparts(mfilename('fullpath')),'../../output',saveFileName);
 
 
 %% Get counterbalanced sequences according to the total fMRI RUNs
@@ -55,9 +55,14 @@ if runNb == 1
     
     %save the Design
     
-    %chec kif .mat file exists & give an error for overwrite
+    %check if .mat file exists & give an error for overwrite
     if exist([saveFile,'.mat'],'file')
-        error('You are about to overwrite a design matrix! Are you sure?!');
+        reply = input('Do you want to re-run design matrix by runNb = 1? y/n :','s');
+        if strcmp(reply,'y')
+            disp('Okay! I''m overwriting your design matrix, runNb ==1\n');
+        else
+            error('Stopping the overwrite, you clearly did press the wrong runNb!');
+        end
     end
     save(saveFile,'DesignCateg','DesignSegment','DesignToneF0','cfg');
     cfg.pattern.seqDesignFullExp = DesignCateg;
@@ -162,7 +167,9 @@ for irun=1:length(taskIdxMatrix)
     while taskIdxMatrix(irun) == 1
         
         idxCategATarget = Shuffle(categA);
+        idxCategBTarget = Shuffle(categB);
         taskIdxMatrix(idxCategA)= idxCategATarget;
+        taskIdxMatrix(idxCategB)= idxCategBTarget;
         
     end
     if taskIdxMatrix(irun)
