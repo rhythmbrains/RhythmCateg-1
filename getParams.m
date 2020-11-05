@@ -42,7 +42,7 @@ cfg.debug.do        = false ;
 cfg.debug.transpWin = false ;     % To test the script with trasparent full size screen
 cfg.debug.smallWin  = false;
 cfg.verbose         = true;        % add here and there some explanations with if verbose is ON. 
-% cfg.verbose = false;
+
     
 %% MRI settings
 
@@ -106,12 +106,12 @@ if strcmpi(cfg.testingDevice,'mri')
     
     %Fixation Cross
     % Used Pixels here since it really small and can be adjusted during the experiment
-    cfg.fixation.type                   = 'bestFixation'; %
+    cfg.fixation.type                   = 'cross'; %
     cfg.fixation.width                  = .9;   % Set the length of the lines (in Pixels) of the fixation cross
-    cfg.fixation.lineWidthPix           = 3;    % Set the line width (in Pixels) for our fixation cross
+    cfg.fixation.lineWidthPix           = 5;    % Set the line width (in Pixels) for our fixation cross
     cfg.fixation.xDisplacement          = 0;    % Manual displacement of the fixation cross
     cfg.fixation.yDisplacement          = 0;    % Manual displacement of the fixation cross
-    cfg.fixation.color                  = cfg.color.grey;
+    cfg.fixation.color                  = cfg.color.white;
 
     %Task
     cfg.task.instruction = 'Fixate to the cross & count the piano tones\n \n\n';
@@ -286,11 +286,12 @@ cfg.color.grey = mean([cfg.color.black; cfg.color.white]);
 cfg.color.background = cfg.color.grey;
 cfg.text.color = cfg.color.white;
 
-% Monitor parameters
-    if strcmpi(cfg.testingDevice, 'mri')
-        cfg.screen.monitorWidth = 69.8;
-        cfg.screen.monitorDistance = 170;
-    end
+% % Monitor parameters
+% if strcmpi(cfg.testingDevice, 'mri')
+%     cfg.screen.monitorWidth = 69.8;
+%     cfg.screen.monitorDistance = 170;
+% end
+
 end
 
 
