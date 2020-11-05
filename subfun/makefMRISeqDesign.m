@@ -64,6 +64,7 @@ if runNb == 1
             error('Stopping the overwrite, you clearly did press the wrong runNb!');
         end
     end
+    
     save(saveFile,'DesignCateg','DesignSegment','DesignToneF0','cfg');
     cfg.pattern.seqDesignFullExp = DesignCateg;
     cfg.pattern.seqDesignSegment = DesignSegment;
@@ -163,6 +164,9 @@ taskIdxMatrix(idxCategB)= idxCategBTarget;
 % control for all the beginning on runs == beginning of
 % sequences
 % A(irun,1,1,1) is equal to A(irun)
+
+%think about below:
+% if sum([taskIdxMatrix(irun,:,:,:)]) > 12 shuffle again?
 for irun=1:length(taskIdxMatrix)
     while taskIdxMatrix(irun) == 1
         
