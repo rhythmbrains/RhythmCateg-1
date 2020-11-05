@@ -191,8 +191,8 @@ end
 % otherwise it's set for PTB to assign. 
 [keyboardNumbers, keyboardNames] = GetKeyboardIndices;
 
-disp(keyboardNumbers);
-disp(keyboardNames);
+% disp(keyboardNumbers);
+% disp(keyboardNames);
 
 
 

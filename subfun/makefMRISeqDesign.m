@@ -29,7 +29,9 @@ if cfg.debug.do
 end
 
 % path to save output
-savepath = fullfile(fileparts(mfilename('fullpath')),'../');
+saveFileName = [cfg.fileName.base,'_SeqDesign'];
+saveFile = fullfile(fileparts(mfilename('fullpath')),'../stimuli',saveFileName);
+
 
 %% Get counterbalanced sequences according to the total fMRI RUNs
 
@@ -52,14 +54,19 @@ if runNb == 1
     cfg = addRandomizedTask(cfg,DesignSegment,cfg.pattern.numSequences);
     
     %save the Design
-    save([savepath,'SeqDesign'],'DesignCateg','DesignSegment','DesignToneF0','cfg');
+    
+    %chec kif .mat file exists & give an error for overwrite
+    if exist([saveFile,'.mat'],'file')
+        error('You are about to overwrite a design matrix! Are you sure?!');
+    end
+    save(saveFile,'DesignCateg','DesignSegment','DesignToneF0','cfg');
     cfg.pattern.seqDesignFullExp = DesignCateg;
     cfg.pattern.seqDesignSegment = DesignSegment;
     cfg.pattern.seqDesignToneF0 = DesignToneF0;
     
 else
     
-    design = load([savepath,'SeqDesign']);
+    design = load(saveFile);
     cfg.pattern.seqDesignFullExp = design.DesignCateg;
     cfg.pattern.taskIdxMatrix = design.cfg.pattern.taskIdxMatrix; 
     cfg.pattern.seqDesignSegment = design.DesignSegment;
@@ -96,7 +103,7 @@ if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
     DesignCateg = cfg.pattern.seqDesignFullExp;
     DesignSegment = cfg.pattern.seqDesignSegment;
     DesignToneF0 = cfg.pattern.seqDesignToneF0;
-    save([savepath,'SeqDesign'],'DesignCateg','DesignSegment',...
+    save(saveFile,'DesignCateg','DesignSegment',...
                                 'cfg','extracfg','extraSeqSegment',...
                                 'DesignToneF0','extraSeqToneF0');
     
