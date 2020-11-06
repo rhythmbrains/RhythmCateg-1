@@ -106,15 +106,12 @@ if strcmpi(cfg.testingDevice,'mri')
     
     %Fixation Cross
     % Used Pixels here since it really small and can be adjusted during the experiment
-%     cfg.fixation.type                   = 'cross'; %
-%     cfg.fixation.width                  = .9;   % Set the length of the lines (in Pixels) of the fixation cross
-%     cfg.fixation.lineWidthPix           = 5;    % Set the line width (in Pixels) for our fixation cross
-%     cfg.fixation.xDisplacement          = 0;    % Manual displacement of the fixation cross
-%     cfg.fixation.yDisplacement          = 0;    % Manual displacement of the fixation cross
-%     cfg.fixation.color                  = cfg.color.white;
-    
-    cfg.fixation.type = 'bestFixation'; % dot bestFixation
-    cfg.fixation.width = .2; % in degrees VA
+    cfg.fixation.type                   = 'bestFixation'; %
+    cfg.fixation.width                  = .2;   % Set the length of the lines (in Pixels) of the fixation cross
+    cfg.fixation.lineWidthPix           = 5;    % Set the line width (in Pixels) for our fixation cross
+    cfg.fixation.xDisplacement          = 0;    % Manual displacement of the fixation cross
+    cfg.fixation.yDisplacement          = 0;    % Manual displacement of the fixation cross
+    cfg.fixation.color                  = cfg.color.white;
 
     %Task
     cfg.task.instruction = 'Fixate to the cross & count the piano tones\n \n\n';
