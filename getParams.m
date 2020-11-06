@@ -42,7 +42,7 @@ cfg.debug.do        = false ;
 cfg.debug.transpWin = false ;     % To test the script with trasparent full size screen
 cfg.debug.smallWin  = false;
 cfg.verbose         = true;        % add here and there some explanations with if verbose is ON. 
-% cfg.verbose = false;
+
     
 %% MRI settings
 
@@ -106,12 +106,12 @@ if strcmpi(cfg.testingDevice,'mri')
     
     %Fixation Cross
     % Used Pixels here since it really small and can be adjusted during the experiment
-    cfg.fixation.type                   = 'bestFixation'; %
+    cfg.fixation.type                   = 'cross'; %
     cfg.fixation.width                  = .9;   % Set the length of the lines (in Pixels) of the fixation cross
-    cfg.fixation.lineWidthPix           = 3;    % Set the line width (in Pixels) for our fixation cross
+    cfg.fixation.lineWidthPix           = 5;    % Set the line width (in Pixels) for our fixation cross
     cfg.fixation.xDisplacement          = 0;    % Manual displacement of the fixation cross
     cfg.fixation.yDisplacement          = 0;    % Manual displacement of the fixation cross
-    cfg.fixation.color                  = cfg.color.grey;
+    cfg.fixation.color                  = cfg.color.white;
 
     %Task
     cfg.task.instruction = 'Fixate to the cross & count the piano tones\n \n\n';
@@ -152,12 +152,12 @@ if strcmp(cfg.task.name,'tapTraining')
     % get tapping training parameters
     cfg = getTrainingParameters(cfg);
     
-elseif strcmp(cfg.task.name,'tapMainExp') || strcmp(cfg.task.name,'RhythmCategFT')
+elseif strcmp(cfg.task.name,'tapMainExp') || strcmp(cfg.task.name,'RhythmFT')
     
     % get main experiment parameters
     cfg = getMainExpParameters(cfg);
     
-elseif strcmp(cfg.task.name,'RhythmCategBlock')
+elseif strcmp(cfg.task.name,'RhythmBlock')
     % get main experiment parameters
     cfg = getBlockParameters(cfg);
     
@@ -191,8 +191,8 @@ end
 % otherwise it's set for PTB to assign. 
 [keyboardNumbers, keyboardNames] = GetKeyboardIndices;
 
-disp(keyboardNumbers);
-disp(keyboardNames);
+% disp(keyboardNumbers);
+% disp(keyboardNames);
 
 
 
@@ -236,11 +236,20 @@ cfg.dir.output = fullfile(...
 cfg.mri.triggerKey = 's';
 cfg.mri.triggerNb = 1; % for hyberpand insert 4 here! ! ! 
 
+% json sidecar file for bold data
 cfg.mri.repetitionTime = 1.75;
-
 cfg.bids.MRI.Instructions = 'Fixate to the cross & count the piano tones';
 cfg.bids.MRI.TaskDescription = [];
-
+cfg.bids.mri.SliceTiming = [0, 0.9051, 0.0603, 0.9655, 0.1206, 1.0258, 0.181, ...
+                      1.0862, 0.2413, 1.1465, 0.3017, 1.2069, 0.362, ...
+                      1.2672, 0.4224, 1.3275, 0.4827, 1.3879, 0.5431, ...
+                      1.4482, 0.6034, 1.5086, 0.6638, 1.5689, 0.7241, ...
+                      1.6293, 0.7844, 1.6896, 0.8448, 0, 0.9051, 0.0603, ...
+                      0.9655, 0.1206, 1.0258, 0.181, 1.0862, 0.2413, ...
+                      1.1465, 0.3017, 1.2069, 0.362, 1.2672, 0.4224, ...
+                      1.3275, 0.4827, 1.3879, 0.5431, 1.4482, 0.6034, ...
+                      1.5086, 0.6638, 1.5689, 0.7241, 1.6293, 0.7844, ...
+                      1.6896, 0.8448];
 
 %Number of seconds before the rhythmic sequence (exp) are presented
 cfg.timing.onsetDelay = 2 *cfg.mri.repetitionTime; %5.2s
@@ -277,11 +286,12 @@ cfg.color.grey = mean([cfg.color.black; cfg.color.white]);
 cfg.color.background = cfg.color.grey;
 cfg.text.color = cfg.color.white;
 
-% Monitor parameters
-    if strcmpi(cfg.testingDevice, 'mri')
-        cfg.screen.monitorWidth = 69.8;
-        cfg.screen.monitorDistance = 170;
-    end
+% % Monitor parameters
+% if strcmpi(cfg.testingDevice, 'mri')
+%     cfg.screen.monitorWidth = 69.8;
+%     cfg.screen.monitorDistance = 170;
+% end
+
 end
 
 

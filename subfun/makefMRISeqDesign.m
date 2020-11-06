@@ -28,8 +28,10 @@ if cfg.debug.do
     runNb = 1;
 end
 
-% path to save output
-savepath = fullfile(fileparts(mfilename('fullpath')),'../');
+% path to save design matrix
+saveFileName = [cfg.fileName.base,'_SeqDesign'];
+saveFile = fullfile(fileparts(mfilename('fullpath')),'../../output',saveFileName);
+
 
 %% Get counterbalanced sequences according to the total fMRI RUNs
 
@@ -42,7 +44,7 @@ if runNb == 1
         cfg.pattern.patternB, cfg);
     
     % get design pseudorandomized A/B if it's BlockDesign
-    if strcmp(cfg.task.name,'RhythmCategBlock')
+    if strcmp(cfg.task.name,'RhythmBlock')
         [DesignCateg, DesignSegment] = addRandomCategOrder(cfg, ...
             DesignCateg, ...
             DesignSegment);
@@ -52,14 +54,25 @@ if runNb == 1
     cfg = addRandomizedTask(cfg,DesignSegment,cfg.pattern.numSequences);
     
     %save the Design
-    save([savepath,'SeqDesign'],'DesignCateg','DesignSegment','DesignToneF0','cfg');
+    
+    %check if .mat file exists & give an error for overwrite
+    if exist([saveFile,'.mat'],'file')
+        reply = input('Do you want to re-run design matrix by runNb = 1? y/n :','s');
+        if strcmp(reply,'y')
+            disp('Okay! I''m overwriting your design matrix, runNb ==1\n');
+        else
+            error('Stopping the overwrite, you clearly did press the wrong runNb!');
+        end
+    end
+    
+    save(saveFile,'DesignCateg','DesignSegment','DesignToneF0','cfg');
     cfg.pattern.seqDesignFullExp = DesignCateg;
     cfg.pattern.seqDesignSegment = DesignSegment;
     cfg.pattern.seqDesignToneF0 = DesignToneF0;
     
 else
     
-    design = load([savepath,'SeqDesign']);
+    design = load(saveFile);
     cfg.pattern.seqDesignFullExp = design.DesignCateg;
     cfg.pattern.taskIdxMatrix = design.cfg.pattern.taskIdxMatrix; 
     cfg.pattern.seqDesignSegment = design.DesignSegment;
@@ -96,7 +109,7 @@ if runNb > cfg.pattern.numSequences && mod(runNb,3)==1
     DesignCateg = cfg.pattern.seqDesignFullExp;
     DesignSegment = cfg.pattern.seqDesignSegment;
     DesignToneF0 = cfg.pattern.seqDesignToneF0;
-    save([savepath,'SeqDesign'],'DesignCateg','DesignSegment',...
+    save(saveFile,'DesignCateg','DesignSegment',...
                                 'cfg','extracfg','extraSeqSegment',...
                                 'DesignToneF0','extraSeqToneF0');
     
@@ -151,11 +164,16 @@ taskIdxMatrix(idxCategB)= idxCategBTarget;
 % control for all the beginning on runs == beginning of
 % sequences
 % A(irun,1,1,1) is equal to A(irun)
+
+%think about below:
+% if sum([taskIdxMatrix(irun,:,:,:)]) > 12 shuffle again?
 for irun=1:length(taskIdxMatrix)
     while taskIdxMatrix(irun) == 1
         
         idxCategATarget = Shuffle(categA);
+        idxCategBTarget = Shuffle(categB);
         taskIdxMatrix(idxCategA)= idxCategATarget;
+        taskIdxMatrix(idxCategB)= idxCategBTarget;
         
     end
     if taskIdxMatrix(irun)
