@@ -442,7 +442,7 @@ elseif any(strcmpi(varargin,'instrAndQuitOption'))
 else
     
     % display instructions in the center of cfg.screen 
-    DrawFormattedText(cfg.screen.win,instrTxt,'center','center',cfg.color.grey); 
+    DrawFormattedText(cfg.screen.win,instrTxt,'center','center',cfg.text.color); 
 
     Screen('Flip',cfg.screen.win); 
     
