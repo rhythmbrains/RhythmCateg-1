@@ -107,7 +107,7 @@ if strcmpi(cfg.testingDevice,'mri')
     %Fixation Cross
     % Used Pixels here since it really small and can be adjusted during the experiment
     cfg.fixation.type                   = 'bestFixation'; %
-    cfg.fixation.width                  = .2;   % Set the length of the lines (in Pixels) of the fixation cross
+    cfg.fixation.width                  = .6;   % Set the length of the lines (in Pixels) of the fixation cross
     cfg.fixation.lineWidthPix           = 5;    % Set the line width (in Pixels) for our fixation cross
     cfg.fixation.xDisplacement          = 0;    % Manual displacement of the fixation cross
     cfg.fixation.yDisplacement          = 0;    % Manual displacement of the fixation cross
