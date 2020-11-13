@@ -114,13 +114,14 @@ if strcmpi(cfg.testingDevice,'mri')
     cfg.fixation.color                  = cfg.color.white;
 
     %Task
-    cfg.task.instruction = 'Fixate to the cross & count the piano tones\n \n\n';
+    cfg.task.instruction = ['If you saw a shiny ! point, don''t mind it. It''s OK! \n\n\n'...
+                           'Your task is: Fixate to the cross & count the piano tones\n\n\n'];
     cfg.task.instructionPress = ['Please indicate by pressing button, '...
                                  'how many times you detected piano tones\n\n\n'];
-    cfg.task.instructionEnd = ['DONE. \n\n\nTHANK YOU FOR PARTICIPATING '...
+    cfg.task.instructionEnd = ['You are at the VERY LAST BLOCK.' ...
                                ':)\n\n\n Soon we will take you out!'];
     cfg.task.instructionCont = ['This run is over. We will shortly start'...
-                                ' the following!'];
+                                ' the following ! \n\n\n'];
     % set default for no-task 
     cfg.isTask.Idx = 0;
     
