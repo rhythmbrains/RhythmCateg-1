@@ -28,32 +28,13 @@ try
     % Init the experiment
     [cfg] = initPTB(cfg);
 
-    
-    % Prepare for the output logfiles - BIDS
-    logFile  = saveEventsFile('open', cfg,[],'sequenceNum',...
-        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-        'category','F0','gridIOI','patternAmp','PE4','minPE4',...
-        'rangePE4','LHL24','minLHL24','rangeLHL24');
-
+    % create  logfile with extra columns to save - BIDS
+    logFile.extraColumns = cfg.extraColumns;
+    [logFile]  = saveEventsFile('open', cfg, logFile); %dummy initialise
 
     % show instructions and do initial volume setting
-    currInstrPage = 1; 
-    nInstrPages = length(cfg.introInstruction); 
-    while 1
-        % display instructions and wait for action
-        subAction = displayInstr(cfg.introInstruction{currInstrPage}, cfg, 'setVolumePrevNext', ...
-                                 'currInstrPage', currInstrPage, ...
-                                 'nInstrPages', nInstrPages); 
-        % go one instruction page forward or backward (depending on subject's action)                      
-        if strcmp(subAction,'oneInstrPageForward')
-            currInstrPage = min(currInstrPage+1, length(cfg.introInstruction)); 
-        elseif strcmp(subAction,'oneInstrPageBack')
-            currInstrPage = max(currInstrPage-1, 1); 
-        elseif strcmp(subAction,'done')
-            break
-        end
-    end
-        
+    setVolume(cfg);
+
     % more instructions
     displayInstr(cfg.trialDurInstruction,cfg,'setVolume');
 
