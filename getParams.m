@@ -46,7 +46,7 @@ cfg.verbose         = true;        % add here and there some explanations with i
     
 %% MRI settings
 
-cfg.testingDevice = 'mri';
+cfg.testingDevice = 'pc';
 cfg.eyeTracker.do = false;          % Set to 'true' if you are testing in MRI and want to record ET data
 
 % PsychPortAudio('GetDevices')
@@ -213,17 +213,17 @@ cfg.keyboard.keyboard = [];
 cfg.keyboard.responseBox = [];
 
 
-% %behavioral exp keys to check
-% cfg.keywait         = KbName({'RETURN'}); % press enter to start bloc
-% cfg.keyquit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
-% cfg.keyToggleInstr  = KbName({'I'}); % press I to show/remove general instructions from the screen
-% cfg.keytap          = KbName('SPACE');
-% cfg.keyVolUp        = KbName('UpArrow');
-% cfg.keyVolDown      = KbName('DownArrow');
-% cfg.keyAudioPlay    = KbName('p');
-% cfg.keyAudioStop    = KbName('s');
-% cfg.keyInstrBack    = KbName('b');
-% cfg.keyInstrNext    = KbName('n');
+% behavioral exp keys to check
+cfg.keyboard.wait         = KbName({'RETURN'}); % press enter to start bloc
+cfg.keyboard.quit         = KbName('ESCAPE'); % press ESCAPE at response time to quit
+cfg.keyboard.toggleInstr  = KbName({'I'}); % press I to show/remove general instructions from the screen
+cfg.keyboard.tap          = KbName('SPACE');
+cfg.keyboard.volUp        = KbName('UpArrow');
+cfg.keyboard.volDown      = KbName('DownArrow');
+cfg.keyboard.audioPlay    = KbName('p');
+cfg.keyboard.audioStop    = KbName('s');
+cfg.keyboard.instrBack    = KbName('b');
+cfg.keyboard.instrNext    = KbName('n');
 
 
 if strcmpi(cfg.testingDevice, 'mri')

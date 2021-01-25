@@ -36,9 +36,9 @@ if any(strcmpi(varargin,'setVolume'))
     PsychPortAudio('FillBuffer',cfg.pahandle,cfg.volumeSettingSound); 
     
     % set allowed keys  
-    allowedKeys = [cfg.keyAudioPlay, cfg.keyAudioStop, ...
-                   cfg.keyVolDown, cfg.keyVolUp, ...
-                   cfg.keywait, cfg.keyquit]; 
+    allowedKeys = [cfg.keyboard.audioPlay, cfg.keyboard.audioStop, ...
+                   cfg.keyboard.volDown, cfg.keyboard.volUp, ...
+                   cfg.keyboard.wait, cfg.keyboard.quit]; 
                
     % wait for participatnt's response          
     while 1
@@ -50,10 +50,10 @@ if any(strcmpi(varargin,'setVolume'))
         DrawFormattedText(cfg.screen.win,'Press [ENTER] to continue...','center',cfg.screen.winHeight*0.9,cfg.white); 
 
         % display quit option in the cfg.screen corner
-        txt = sprintf([sprintf(' Press [%s] to play test sound\n',KbName(cfg.keyAudioPlay)), ...
-               sprintf(' Press [%s] to stop test sound\n',KbName(cfg.keyAudioStop)), ...
-               sprintf(' Press [%s] to increase volume\n',KbName(cfg.keyVolUp)), ...
-               sprintf(' Press [%s] to decrease volume\n',KbName(cfg.keyVolDown)), ...
+        txt = sprintf([sprintf(' Press [%s] to play test sound\n',KbName(cfg.keyboard.audioPlay)), ...
+               sprintf(' Press [%s] to stop test sound\n',KbName(cfg.keyboard.audioStop)), ...
+               sprintf(' Press [%s] to increase volume\n',KbName(cfg.keyboard.volUp)), ...
+               sprintf(' Press [%s] to decrease volume\n',KbName(cfg.keyboard.volDown)), ...
                sprintf('\n Volume = %d%%\n',round(PsychPortAudio('Volume',cfg.pahandle)*100)), ...
                ]); 
         tbx     = Screen('TextBounds', cfg.screen.win, txt);
@@ -65,7 +65,7 @@ if any(strcmpi(varargin,'setVolume'))
 
         
         % display quit option 
-        txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyquit)); 
+        txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyboard.quit)); 
         tbx     = Screen('TextBounds', cfg.screen.win, txt);
         width   = tbx(3);
         height  = tbx(4);
@@ -79,28 +79,28 @@ if any(strcmpi(varargin,'setVolume'))
         % wait for keypress
         keyCodePressed = waitForKeyKbCheck(allowedKeys); 
         
-        if ismember(keyCodePressed, cfg.keyAudioPlay)
+        if ismember(keyCodePressed, cfg.keyboard.audioPlay)
             PsychPortAudio('Stop',cfg.pahandle); 
             PsychPortAudio('Start',cfg.pahandle); 
             
-        elseif ismember(keyCodePressed, cfg.keyAudioStop)
+        elseif ismember(keyCodePressed, cfg.keyboard.audioStop)
             PsychPortAudio('Stop',cfg.pahandle); 
 
-        elseif ismember(keyCodePressed, cfg.keyVolUp)         
+        elseif ismember(keyCodePressed, cfg.keyboard.volUp)         
             oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
             newVolume = min(oldVolume+0.05, 1); 
             PsychPortAudio('Volume',cfg.pahandle,newVolume);
             
-        elseif ismember(keyCodePressed, cfg.keyVolDown)
+        elseif ismember(keyCodePressed, cfg.keyboard.volDown)
             oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
             newVolume = max(oldVolume-0.05, 0); 
             PsychPortAudio('Volume',cfg.pahandle,newVolume);
  
-        elseif ismember(keyCodePressed, cfg.keywait)
+        elseif ismember(keyCodePressed, cfg.keyboard.wait)
             PsychPortAudio('Stop',cfg.pahandle); 
             break
             
-        elseif ismember(keyCodePressed, cfg.keyquit)
+        elseif ismember(keyCodePressed, cfg.keyboard.quit)
             PsychPortAudio('Stop',cfg.pahandle); 
             error('experiment terminated by user'); 
             
@@ -126,10 +126,10 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
     PsychPortAudio('FillBuffer',cfg.pahandle,cfg.volumeSettingSound); 
     
     % set allowed keys  
-    allowedKeys = [cfg.keyAudioPlay, cfg.keyAudioStop, ...
-                   cfg.keyVolDown, cfg.keyVolUp, ...
-                   cfg.keyInstrBack, cfg.keyInstrNext, ...
-                   cfg.keywait, cfg.keyquit]; 
+    allowedKeys = [cfg.keyboard.audioPlay, cfg.keyboard.audioStop, ...
+                   cfg.keyboard.volDown, cfg.keyboard.volUp, ...
+                   cfg.keyboard.instrBack, cfg.keyboard.instrNext, ...
+                   cfg.keyboard.wait, cfg.keyboard.quit]; 
    
     % get current instruction page index from varargin
     if any(strcmpi(varargin,'currInstrPage'))
@@ -159,10 +159,10 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         end
         
         % display quit option in the cfg.screen corner
-        txt = sprintf([sprintf(' Press [%s] to play test sound\n',KbName(cfg.keyAudioPlay)), ...
-               sprintf(' Press [%s] to stop test sound\n',KbName(cfg.keyAudioStop)), ...
-               sprintf(' Press [%s] to increase volume\n',KbName(cfg.keyVolUp)), ...
-               sprintf(' Press [%s] to decrease volume\n',KbName(cfg.keyVolDown)), ...
+        txt = sprintf([sprintf(' Press [%s] to play test sound\n',KbName(cfg.keyboard.audioPlay)), ...
+               sprintf(' Press [%s] to stop test sound\n',KbName(cfg.keyboard.audioStop)), ...
+               sprintf(' Press [%s] to increase volume\n',KbName(cfg.keyboard.volUp)), ...
+               sprintf(' Press [%s] to decrease volume\n',KbName(cfg.keyboard.volDown)), ...
                sprintf('\n Volume = %d%%\n',round(PsychPortAudio('Volume',cfg.pahandle)*100)), ...
                ]); 
         tbx     = Screen('TextBounds', cfg.screen.win, txt);
@@ -173,7 +173,7 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         DrawFormattedText(cfg.screen.win, txt, r(RectLeft), r(RectBottom), cfg.white);
         
         % display quit option 
-        txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyquit)); 
+        txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyboard.quit)); 
         tbx     = Screen('TextBounds', cfg.screen.win, txt);
         width   = tbx(3);
         height  = tbx(4); 
@@ -183,8 +183,8 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         
         % display previous option for instruction pages
         txt = sprintf( [sprintf('page %d/%d \n', currInstrPage, nInstrPages), ...
-                        sprintf('press [%s] to go forward\n', KbName(cfg.keyInstrNext)), ...
-                        sprintf('press [%s] to go back\n', KbName(cfg.keyInstrBack)), ...
+                        sprintf('press [%s] to go forward\n', KbName(cfg.keyboard.instrNext)), ...
+                        sprintf('press [%s] to go back\n', KbName(cfg.keyboard.instrBack)), ...
                         ]); 
         nLines  = 3; 
         tbx     = Screen('TextBounds', cfg.screen.win, txt);
@@ -201,38 +201,38 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         % wait for keypress
         keyCodePressed = waitForKeyKbCheck(allowedKeys); 
         
-        if ismember(keyCodePressed, cfg.keyAudioPlay)
+        if ismember(keyCodePressed, cfg.keyboard.audioPlay)
             PsychPortAudio('Stop',cfg.pahandle); 
             PsychPortAudio('Start',cfg.pahandle); 
             
-        elseif ismember(keyCodePressed, cfg.keyAudioStop)
+        elseif ismember(keyCodePressed, cfg.keyboard.audioStop)
             PsychPortAudio('Stop',cfg.pahandle); 
 
-        elseif ismember(keyCodePressed, cfg.keyVolUp)         
+        elseif ismember(keyCodePressed, cfg.keyboard.volUp)         
             oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
             newVolume = min(oldVolume+0.05, 1); 
             PsychPortAudio('Volume',cfg.pahandle,newVolume);
             
-        elseif ismember(keyCodePressed, cfg.keyVolDown)
+        elseif ismember(keyCodePressed, cfg.keyboard.volDown)
             oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
             newVolume = max(oldVolume-0.05, 0); 
             PsychPortAudio('Volume',cfg.pahandle,newVolume);
  
-        elseif ismember(keyCodePressed, cfg.keywait) && currInstrPage == nInstrPages
+        elseif ismember(keyCodePressed, cfg.keyboard.wait) && currInstrPage == nInstrPages
             PsychPortAudio('Stop',cfg.pahandle); 
             subAction = 'done'; 
             break
             
-        elseif ismember(keyCodePressed, cfg.keyInstrNext)
+        elseif ismember(keyCodePressed, cfg.keyboard.instrNext)
             PsychPortAudio('Stop',cfg.pahandle); 
             subAction = 'oneInstrPageForward'; 
             break
 
-        elseif ismember(keyCodePressed, cfg.keyInstrBack)
+        elseif ismember(keyCodePressed, cfg.keyboard.instrBack)
             subAction = 'oneInstrPageBack'; 
             break
 
-        elseif ismember(keyCodePressed, cfg.keyquit)
+        elseif ismember(keyCodePressed, cfg.keyboard.quit)
             PsychPortAudio('Stop',cfg.pahandle); 
             error('experiment terminated by user'); 
             
@@ -259,9 +259,9 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
     PsychPortAudio('FillBuffer',cfg.pahandle,cfg.volumeSettingSound); 
     
     % set allowed keys  
-    allowedKeys = [cfg.keyAudioPlay, cfg.keyAudioStop, ...
-                   cfg.keyVolDown, cfg.keyVolUp, ...
-                   cfg.keywait, cfg.keyToggleInstr, cfg.keyquit]; 
+    allowedKeys = [cfg.keyboard.audioPlay, cfg.keyboard.audioStop, ...
+                   cfg.keyboard.volDown, cfg.keyboard.volUp, ...
+                   cfg.keyboard.wait, cfg.keyboard.toggleInstr, cfg.keyboard.quit]; 
       
    % boolean used to toggle general instruction display 
    generalInstrOnScreen = false; 
@@ -289,10 +289,10 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
             DrawFormattedText(cfg.screen.win,'Press [I] to toggle instructions, or [ENTER] to continue...','center',cfg.screen.winHeight*0.9,cfg.white); 
 
             % display quit option in the cfg.screen corner
-            txt = sprintf([sprintf(' Press [%s] to play test sound\n',KbName(cfg.keyAudioPlay)), ...
-                   sprintf(' Press [%s] to stop test sound\n',KbName(cfg.keyAudioStop)), ...
-                   sprintf(' Press [%s] to increase volume\n',KbName(cfg.keyVolUp)), ...
-                   sprintf(' Press [%s] to decrease volume\n',KbName(cfg.keyVolDown)), ...
+            txt = sprintf([sprintf(' Press [%s] to play test sound\n',KbName(cfg.keyboard.audioPlay)), ...
+                   sprintf(' Press [%s] to stop test sound\n',KbName(cfg.keyboard.audioStop)), ...
+                   sprintf(' Press [%s] to increase volume\n',KbName(cfg.keyboard.volUp)), ...
+                   sprintf(' Press [%s] to decrease volume\n',KbName(cfg.keyboard.volDown)), ...
                    sprintf('\n Volume = %d%%\n',round(PsychPortAudio('Volume',cfg.pahandle)*100)), ...
                    ]); 
             tbx     = Screen('TextBounds', cfg.screen.win, txt);
@@ -303,7 +303,7 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
             DrawFormattedText(cfg.screen.win, txt, r(RectLeft), r(RectBottom), cfg.white);
 
             % display quit option 
-            txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyquit)); 
+            txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyboard.quit)); 
             tbx     = Screen('TextBounds', cfg.screen.win, txt);
             width   = tbx(3);
             height  = tbx(4);
@@ -319,33 +319,33 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
         % wait for keypress
         keyCodePressed = waitForKeyKbCheck(allowedKeys); 
         
-        if ismember(keyCodePressed, cfg.keyAudioPlay)
+        if ismember(keyCodePressed, cfg.keyboard.audioPlay)
             PsychPortAudio('Stop',cfg.pahandle); 
             PsychPortAudio('Start',cfg.pahandle); 
             
-        elseif ismember(keyCodePressed, cfg.keyAudioStop)
+        elseif ismember(keyCodePressed, cfg.keyboard.audioStop)
             PsychPortAudio('Stop',cfg.pahandle); 
 
-        elseif ismember(keyCodePressed, cfg.keyVolUp)         
+        elseif ismember(keyCodePressed, cfg.keyboard.volUp)         
             oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
             newVolume = min(oldVolume+0.05, 1); 
             PsychPortAudio('Volume',cfg.pahandle,newVolume);
             
-        elseif ismember(keyCodePressed, cfg.keyVolDown)
+        elseif ismember(keyCodePressed, cfg.keyboard.volDown)
             oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
             newVolume = max(oldVolume-0.05, 0); 
             PsychPortAudio('Volume',cfg.pahandle,newVolume);
  
-        elseif ismember(keyCodePressed, cfg.keyToggleInstr)
+        elseif ismember(keyCodePressed, cfg.keyboard.toggleInstr)
 
             % update the bool
             generalInstrOnScreen = ~generalInstrOnScreen; 
                     
-        elseif ismember(keyCodePressed, cfg.keywait)
+        elseif ismember(keyCodePressed, cfg.keyboard.wait)
             PsychPortAudio('Stop',cfg.pahandle); 
             break
             
-        elseif ismember(keyCodePressed, cfg.keyquit)
+        elseif ismember(keyCodePressed, cfg.keyboard.quit)
             PsychPortAudio('Stop',cfg.pahandle); 
             error('experiment terminated by user'); 
             
@@ -376,7 +376,7 @@ elseif any(strcmpi(varargin,'waitForKeypress'))
     DrawFormattedText(cfg.screen.win,'Press [ENTER] to continue...','center',cfg.screen.winHeight*0.9,cfg.white); 
 
     % display quit option 
-    txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyquit)); 
+    txt = sprintf('press [%s] to quit the whole experiment  ',KbName(cfg.keyboard.quit)); 
     tbx     = Screen('TextBounds', cfg.screen.win, txt);
     width   = tbx(3);
     height  = tbx(4);
@@ -389,13 +389,13 @@ elseif any(strcmpi(varargin,'waitForKeypress'))
     
     
     % wait for participant's keypress to continue 
-    keyCodePressed = waitForKeyKbCheck([cfg.keywait,cfg.keyquit]);  
+    keyCodePressed = waitForKeyKbCheck([cfg.keyboard.wait,cfg.keyboard.quit]);  
     
-    if ismember(keyCodePressed, cfg.keywait)
+    if ismember(keyCodePressed, cfg.keyboard.wait)
         PsychPortAudio('Stop',cfg.pahandle); 
         return
         
-    elseif ismember(keyCodePressed, cfg.keyquit)
+    elseif ismember(keyCodePressed, cfg.keyboard.quit)
         PsychPortAudio('Stop',cfg.pahandle); 
         error('experiment terminated by user'); 
 
@@ -426,7 +426,7 @@ elseif any(strcmpi(varargin,'instrAndQuitOption'))
 
     % display small-font quit option 
     Screen('TextSize',cfg.screen.win,cfg.text.size*0.7);
-    txt = sprintf('(in case of emergency, press [%s] to terminate the experiment)  ',KbName(cfg.keyquit)); 
+    txt = sprintf('(in case of emergency, press [%s] to terminate the experiment)  ',KbName(cfg.keyboard.quit)); 
     tbx     = Screen('TextBounds', cfg.screen.win, txt,[],[],[],[]);
     width   = tbx(3);
     height  = tbx(4);
