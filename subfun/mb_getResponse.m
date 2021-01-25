@@ -1,4 +1,4 @@
-function [tapOnsets, responseEvents] = mb_getResponse(cfg, expParam, responseEvents, currSeq)
+function [tapOnsets, responseEvents] = mb_getResponse(cfg, responseEvents, currSeq)
 
 % allocate vector of tap times
 tapOnsets = [];
@@ -43,7 +43,7 @@ while GetSecs < (currSeqStartTime+cfg.SequenceDur)
             % than it's onset. 
             currPatIdx = max( find(tapTime > [currSeq.onset]) ); 
 
-            responseEvents(cTap,1).sequenceNum     = expParam.seqi;
+            responseEvents(cTap,1).sequenceNum     = cfg.seqi;
             responseEvents(cTap,1).onset           = tapTime;
             responseEvents(cTap,1).duration        = 0;
             responseEvents(cTap,1).trial_type      = 'response';

@@ -4,52 +4,51 @@
 if ~ismac
     close all;
     clear Screen;
-else 
-    clc; clear;
+else
+    clc;
+    clear;
 end
 
 % make sure we got access to all the required functions and inputs
-addpath(genpath(fullfile(pwd, 'lib')))
+initEnv();
 
+% Define the task = 'RhythmFT', 'PitchFT', 'RhythmBlock'
+% Get parameters by providing task name
+cfg = getParams('RhythmFT');
 
-% Get parameters by providing task name, device and debugmode
-[cfg,expParam] = getParams('tapMainExp','pc',0);
-
-% set and load all the subject input to run the experiment
-expParam = userInputs(cfg,expParam);
-expParam = createFilename(cfg,expParam);
-
-
-
-% get time point at the beginning of the experiment (machine time)
-expParam.experimentStartTime = GetSecs();
 
 %% Experiment
 
 % Safety loop: close the screen if code crashes
 try
+    
+    % get time point at the beginning of the experiment (machine time)
+    cfg.experimentStartTime = GetSecs();
+    % get time point at the beginning of the script (machine time)
+    cfg.timing.scriptStartTime = GetSecs();
+
     % Init the experiment
     [cfg] = initPTB(cfg);
 
     
     % Prepare for the output logfiles - BIDS
-    logFile  = saveEventsFile('open', expParam,[],'sequenceNum',...
+    logFile  = saveEventsFile('open', cfg,[],'sequenceNum',...
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
         'category','F0','gridIOI','patternAmp','PE4','minPE4',...
         'rangePE4','LHL24','minLHL24','rangeLHL24');
 
-    
+
     % show instructions and do initial volume setting
     currInstrPage = 1; 
-    nInstrPages = length(expParam.introInstruction); 
+    nInstrPages = length(cfg.introInstruction); 
     while 1
         % display instructions and wait for action
-        subAction = displayInstr(expParam.introInstruction{currInstrPage}, cfg, 'setVolumePrevNext', ...
+        subAction = displayInstr(cfg.introInstruction{currInstrPage}, cfg, 'setVolumePrevNext', ...
                                  'currInstrPage', currInstrPage, ...
                                  'nInstrPages', nInstrPages); 
         % go one instruction page forward or backward (depending on subject's action)                      
         if strcmp(subAction,'oneInstrPageForward')
-            currInstrPage = min(currInstrPage+1, length(expParam.introInstruction)); 
+            currInstrPage = min(currInstrPage+1, length(cfg.introInstruction)); 
         elseif strcmp(subAction,'oneInstrPageBack')
             currInstrPage = max(currInstrPage-1, 1); 
         elseif strcmp(subAction,'done')
@@ -58,7 +57,7 @@ try
     end
         
     % more instructions
-    displayInstr(expParam.trialDurInstruction,cfg,'setVolume');
+    displayInstr(cfg.trialDurInstruction,cfg,'setVolume');
 
 
     % if there's wait time,..wait
@@ -67,7 +66,7 @@ try
     
     
     %% play sequences
-    for seqi = 1:expParam.numSequences
+    for iSequence = 1:cfg.pattern.numSequences
 
         currSeq = struct();
         responseEvents = struct();
@@ -76,7 +75,7 @@ try
         displayInstr('TAP',cfg,'instrAndQuitOption');
 
         % construct sequence
-        currSeq = makeSequence(cfg,seqi);
+        currSeq = makeSequence(cfg,iSequence);
 
         
         % ===========================================
@@ -89,10 +88,10 @@ try
         for iPattern=1:length(currSeq)
             currSeq(iPattern,1).trial_type  = 'dummy';
             currSeq(iPattern,1).duration    = 0;
-            currSeq(iPattern,1).sequenceNum = seqi;            
+            currSeq(iPattern,1).sequenceNum = iSequence;            
         end
         
-        saveEventsFile('save', expParam, currSeq,'sequenceNum',...
+        saveEventsFile('save', cfg, currSeq,'sequenceNum',...
         'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
         'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
         'rangePE4','LHL24','minLHL24','rangeLHL24');
@@ -112,11 +111,10 @@ try
 
         
         % keep collecting tapping until sound stops (log as you go)
-        expParam.seqi = seqi;
-        expParam.currSeqStartTime = currSeqStartTime;
+        cfg.seqi = iSequence;
+        cfg.currSeqStartTime = currSeqStartTime;
         
         [tapOnsets, responseEvents] = mb_getResponse(cfg, ...
-            expParam, ...
             responseEvents, ...
             currSeq);
         
@@ -125,7 +123,7 @@ try
         if isfield(responseEvents,'onset')
             
             
-            saveEventsFile('save', expParam, responseEvents,'sequenceNum',...
+            saveEventsFile('save', cfg, responseEvents,'sequenceNum',...
                 'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
                 'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
                 'rangePE4','LHL24','minLHL24','rangeLHL24');
@@ -138,45 +136,45 @@ try
         % ===========================================
 
         % save (machine) onset time for the current sequence
-        expParam.data(seqi).currSeqStartTime = currSeqStartTime;
+        cfg.data(iSequence).currSeqStartTime = currSeqStartTime;
 
         % save PTB volume
-        expParam.data(seqi).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
+        cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
 
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
         currSeq(1).outAudio = [];
-        expParam.data(seqi).seq = currSeq;
+        cfg.data(iSequence).seq = currSeq;
 
         % save all the taps for this sequence
-        expParam.data(seqi).taps = tapOnsets;
+        cfg.data(iSequence).taps = tapOnsets;
 
 
 
         %% Pause
-        if seqi<expParam.numSequences
+        if iSequence<expParam.numSequences
             
             % pause (before next sequence starts, wait for key to continue)
-            if expParam.sequenceDelay 
+            if cfg.sequenceDelay 
                 
                 % show sequence-specific instruction if there is some
                 % defined
-                if ~isempty(expParam.seqSpecificDelayInstruction{seqi})
-                    displayInstr(expParam.seqSpecificDelayInstruction{seqi}, ...
+                if ~isempty(cfg.seqSpecificDelayInstruction{iSequence})
+                    displayInstr(cfg.seqSpecificDelayInstruction{iSequence}, ...
                                  cfg, ...
                                  'setVolumeToggleGeneralInstr', ...
-                                 'generalInstrTxt', expParam.generalInstruction);
+                                 'generalInstrTxt', cfg.generalInstruction);
                 end
                 
                 % show general instruction after each sequence
-                fbkToDisp = sprintf(expParam.generalDelayInstruction, seqi, expParam.numSequences);
+                fbkToDisp = sprintf(cfg.generalDelayInstruction, iSequence, cfg.numSequences);
                 displayInstr(fbkToDisp, ...
                              cfg, ...
                              'setVolumeToggleGeneralInstr', ...
-                             'generalInstrTxt', expParam.generalInstruction);
+                             'generalInstrTxt', cfg.generalInstruction);
                 
                 % pause for N secs before starting next sequence
-                WaitSecs(expParam.pauseSeq);
+                WaitSecs(cfg.pauseSeq);
             end
             
         else
@@ -194,11 +192,11 @@ try
 
 
     % Close the logfiles (tsv)   - BIDS
-    saveEventsFile('close', expParam, logFile);
+    saveEventsFile('close', cfg, logFile);
     
     
     % save the whole workspace 
-    matFile = fullfile(expParam.outputDir, strrep(expParam.fileName.events,'tsv', 'mat'));
+    matFile = fullfile(cfg.outputDir, strrep(cfg.fileName.events,'tsv', 'mat'));
     if IsOctave
         save(matFile, '-mat7-binary');
     else
@@ -214,7 +212,7 @@ try
 catch
 
     % save everything into .mat file
-    matFile = fullfile(expParam.outputDir, strrep(expParam.fileName.events,'tsv', 'mat'));
+    matFile = fullfile(cfg.outputDir, strrep(cfg.fileName.events,'tsv', 'mat'));
     if IsOctave
         save(matFile, '-mat7-binary');
     else
@@ -222,7 +220,7 @@ catch
     end
     
     % Close the logfiles - BIDS
-    saveEventsFile('close', expParam, logFile);
+    saveEventsFile('close', cfg, logFile);
 
     % clean the workspace
     cleanUp(cfg);
