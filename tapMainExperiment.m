@@ -38,6 +38,18 @@ try
 
     % actual inititalization
     logFile = saveEventsFile('open', cfg, logFile);
+
+    % create response file - used for recording tapping
+    responseFile.extraColumns = cfg.extraColumns;
+    [responseFile]  = saveEventsFile('open_stim', cfg, responseFile);
+    
+    % set the real length of columns
+    responseFile(1).extraColumns.LHL24.length = 12;
+    responseFile(1).extraColumns.PE4.length = 12;
+    
+    % actual inititalization
+    [responseFile]  = saveEventsFile('open_stim', cfg, responseFile);
+
     
     % show instructions and do initial volume setting
     setVolume(cfg);
@@ -106,14 +118,7 @@ try
         
         % response save for BIDS (write)
         if isfield(responseEvents,'onset')
-            
-            
-            saveEventsFile('save', cfg, responseEvents,'sequenceNum',...
-                'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-                'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
-                'rangePE4','LHL24','minLHL24','rangeLHL24');
-
-    
+            saveEventsFile('save', cfg, responseEvents);
         end
         
         % ===========================================
@@ -179,7 +184,8 @@ try
     
     
     % save the whole workspace 
-    matFile = fullfile(cfg.outputDir, strrep(cfg.fileName.events,'tsv', 'mat'));
+    matFile = fullfile(cfg.dir.output, ...
+                       strrep(cfg.fileName.events,'tsv', 'mat'));
     if IsOctave
         save(matFile, '-mat7-binary');
     else
@@ -195,7 +201,8 @@ try
 catch
 
     % save everything into .mat file
-    matFile = fullfile(cfg.outputDir, strrep(cfg.fileName.events,'tsv', 'mat'));
+    matFile = fullfile(cfg.dir.output, ...
+                       strrep(cfg.fileName.events,'tsv', 'mat'));
     if IsOctave
         save(matFile, '-mat7-binary');
     else
@@ -204,6 +211,7 @@ catch
     
     % Close the logfiles - BIDS
     saveEventsFile('close', cfg, logFile);
+    saveEventsFile('close', cfg, responseFile);
 
     % clean the workspace
     cleanUp(cfg);
