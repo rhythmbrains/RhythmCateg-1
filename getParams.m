@@ -283,8 +283,8 @@ function cfg = setMonitor(cfg)
 cfg.skipSyncTests = 1;
 
 % Text format 
-cfg.text.font         = 'Arial'; %'Courier New'
-cfg.text.size         = 48; %18
+cfg.text.font = 'Arial';
+cfg.text.size = 18;
 
 
 % Monitor parameters for PTB
@@ -296,11 +296,15 @@ cfg.color.background = cfg.color.grey;
 cfg.text.color = cfg.color.white;
 %cfg.color.foreground =  [127 127 127];
 
-% % Monitor parameters
-% if strcmpi(cfg.testingDevice, 'mri')
-%     cfg.screen.monitorWidth = 69.8;
-%     cfg.screen.monitorDistance = 170;
-% end
+% Monitor parameters
+if strcmpi(cfg.testingDevice, 'mri')
+    %save the distance - not really important for our exp
+    cfg.screen.monitorWidth = 69.8;
+    cfg.screen.monitorDistance = 170;
+    
+    % adapt text size for MRI monitor
+    cfg.text.size = 48;
+end
 
 end
 
