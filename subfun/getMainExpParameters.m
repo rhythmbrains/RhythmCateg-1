@@ -155,7 +155,7 @@ end
 
 
 % use the requested gain of each tone to adjust the base amplitude
-cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain; 
+cfg.pattern.F0sAmps = cfg.audio.baseAmp * cfg.pattern.F0sAmpGain; 
 
 %% create two sets of patterns
 
@@ -207,7 +207,7 @@ if strcmp(cfg.testingDevice,'mri')
     cfg = makefMRISeqDesign(cfg);
     % overwrite the base amp
     cfg = normaliseEvent(cfg);
-    cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain * ...
+    cfg.pattern.F0sAmps = cfg.audio.baseAmp * cfg.pattern.F0sAmpGain * ...
         cfg.isTask.rmsRatio; 
     % provide an error'warning if it amp above 1 !
     % % %
@@ -290,7 +290,7 @@ function cfg = normaliseEvent(cfg)
 
 % make the env and sound for 1 event
 [s, EventEnv] = makeEvent(cfg);
-s = s .*cfg.baseAmp;
+s = s .*cfg.audio.baseAmp;
 
 % calculate the rms of an event
 cfg.isTask.rmsEvent = rms(s);
@@ -299,7 +299,7 @@ cfg.isTask.rmsEvent = rms(s);
 % find the biggest rms among the target sounds
 for i = 1:length(cfg.isTask.targetSounds)
     % apply env
-    currTargetS = cfg.isTask.targetSounds{i}.*EventEnv.*cfg.baseAmp;%
+    currTargetS = cfg.isTask.targetSounds{i}.*EventEnv.*cfg.audio.baseAmp;%
     % take rms of all target sounds
     rmsAllTarget(i) = rms(currTargetS); %#ok<AGROW>
 end
