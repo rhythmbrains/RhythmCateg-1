@@ -97,6 +97,14 @@ if strcmpi(cfg.testingDevice,'mri')
 end
 
 
+%% Logfile
+
+%logfile columns
+cfg.extraColumns = {'sequenceNum', 'segmentNum', 'segmentOnset', ...
+    'stepNum', 'stepOnset', 'patternID', 'segmentCateg', 'F0', 'isTask', ...
+    'gridIOI', 'patternAmp', 'minPE4', 'rangePE4', 'minLHL24', ...
+    'rangeLHL24', 'LHL24', 'PE4'};
+
 
 %% fMRI task
 % display a fixation cross during the fMRI run
@@ -133,12 +141,6 @@ if strcmpi(cfg.testingDevice,'mri')
     
     % how many targets within 1 pattern
     cfg.isTask.numEvent = 1;
-    
-    %logfile columns
-    cfg.extraColumns = {'sequenceNum', 'segmentNum', 'segmentOnset', ...
-    'stepNum', 'stepOnset', 'patternID', 'segmentCateg', 'F0', 'isTask', ...
-    'gridIOI', 'patternAmp', 'minPE4', 'rangePE4', 'minLHL24', ...
-    'rangeLHL24', 'LHL24', 'PE4'};
 
     % response columns
     cfg.responseExtraColumns = {'keyName', 'pressed', 'target'};

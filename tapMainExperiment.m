@@ -31,7 +31,14 @@ try
     % create  logfile with extra columns to save - BIDS
     logFile.extraColumns = cfg.extraColumns;
     [logFile]  = saveEventsFile('open', cfg, logFile); %dummy initialise
+    
+    % set the real length of columns
+    logFile(1).extraColumns.LHL24.length = 12;
+    logFile(1).extraColumns.PE4.length = 12;
 
+    % actual inititalization
+    logFile = saveEventsFile('open', cfg, logFile);
+    
     % show instructions and do initial volume setting
     setVolume(cfg);
 
@@ -62,6 +69,7 @@ try
         % ===========================================
         % we save sequence by sequence so we clear this variable every loop
         currSeq(1).fileID = logFile.fileID;
+        currSeq(1).extraColumns = logFile(1).extraColumns;
         
         % adding columns in currSeq for BIDS format
         for iPattern=1:length(currSeq)
@@ -70,10 +78,7 @@ try
             currSeq(iPattern,1).sequenceNum = iSequence;            
         end
         
-        saveEventsFile('save', cfg, currSeq,'sequenceNum',...
-        'segmentNum','segmentOnset','stepNum','stepOnset','patternID',...
-        'segmCateg','F0','gridIOI','patternAmp','PE4','minPE4',...
-        'rangePE4','LHL24','minLHL24','rangeLHL24');
+        saveEventsFile('save', cfg, currSeq);
 
 
         %% present stimulus, record tapping
