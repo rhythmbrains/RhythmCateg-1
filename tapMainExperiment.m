@@ -99,12 +99,14 @@ try
         responseEvents.fileID = logFile.fileID;            
 
         % fill the buffer
-        PsychPortAudio('FillBuffer', cfg.pahandle, ...
+        PsychPortAudio('FillBuffer', cfg.audio.pahandle, ...
                        [currSeq.outAudio;currSeq.outAudio]);
 
         % start playing
-        sequenceOnset = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
-            cfg.PTBstartCue, cfg.PTBwaitForDevice);
+        sequenceOnset = PsychPortAudio('Start', cfg.audio.pahandle, ...
+                                       cfg.audio.repeat,...
+                                       cfg.audio.startCue, ...
+                                       cfg.audio.waitForDevice);
 
         
         % keep collecting tapping until sound stops (log as you go)
@@ -128,7 +130,8 @@ try
         cfg.data(iSequence).currSeqStartTime = sequenceOnset;
 
         % save PTB volume
-        cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
+        cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume',...
+                                                       cfg.audio.pahandle);
 
         % save current sequence information (without the audio, which can
         % be easily resynthesized)
