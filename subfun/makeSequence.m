@@ -212,23 +212,6 @@ for stepi=1:cfg.pattern.nStepsPerSequence
             end
             
             
-%             %% ORIGINAL 
-%             % if change of pitch requested, PSEUDOrandomly choose a new pitch
-%             % do this only if there is more than 1 F0 to choose from
-%             if CHANGE_PITCH && length(cfg.pattern.F0s)>1
-%                 % get F0s to choose from 
-%                 pitch2ChooseIdx = 1:length(cfg.pattern.F0s);
-%                 % remove F0 used in the previous iteration (to prevent
-%                 % repetition in the sequence) 
-%                 pitch2ChooseIdx(pitch2ChooseIdx==currF0idx) = [];
-%                 % randomly select new F0 idx
-%                 currF0idx = randsample(pitch2ChooseIdx,1);
-%             end
-            
-            %% NEW
-            % % %
-            % long !
-            % % %
             % last checkpoint is if fixed-pitch  is requested for
             % CategB
             if isfield(cfg.pattern,'fixedPitchCategB')
@@ -351,15 +334,15 @@ for stepi=1:cfg.pattern.nStepsPerSequence
 %                 length(patternEnv)) = patternEnv;
             
             
-            seq(cPat,1).patternID   = currPatID;
-            seq(cPat,1).segmentCateg   = currCategLabel;
-            seq(cPat,1).segmentLabel   = currSegmentLabel;
-            seq(cPat,1).onset       = currTimePoint;
-            seq(cPat,1).segmentNum  = segmi;
-            seq(cPat,1).segmentOnset = segmentOnset;
-            seq(cPat,1).stepNum     = stepi;
-            seq(cPat,1).stepOnset   = stepOnset;
-            seq(cPat,1).isTask      = cfg.isTask.Idx;
+            seq(cPat,1).patternID       = currPatID;
+            seq(cPat,1).segmentCateg    = currCategLabel;
+            seq(cPat,1).segmentLabel    = currSegmentLabel;
+            seq(cPat,1).onset           = currTimePoint;
+            seq(cPat,1).segmentNum      = segmi;
+            seq(cPat,1).segmentOnset    = segmentOnset;
+            seq(cPat,1).stepNum         = stepi;
+            seq(cPat,1).stepOnset       = stepOnset;
+            seq(cPat,1).isTask          = cfg.isTask.Idx;
             
             seq(cPat,1).pattern     = currPattern; 
             seq(cPat,1).F0          = currF0(1);
