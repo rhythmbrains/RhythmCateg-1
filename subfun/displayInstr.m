@@ -354,18 +354,7 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
         
     end
             
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
 %% display instructions and wait for keypress 
 elseif any(strcmpi(varargin,'waitForKeypress'))
     

@@ -12,9 +12,9 @@ end
 % make sure we got access to all the required functions and inputs
 initEnv();
 
-% Define the task = 'RhythmFT', 'PitchFT', 'RhythmBlock'
+% Define the task = 'RhythmFT', 'RhythmBlock'
 % Get parameters by providing task name
-cfg = getParams('RhythmFT');
+cfg = getParams('RhythmBlock');
 
 
 %% Experiment
