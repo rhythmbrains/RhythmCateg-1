@@ -37,8 +37,6 @@ cfg.dir.output = fullfile(...
     fileparts(mfilename('fullpath')), ...
     'output');
 
-% behavioral instructions                  
-[cfg] = makeBehavInstruction(cfg);
 
 %% Debug mode settings
 cfg.debug.do        = true ;  
@@ -180,6 +178,8 @@ elseif strcmp(cfg.task.name,'PitchFT')
 end
 
 
+%% behavioral instructions                  
+[cfg] = makeBehavInstruction(cfg);
 
 
 %% differentiating response button (subject) from keyboard(experimenter)

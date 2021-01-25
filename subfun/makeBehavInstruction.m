@@ -4,7 +4,7 @@ function [cfg] = makeBehavInstruction(cfg)
 % to create/read for sequence  instructions
 
 
-cfg.dir.instr = fullfile(fileparts(mfilename('fullpath')), 'subfun',...
+cfg.dir.instr = fullfile(fileparts(mfilename('fullpath')), ...
                          'instr','mainExp');
 % refractor below
 % -------------------
