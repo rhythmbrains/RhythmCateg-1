@@ -38,7 +38,7 @@ cfg.dir.output = fullfile(...
     'output');
 
 %% Debug mode settings
-cfg.debug.do        = true ;  
+cfg.debug.do        = false ;  
 cfg.debug.transpWin = true ;     % To test the script with trasparent full size screen
 cfg.debug.smallWin  = false;
 cfg.verbose         = true;        % add here and there some explanations with if verbose is ON. 
@@ -70,7 +70,7 @@ cfg.pacedByTriggers.do = false;
 %% general configuration
 %for BIDS format: 
 cfg.task.name = task;                % should be calling behav or fmri
-cfg.subject.askGrpSess = [1 0]; % it won't ask you about group or session
+cfg.subject.askGrpSess = [0 0]; % it won't ask you about group or session
     
 % set and load all the subject input to run the experiment
 cfg = userInputs(cfg);
