@@ -156,7 +156,7 @@ end
 
 
 % use the requested gain of each tone to adjust the base amplitude
-cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain;    
+cfg.pattern.F0sAmps = cfg.audio.baseAmp * cfg.pattern.F0sAmpGain;    
 
 
 %% create two sets of patterns
@@ -177,13 +177,20 @@ cfg.pattern.labelSegmentB = 'B';
 
 %% generate sequence
 
-cfg.pattern.seqDesignFullExp = getAllSeqDesign(cfg.pattern.patternA, ...
-    cfg.pattern.patternB,cfg);
+[seqDesignFullExp, seqDesignSegment, ~] = getAllSeqDesign(...
+                                                          cfg.pattern.patternA, ...
+                                                          cfg.pattern.patternB, ...
+                                                          cfg);
+%assing these to cfg struct                                          
+cfg.pattern.seqDesignFullExp = seqDesignFullExp;
+cfg.pattern.seqDesignSegment = seqDesignSegment;
 
 if strcmp(cfg.testingDevice,'pc')
-cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
-    cfg.pattern.gridIOIs(end), cfg.pattern.F0s(end), cfg.pattern.F0sAmps(end) ), 2,1);
-                                makeStimMainExp(pattern, cfg, currGridIOI, currF0,varargin)
+    cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1,16), cfg,...
+                                    cfg.pattern.gridIOIs(end), ...
+                                    cfg.pattern.F0s(end), ...
+                                    cfg.pattern.F0sAmps(end)),...
+                                    2,1);                                
 end
 
 if strcmp(cfg.testingDevice,'mri') 
@@ -194,7 +201,7 @@ if strcmp(cfg.testingDevice,'mri')
     % overwrite the base amp
     cfg = normaliseEvent(cfg);
     
-    cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain * ...
+    cfg.pattern.F0sAmps = cfg.audio.baseAmp * cfg.pattern.F0sAmpGain * ...
         cfg.isTask.rmsRatio; 
 end
 
@@ -249,7 +256,7 @@ function cfg = normaliseEvent(cfg)
 
 % make the env and sound for 1 event
 [s, EventEnv] = makeEvent(cfg);
-s = s .*cfg.baseAmp;
+s = s .*cfg.audio.baseAmp;
 
 % calculate the rms of an event
 cfg.isTask.rmsEvent = rms(s);
