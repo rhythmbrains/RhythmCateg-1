@@ -48,7 +48,7 @@ while GetSecs < (sequenceOnset+cfg.pattern.SequenceDur)
             responseEvents(cTap,1).duration        = 0;
             responseEvents(cTap,1).trial_type      = 'response';
             responseEvents(cTap,1).patternID       = currSeq(currPatIdx).patternID;
-            responseEvents(cTap,1).segmCateg       = currSeq(currPatIdx).segmCateg;
+            responseEvents(cTap,1).segmCateg       = currSeq(currPatIdx).segmentCateg;
             responseEvents(cTap,1).segmentNum      = currSeq(currPatIdx).segmentNum;
             responseEvents(cTap,1).segmentOnset    = currSeq(currPatIdx).segmentOnset;
             responseEvents(cTap,1).stepNum         = currSeq(currPatIdx).stepNum;
