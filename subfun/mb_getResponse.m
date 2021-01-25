@@ -11,17 +11,17 @@ cTap = 1;
 istap = false;
 
 
-currSeqStartTime = expParam.currSeqStartTime;
+sequenceOnset = cfg.sequenceOnset;
 
 
 % stay in the loop until the sequence ends
-while GetSecs < (currSeqStartTime+cfg.SequenceDur)
+while GetSecs < (sequenceOnset+cfg.pattern.SequenceDur)
 
         % check if key is pressed
-        [~, tapTime, keyCode] = KbCheck(cfg.keyboard);
+        [~, tapTime, keyCode] = KbCheck(cfg.keyboard.keyboard);
 
         % terminate if quit-button pressed
-        if find(keyCode)==cfg.keyquit
+        if find(keyCode)==cfg.keyboard.quit
             error('Experiment terminated by user...');
         end
 
@@ -29,7 +29,7 @@ while GetSecs < (currSeqStartTime+cfg.SequenceDur)
         % reponse buttons were released initially)
         if ~istap && any(keyCode)
             % tap onset relative to sequence start time
-            tapTime = tapTime-currSeqStartTime; 
+            tapTime = tapTime-sequenceOnset; 
             
             % append to the vector of tap times
             tapOnsets = [tapOnsets,tapTime];
@@ -43,7 +43,7 @@ while GetSecs < (currSeqStartTime+cfg.SequenceDur)
             % than it's onset. 
             currPatIdx = max( find(tapTime > [currSeq.onset]) ); 
 
-            responseEvents(cTap,1).sequenceNum     = cfg.seqi;
+            responseEvents(cTap,1).sequenceNum     = cfg.iSequence;
             responseEvents(cTap,1).onset           = tapTime;
             responseEvents(cTap,1).duration        = 0;
             responseEvents(cTap,1).trial_type      = 'response';

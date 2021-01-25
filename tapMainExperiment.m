@@ -24,8 +24,6 @@ try
     
     % get time point at the beginning of the experiment (machine time)
     cfg.experimentStartTime = GetSecs();
-    % get time point at the beginning of the script (machine time)
-    cfg.timing.scriptStartTime = GetSecs();
 
     % Init the experiment
     [cfg] = initPTB(cfg);
@@ -103,16 +101,17 @@ try
         responseEvents.fileID = logFile.fileID;            
 
         % fill the buffer
-        PsychPortAudio('FillBuffer', cfg.pahandle, [currSeq.outAudio;currSeq.outAudio]);
+        PsychPortAudio('FillBuffer', cfg.pahandle, ...
+                       [currSeq.outAudio;currSeq.outAudio]);
 
         % start playing
-        currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
+        sequenceOnset = PsychPortAudio('Start', cfg.pahandle, cfg.PTBrepet,...
             cfg.PTBstartCue, cfg.PTBwaitForDevice);
 
         
         % keep collecting tapping until sound stops (log as you go)
-        cfg.seqi = iSequence;
-        cfg.currSeqStartTime = currSeqStartTime;
+        cfg.iSequence = iSequence;
+        cfg.sequenceOnset = sequenceOnset;
         
         [tapOnsets, responseEvents] = mb_getResponse(cfg, ...
             responseEvents, ...
@@ -134,9 +133,8 @@ try
         % ===========================================
         % log everything into matlab structure
         % ===========================================
-
         % save (machine) onset time for the current sequence
-        cfg.data(iSequence).currSeqStartTime = currSeqStartTime;
+        cfg.data(iSequence).currSeqStartTime = sequenceOnset;
 
         % save PTB volume
         cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume',cfg.pahandle);
@@ -150,9 +148,8 @@ try
         cfg.data(iSequence).taps = tapOnsets;
 
 
-
         %% Pause
-        if iSequence<expParam.numSequences
+        if iSequence<cfg.pattern.numSequences
             
             % pause (before next sequence starts, wait for key to continue)
             if cfg.sequenceDelay 
@@ -167,9 +164,9 @@ try
                 end
                 
                 % show general instruction after each sequence
-                fbkToDisp = sprintf(cfg.generalDelayInstruction, iSequence, cfg.numSequences);
-                displayInstr(fbkToDisp, ...
-                             cfg, ...
+                fbkToDisp = sprintf(cfg.generalDelayInstruction, ...
+                                    iSequence, cfg.pattern.numSequences);
+                displayInstr(fbkToDisp, cfg, ...
                              'setVolumeToggleGeneralInstr', ...
                              'generalInstrTxt', cfg.generalInstruction);
                 
