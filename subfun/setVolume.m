@@ -1,4 +1,4 @@
-function setVolume(cfg)
+function [cfg] = setVolume(cfg)
 
     currInstrPage = 1; 
     nInstrPages = length(cfg.introInstruction); 
