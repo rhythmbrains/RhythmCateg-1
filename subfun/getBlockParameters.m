@@ -3,12 +3,6 @@ function     cfg = getBlockParameters(cfg)
 % experiment
 
 
-% % %
-% start the sequence with one B-category segment that will be discarded during analysis
-% % %
-
-
-
 %% contruct individual sound events (that will make up each pattern)
 
 % Define envelope shape of the individual sound event. 
@@ -207,9 +201,9 @@ end
 
 
 
-%% Task Instructions
+%% fMRI Task Instructions
 
-% fMRI instructions
+% fMRI 1. screen instructions
 cfg.instruc.fmriTask = 'Fixate to the cross & count the piano tones\n \n\n';
 
 % ------------------------------------------------
