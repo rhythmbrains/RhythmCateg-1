@@ -180,8 +180,14 @@ cfg.pattern.labelSegmentB = 'B';
 %%%%%%%%%%%%
 % ! important, the order of arguments matters ! -> getAllSeqDesign(categA, categB, ...)
 %%%%%%%%%%%%
-[cfg.pattern.seqDesignFullExp,~] = getAllSeqDesign(cfg.pattern.patternA, ...
-    cfg.pattern.patternB,cfg);
+[seqDesignFullExp, seqDesignSegment, ~] = getAllSeqDesign(...
+                                                          cfg.pattern.patternA, ...
+                                                          cfg.pattern.patternB, ...
+                                                          cfg);
+%assing these to cfg struct                                          
+cfg.pattern.seqDesignFullExp = seqDesignFullExp;
+cfg.pattern.seqDesignSegment = seqDesignSegment;
+
 % generate example audio for volume setting
 % added F0s-amplitude because the relative dB set in volume adjustment in
 % PychPortAudio will be used in the mainExp
@@ -192,7 +198,7 @@ if strcmp(cfg.testingDevice,'pc')
                                     cfg.pattern.gridIOIs(end), ...
                                     cfg.pattern.F0s(end), ...
                                     cfg.pattern.F0sAmps(end)),...
-                                    2,1);
+                                    2,1);                                
 end
 
 if strcmp(cfg.testingDevice,'mri') 
@@ -203,7 +209,7 @@ if strcmp(cfg.testingDevice,'mri')
     cfg = normaliseEvent(cfg);
     cfg.pattern.F0sAmps = cfg.baseAmp * cfg.pattern.F0sAmpGain * ...
         cfg.isTask.rmsRatio; 
-    % provide an error if it amp above 1 !
+    % provide an error'warning if it amp above 1 !
     % % %
     
     % % %
