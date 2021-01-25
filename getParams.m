@@ -284,7 +284,7 @@ cfg.skipSyncTests = 1;
 
 % Text format 
 cfg.text.font = 'Arial';
-cfg.text.size = 18;
+cfg.text.size = 30;
 
 
 % Monitor parameters for PTB
@@ -320,13 +320,13 @@ cfg.audio.fs = 44100;
 %  boolean for equating the dB across different tones for behavioral exp
 cfg.equateSoundAmp = 1;
 % sound levels
-cfg.baseAmp = 0.5;
-cfg.PTBInitVolume = 0.3;
+cfg.audio.baseAmp = 0.5;
+cfg.audio.initVolume = 0.3;
    
 if strcmpi(cfg.testingDevice, 'mri')  
     
-    cfg.baseAmp = 0.99; 
-    cfg.PTBInitVolume = 1; 
+    cfg.audio.baseAmp = 0.99; 
+    cfg.audio.initVolume = 1; 
 
     cfg.equateSoundAmp = 0;
       
