@@ -425,7 +425,7 @@ elseif any(strcmpi(varargin,'instrAndQuitOption'))
     DrawFormattedText(cfg.screen.win,instrTxt,'center','center',cfg.color.white); 
 
     % display small-font quit option 
-    Screen('TextSize',cfg.screen.win,cfg.text.size*0.5);
+    Screen('TextSize',cfg.screen.win,cfg.text.size*0.7);
     txt = sprintf('(in case of emergency, press [%s] to terminate the experiment)  ',KbName(cfg.keyboard.quit)); 
     tbx     = Screen('TextBounds', cfg.screen.win, txt,[],[],[],[]);
     width   = tbx(3);
