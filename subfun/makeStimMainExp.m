@@ -67,7 +67,6 @@ env = zeros(1,length(t));
 smallEnv = cell(1,length(pattern));
 smallT = cell(1,length(pattern));
 c=0;
-s = [];
 
 for cyclei=1:nCycles
     for i=1:length(pattern)
@@ -86,8 +85,19 @@ for cyclei=1:nCycles
     end
 end
 
+% by default for behav exp - do the following
+% create carrier
+s = sin(2*pi*currF0*t);
 
-%% calculate the rms for normalisation
+% apply envelope to the carrier
+s = s.* env;
+
+% apply the amplitude
+s = s.* currAmp;
+
+
+%% for fMRI exp - do the following addition
+% calculate the rms for normalisation
 % events idx in the pattern
 idxTask = find(pattern);
 
@@ -116,6 +126,8 @@ if isTask
 end
 
 if strcmpi(cfg.testingDevice,'mri')
+    
+    s = [];
     
     %use rms ratio for target
     currAmp = cfg.isTask.rmsRatio;
