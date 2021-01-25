@@ -3,12 +3,6 @@ function     cfg = getMainExpParameters(cfg)
 % experiment
 
 
-% % %
-% start the sequence with one B-category segment that will be discarded during analysis
-% % %
-
-% behavioral instructions
-loadPathInstr = fullfile(fileparts(mfilename('fullpath')), 'instr','mainExp');
 
 %% contruct individual sound events (that will make up each pattern)
 
@@ -225,11 +219,11 @@ end
 % -------------------
 % intro instructions  # 1
 % -------------------
-cfg = makeInstruc('instrMainExpIntro',loadPathInstr,cfg, 'introInstruction');
+cfg = makeInstruc('instrMainExpIntro',cfg.dir.instr,cfg, 'introInstruction');
 % ------------------------
 % general task instructions # 2
 % ------------------------
-cfg = makeInstruc('instrMainExpGeneral',loadPathInstr,cfg, 'generalInstruction');
+cfg = makeInstruc('instrMainExpGeneral',cfg.dir.instr,cfg, 'generalInstruction');
 % ------------------------------------------------
 % instruction showing info about sequence curation 
 % ------------------------------------------------
@@ -249,13 +243,13 @@ cfg.generalDelayInstruction = ['The %d out of %d is over!\n\n', ...
 % where # is the index of the sequence after which the
 % instruction should appear. 
 
-dirInstr = dir(fullfile(loadPathInstr,'instrMainExpDelay*')); 
+dirInstr = dir(fullfile(cfg.dir.instr,'instrMainExpDelay*')); 
 cfg.seqSpecificDelayInstruction = cell(1, cfg.pattern.numSequences); 
 for i=1:length(dirInstr)
     
     targetSeqi = regexp(dirInstr(i).name, '(?<=instrMainExpDelay)\d*', 'match'); 
     targetSeqi = str2num(targetSeqi{1}); 
-    instrFid = fopen(fullfile(loadPathInstr, dirInstr(i).name),'r','n','UTF-8'); 
+    instrFid = fopen(fullfile(cfg.dir.instr, dirInstr(i).name),'r','n','UTF-8'); 
     while ~feof(instrFid)
         cfg.seqSpecificDelayInstruction{targetSeqi} = [cfg.seqSpecificDelayInstruction{i}, fgets(instrFid)]; 
     end
