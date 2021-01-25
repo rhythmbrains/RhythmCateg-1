@@ -37,8 +37,11 @@ cfg.dir.output = fullfile(...
     fileparts(mfilename('fullpath')), ...
     'output');
 
+% behavioral instructions                  
+[cfg] = makeBehavInstruction(cfg);
+
 %% Debug mode settings
-cfg.debug.do        = false ;  
+cfg.debug.do        = true ;  
 cfg.debug.transpWin = true ;     % To test the script with trasparent full size screen
 cfg.debug.smallWin  = false;
 cfg.verbose         = true;        % add here and there some explanations with if verbose is ON. 
