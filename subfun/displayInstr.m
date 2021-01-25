@@ -33,7 +33,7 @@ Screen('TextSize',cfg.screen.win,cfg.text.size);
 if any(strcmpi(varargin,'setVolume'))
     
     % put volume-setting audio into buffer
-    PsychPortAudio('FillBuffer',cfg.pahandle,cfg.volumeSettingSound); 
+    PsychPortAudio('FillBuffer',cfg.audio.pahandle,cfg.volumeSettingSound); 
     
     % set allowed keys  
     allowedKeys = [cfg.keyboard.audioPlay, cfg.keyboard.audioStop, ...
@@ -54,7 +54,7 @@ if any(strcmpi(varargin,'setVolume'))
                sprintf(' Press [%s] to stop test sound\n',KbName(cfg.keyboard.audioStop)), ...
                sprintf(' Press [%s] to increase volume\n',KbName(cfg.keyboard.volUp)), ...
                sprintf(' Press [%s] to decrease volume\n',KbName(cfg.keyboard.volDown)), ...
-               sprintf('\n Volume = %d%%\n',round(PsychPortAudio('Volume',cfg.pahandle)*100)), ...
+               sprintf('\n Volume = %d%%\n',round(PsychPortAudio('Volume',cfg.audio.pahandle)*100)), ...
                ]); 
         tbx     = Screen('TextBounds', cfg.screen.win, txt);
         width   = tbx(3);
@@ -80,28 +80,28 @@ if any(strcmpi(varargin,'setVolume'))
         keyCodePressed = waitForKeyKbCheck(allowedKeys); 
         
         if ismember(keyCodePressed, cfg.keyboard.audioPlay)
-            PsychPortAudio('Stop',cfg.pahandle); 
-            PsychPortAudio('Start',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
+            PsychPortAudio('Start',cfg.audio.pahandle); 
             
         elseif ismember(keyCodePressed, cfg.keyboard.audioStop)
-            PsychPortAudio('Stop',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
 
         elseif ismember(keyCodePressed, cfg.keyboard.volUp)         
-            oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
+            oldVolume = PsychPortAudio('Volume',cfg.audio.pahandle); 
             newVolume = min(oldVolume+0.05, 1); 
-            PsychPortAudio('Volume',cfg.pahandle,newVolume);
+            PsychPortAudio('Volume',cfg.audio.pahandle,newVolume);
             
         elseif ismember(keyCodePressed, cfg.keyboard.volDown)
-            oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
+            oldVolume = PsychPortAudio('Volume',cfg.audio.pahandle); 
             newVolume = max(oldVolume-0.05, 0); 
-            PsychPortAudio('Volume',cfg.pahandle,newVolume);
+            PsychPortAudio('Volume',cfg.audio.pahandle,newVolume);
  
         elseif ismember(keyCodePressed, cfg.keyboard.wait)
-            PsychPortAudio('Stop',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
             break
             
         elseif ismember(keyCodePressed, cfg.keyboard.quit)
-            PsychPortAudio('Stop',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
             error('experiment terminated by user'); 
             
         end
@@ -123,7 +123,7 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
 %                             continuing? 
     
     % put volume-setting audio into buffer
-    PsychPortAudio('FillBuffer',cfg.pahandle,cfg.volumeSettingSound); 
+    PsychPortAudio('FillBuffer',cfg.audio.pahandle,cfg.volumeSettingSound); 
     
     % set allowed keys  
     allowedKeys = [cfg.keyboard.audioPlay, cfg.keyboard.audioStop, ...
@@ -163,7 +163,7 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
                sprintf(' Press [%s] to stop test sound\n',KbName(cfg.keyboard.audioStop)), ...
                sprintf(' Press [%s] to increase volume\n',KbName(cfg.keyboard.volUp)), ...
                sprintf(' Press [%s] to decrease volume\n',KbName(cfg.keyboard.volDown)), ...
-               sprintf('\n Volume = %d%%\n',round(PsychPortAudio('Volume',cfg.pahandle)*100)), ...
+               sprintf('\n Volume = %d%%\n',round(PsychPortAudio('Volume',cfg.audio.pahandle)*100)), ...
                ]); 
         tbx     = Screen('TextBounds', cfg.screen.win, txt);
         width   = tbx(3);
@@ -202,29 +202,29 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
         keyCodePressed = waitForKeyKbCheck(allowedKeys); 
         
         if ismember(keyCodePressed, cfg.keyboard.audioPlay)
-            PsychPortAudio('Stop',cfg.pahandle); 
-            PsychPortAudio('Start',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
+            PsychPortAudio('Start',cfg.audio.pahandle); 
             
         elseif ismember(keyCodePressed, cfg.keyboard.audioStop)
-            PsychPortAudio('Stop',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
 
         elseif ismember(keyCodePressed, cfg.keyboard.volUp)         
-            oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
+            oldVolume = PsychPortAudio('Volume',cfg.audio.pahandle); 
             newVolume = min(oldVolume+0.05, 1); 
-            PsychPortAudio('Volume',cfg.pahandle,newVolume);
+            PsychPortAudio('Volume',cfg.audio.pahandle,newVolume);
             
         elseif ismember(keyCodePressed, cfg.keyboard.volDown)
-            oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
+            oldVolume = PsychPortAudio('Volume',cfg.audio.pahandle); 
             newVolume = max(oldVolume-0.05, 0); 
-            PsychPortAudio('Volume',cfg.pahandle,newVolume);
+            PsychPortAudio('Volume',cfg.audio.pahandle,newVolume);
  
         elseif ismember(keyCodePressed, cfg.keyboard.wait) && currInstrPage == nInstrPages
-            PsychPortAudio('Stop',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
             subAction = 'done'; 
             break
             
         elseif ismember(keyCodePressed, cfg.keyboard.instrNext)
-            PsychPortAudio('Stop',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
             subAction = 'oneInstrPageForward'; 
             break
 
@@ -233,7 +233,7 @@ elseif any(strcmpi(varargin,'setVolumePrevNext'))
             break
 
         elseif ismember(keyCodePressed, cfg.keyboard.quit)
-            PsychPortAudio('Stop',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
             error('experiment terminated by user'); 
             
         end
@@ -256,7 +256,7 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
     end
     
     % put volume-setting audio into buffer
-    PsychPortAudio('FillBuffer',cfg.pahandle,cfg.volumeSettingSound); 
+    PsychPortAudio('FillBuffer',cfg.audio.pahandle,cfg.volumeSettingSound); 
     
     % set allowed keys  
     allowedKeys = [cfg.keyboard.audioPlay, cfg.keyboard.audioStop, ...
@@ -293,7 +293,7 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
                    sprintf(' Press [%s] to stop test sound\n',KbName(cfg.keyboard.audioStop)), ...
                    sprintf(' Press [%s] to increase volume\n',KbName(cfg.keyboard.volUp)), ...
                    sprintf(' Press [%s] to decrease volume\n',KbName(cfg.keyboard.volDown)), ...
-                   sprintf('\n Volume = %d%%\n',round(PsychPortAudio('Volume',cfg.pahandle)*100)), ...
+                   sprintf('\n Volume = %d%%\n',round(PsychPortAudio('Volume',cfg.audio.pahandle)*100)), ...
                    ]); 
             tbx     = Screen('TextBounds', cfg.screen.win, txt);
             width   = tbx(3);
@@ -320,21 +320,21 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
         keyCodePressed = waitForKeyKbCheck(allowedKeys); 
         
         if ismember(keyCodePressed, cfg.keyboard.audioPlay)
-            PsychPortAudio('Stop',cfg.pahandle); 
-            PsychPortAudio('Start',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
+            PsychPortAudio('Start',cfg.audio.pahandle); 
             
         elseif ismember(keyCodePressed, cfg.keyboard.audioStop)
-            PsychPortAudio('Stop',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
 
         elseif ismember(keyCodePressed, cfg.keyboard.volUp)         
-            oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
+            oldVolume = PsychPortAudio('Volume',cfg.audio.pahandle); 
             newVolume = min(oldVolume+0.05, 1); 
-            PsychPortAudio('Volume',cfg.pahandle,newVolume);
+            PsychPortAudio('Volume',cfg.audio.pahandle,newVolume);
             
         elseif ismember(keyCodePressed, cfg.keyboard.volDown)
-            oldVolume = PsychPortAudio('Volume',cfg.pahandle); 
+            oldVolume = PsychPortAudio('Volume',cfg.audio.pahandle); 
             newVolume = max(oldVolume-0.05, 0); 
-            PsychPortAudio('Volume',cfg.pahandle,newVolume);
+            PsychPortAudio('Volume',cfg.audio.pahandle,newVolume);
  
         elseif ismember(keyCodePressed, cfg.keyboard.toggleInstr)
 
@@ -342,11 +342,11 @@ elseif any(strcmpi(varargin,'setVolumeToggleGeneralInstr'))
             generalInstrOnScreen = ~generalInstrOnScreen; 
                     
         elseif ismember(keyCodePressed, cfg.keyboard.wait)
-            PsychPortAudio('Stop',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
             break
             
         elseif ismember(keyCodePressed, cfg.keyboard.quit)
-            PsychPortAudio('Stop',cfg.pahandle); 
+            PsychPortAudio('Stop',cfg.audio.pahandle); 
             error('experiment terminated by user'); 
             
         end
@@ -392,11 +392,11 @@ elseif any(strcmpi(varargin,'waitForKeypress'))
     keyCodePressed = waitForKeyKbCheck([cfg.keyboard.wait,cfg.keyboard.quit]);  
     
     if ismember(keyCodePressed, cfg.keyboard.wait)
-        PsychPortAudio('Stop',cfg.pahandle); 
+        PsychPortAudio('Stop',cfg.audio.pahandle); 
         return
         
     elseif ismember(keyCodePressed, cfg.keyboard.quit)
-        PsychPortAudio('Stop',cfg.pahandle); 
+        PsychPortAudio('Stop',cfg.audio.pahandle); 
         error('experiment terminated by user'); 
 
     end
