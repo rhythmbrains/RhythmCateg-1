@@ -52,7 +52,7 @@ try
 
     
     % show instructions and do initial volume setting
-    setVolume(cfg);
+    cfg = setVolume(cfg);
 
     % more instructions
     displayInstr(cfg.trialDurInstruction,cfg,'setVolume');
@@ -181,7 +181,8 @@ try
 
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', cfg, logFile);
-    
+    saveEventsFile('close', cfg, responseFile);
+
     
     % save the whole workspace 
     matFile = fullfile(cfg.dir.output, ...
@@ -194,7 +195,7 @@ try
     
     
     % clean the workspace
-    cleanUp(cfg);
+    cleanUp();
 
 
 
@@ -214,7 +215,6 @@ catch
     saveEventsFile('close', cfg, responseFile);
 
     % clean the workspace
-    cleanUp(cfg);
-
+    cleanUp();
     psychrethrow(psychlasterror);
 end
