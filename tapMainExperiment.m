@@ -60,7 +60,7 @@ try
 
 
     % if there's wait time,..wait
-    WaitSecs(2); %expParam.onsetDelay
+    WaitSecs(cfg.timing.startDelay); 
     
     
     

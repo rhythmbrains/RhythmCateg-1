@@ -1,13 +1,16 @@
-function showPauseScreen
+function showPauseScreen(cfg)
 % it shows the pause screen with the relevant instructions and
 % wait till button press
-% after the button press, it waits for 3 more seconds - consider discarding
+% after the button press, it waits for 1 more seconds - consider discarding
 % that - could be confusing for the participants
 
-if iSequence<cfg.pattern.numSequences
+iSequence = cfg.iSequence;
+allNbSequence = cfg.pattern.numSequences;
+
+if iSequence < allNbSequence
     
     % pause (before next sequence starts, wait for key to continue)
-    if cfg.sequenceDelay
+    if cfg.timing.breakDelay
         
         % show sequence-specific instruction if there is some
         % defined
@@ -20,13 +23,13 @@ if iSequence<cfg.pattern.numSequences
         
         % show general instruction after each sequence
         fbkToDisp = sprintf(cfg.generalDelayInstruction, ...
-            iSequence, cfg.pattern.numSequences);
+            iSequence, allNbSequence);
         displayInstr(fbkToDisp, cfg, ...
             'setVolumeToggleGeneralInstr', ...
             'generalInstrTxt', cfg.generalInstruction);
         
         % pause for N secs before starting next sequence
-        WaitSecs(cfg.pauseSeq);
+        WaitSecs(cfg.timing.breakDelay);
     end
     
 else
@@ -35,7 +38,7 @@ else
     displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);
     
     % wait 3 seconds and end the experiment
-    WaitSecs(3);
+    WaitSecs(cfg.timing.stopDelay);
     
 end
 

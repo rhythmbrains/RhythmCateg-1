@@ -80,8 +80,9 @@ cfg = createFilename(cfg);
 %% Timing 
 
 % these are for behavioral exp delays
-cfg.sequenceDelay = 1; %wait in between sequences? y/n
-cfg.pauseSeq = 1; % give a pause of below seconds in between sequences
+cfg.timing.startDelay = 1; % wait before starting exp
+cfg.timing.breakDelay = 1; % give a pause of below seconds in between sequences
+cfg.timing.stopDelay = 1; % wait before ending the experiment
 
 % define ideal number of sequences to be made
 % multiple of 3 is balanced design
