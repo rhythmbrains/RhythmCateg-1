@@ -1,4 +1,5 @@
-
+% TapMainExperiment script which runs the exp and present auditory sequence
+% and records the tapping
 
 % Clear all the previous stuff
 if ~ismac
@@ -39,16 +40,16 @@ try
     % actual inititalization
     logFile = saveEventsFile('open', cfg, logFile);
 
-    % create response file - used for recording tapping
-    responseFile.extraColumns = cfg.extraColumns;
-    [responseFile]  = saveEventsFile('open_stim', cfg, responseFile);
-    
-    % set the real length of columns
-    responseFile(1).extraColumns.LHL24.length = 12;
-    responseFile(1).extraColumns.PE4.length = 12;
-    
-    % actual inititalization
-    [responseFile]  = saveEventsFile('open_stim', cfg, responseFile);
+%     % create response file - used for recording tapping
+%     responseFile.extraColumns = cfg.extraColumns;
+%     [responseFile]  = saveEventsFile('open_stim', cfg, responseFile);
+%     
+%     % set the real length of columns
+%     responseFile(1).extraColumns.LHL24.length = 12;
+%     responseFile(1).extraColumns.PE4.length = 12;
+%     
+%     % actual inititalization
+%     [responseFile]  = saveEventsFile('open_stim', cfg, responseFile);
 
     
     % show instructions and do initial volume setting
@@ -95,7 +96,7 @@ try
 
         %% present stimulus, record tapping
 
-        % response save for BIDS (set up)
+        % response save in the same logfile we keep the trial/sequence info
         responseEvents.fileID = logFile.fileID;            
 
         % fill the buffer
@@ -141,50 +142,14 @@ try
         % save all the taps for this sequence
         cfg.data(iSequence).taps = tapOnsets;
 
-
-        %% Pause
-        if iSequence<cfg.pattern.numSequences
-            
-            % pause (before next sequence starts, wait for key to continue)
-            if cfg.sequenceDelay 
-                
-                % show sequence-specific instruction if there is some
-                % defined
-                if ~isempty(cfg.seqSpecificDelayInstruction{iSequence})
-                    displayInstr(cfg.seqSpecificDelayInstruction{iSequence}, ...
-                                 cfg, ...
-                                 'setVolumeToggleGeneralInstr', ...
-                                 'generalInstrTxt', cfg.generalInstruction);
-                end
-                
-                % show general instruction after each sequence
-                fbkToDisp = sprintf(cfg.generalDelayInstruction, ...
-                                    iSequence, cfg.pattern.numSequences);
-                displayInstr(fbkToDisp, cfg, ...
-                             'setVolumeToggleGeneralInstr', ...
-                             'generalInstrTxt', cfg.generalInstruction);
-                
-                % pause for N secs before starting next sequence
-                WaitSecs(cfg.pauseSeq);
-            end
-            
-        else
-            
-            % end of experient
-            displayInstr('DONE. \n\n\nTHANK YOU FOR PARTICIPATING :)',cfg);
-            
-            % wait 3 seconds and end the experiment
-            WaitSecs(3);
-            
-        end
-
+        % show pause screen in between sequences
+        showPauseScreen(cfg);
+        
     end % sequence loop
-
-
 
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', cfg, logFile);
-    saveEventsFile('close', cfg, responseFile);
+%     saveEventsFile('close', cfg, responseFile);
 
     
     % save the whole workspace 
@@ -215,7 +180,7 @@ catch
     
     % Close the logfiles - BIDS
     saveEventsFile('close', cfg, logFile);
-    saveEventsFile('close', cfg, responseFile);
+%     saveEventsFile('close', cfg, responseFile);
 
     % clean the workspace
     cleanUp();
