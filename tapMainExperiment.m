@@ -14,7 +14,7 @@ end
 initEnv();
 
 % Define the task = 'RhythmFT', 'RhythmBlock'
-% Get parameters by providing task name
+% Get task specific parameters by providing task name
 cfg = getParams('RhythmBlock');
 
 
@@ -39,18 +39,6 @@ try
 
     % actual inititalization
     logFile = saveEventsFile('open', cfg, logFile);
-
-%     % create response file - used for recording tapping
-%     responseFile.extraColumns = cfg.extraColumns;
-%     [responseFile]  = saveEventsFile('open_stim', cfg, responseFile);
-%     
-%     % set the real length of columns
-%     responseFile(1).extraColumns.LHL24.length = 12;
-%     responseFile(1).extraColumns.PE4.length = 12;
-%     
-%     % actual inititalization
-%     [responseFile]  = saveEventsFile('open_stim', cfg, responseFile);
-
     
     % show instructions and do initial volume setting
     cfg = setVolume(cfg);
@@ -58,13 +46,11 @@ try
     % more instructions
     displayInstr(cfg.trialDurInstruction,cfg,'setVolume');
 
-
     % if there's wait time,..wait
     WaitSecs(cfg.timing.startDelay); 
     
     
-    
-    %% play sequences
+    %% play sequences in a loop
     for iSequence = 1:cfg.pattern.numSequences
 
         currSeq = struct();
@@ -75,7 +61,6 @@ try
 
         % construct sequence
         currSeq = makeSequence(cfg,iSequence);
-
         
         % ===========================================
         % stimulus save for BIDS
@@ -145,12 +130,10 @@ try
         % show pause screen in between sequences
         showPauseScreen(cfg);
         
-    end % sequence loop
+    end
 
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', cfg, logFile);
-%     saveEventsFile('close', cfg, responseFile);
-
     
     % save the whole workspace 
     matFile = fullfile(cfg.dir.output, ...
@@ -180,7 +163,6 @@ catch
     
     % Close the logfiles - BIDS
     saveEventsFile('close', cfg, logFile);
-%     saveEventsFile('close', cfg, responseFile);
 
     % clean the workspace
     cleanUp();
