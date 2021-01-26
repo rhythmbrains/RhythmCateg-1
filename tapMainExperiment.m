@@ -15,7 +15,7 @@ initEnv();
 
 % Define the task = 'RhythmFT', 'RhythmBlock'
 % Get task specific parameters by providing task name
-cfg = getParams('RhythmBlock');
+cfg = getParams('RhythmFT');
 
 
 %% Experiment
@@ -78,7 +78,6 @@ try
         
         saveEventsFile('save', cfg, currSeq);
 
-
         %% present stimulus, record tapping
 
         % response save in the same logfile we keep the trial/sequence info
@@ -93,7 +92,6 @@ try
                                        cfg.audio.repeat,...
                                        cfg.audio.startCue, ...
                                        cfg.audio.waitForDevice);
-
         
         % keep collecting tapping until sound stops (log as you go)
         cfg.iSequence = iSequence;
@@ -144,11 +142,8 @@ try
         save(matFile, '-v7.3');
     end
     
-    
     % clean the workspace
     cleanUp();
-
-
 
 catch
 
