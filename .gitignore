@@ -27,3 +27,5 @@ logfiles/
 !stimuli/Grahn2007_simple.txt
 
 output/source/
+
+stimuli/octaveup/*.wav
