@@ -1,14 +1,14 @@
-function target = collectAndSaveEvents(cfg, logFile, currentSequence,SeqNum, audioOnset)
+function target = collectAndSaveEvents(cfg, logFile, currentSequence, SeqNum, audioOnset)
 
-experimentStart = cfg.experimentStart;
+  experimentStart = cfg.experimentStart;
 
-% write into logfile
-currentSequence(1).fileID = logFile(1).fileID;
-currentSequence(1).extraColumns = logFile(1).extraColumns;
+  % write into logfile
+  currentSequence(1).fileID = logFile(1).fileID;
+  currentSequence(1).extraColumns = logFile(1).extraColumns;
 
-% adding columns in currSeq for BIDS format
-for iPattern = 1:numel(currentSequence)
-    
+  % adding columns in currSeq for BIDS format
+  for iPattern = 1:numel(currentSequence)
+
     % correcting onsets for fMRI trigger onset
     currentSequence(iPattern, 1).onset  = ...
         currentSequence(iPattern, 1).onset + audioOnset - experimentStart;
@@ -16,31 +16,28 @@ for iPattern = 1:numel(currentSequence)
         currentSequence(iPattern, 1).segmentOnset + audioOnset - experimentStart;
     currentSequence(iPattern, 1).stepOnset = ...
         currentSequence(iPattern, 1).stepOnset + audioOnset - experimentStart;
-    
-        % adding compulsory BIDS structures
-        if mod(iPattern,4) == 1
-            currentSequence(iPattern, 1).trial_type  = ['block_', ...
-                currentSequence(iPattern, 1).segmentCateg];
-            currentSequence(iPattern, 1).duration = 9.12;
-        else
-          currentSequence(iPattern, 1).trial_type  = ...
-              currentSequence(iPattern, 1).segmentCateg;
-            currentSequence(iPattern, 1).duration    = 2.28;  
-        end
-  
-    
-%     % adding compulsory BIDS structures
-%     currentSequence(iPattern, 1).trial_type  = currentSequence(iPattern, 1).segmentCateg; %'dummy'
-%     currentSequence(iPattern, 1).duration    = 2.28;
-    
+
+    % adding compulsory BIDS structures
+    if mod(iPattern, 4) == 1
+      currentSequence(iPattern, 1).trial_type  = ['block_', ...
+                                                  currentSequence(iPattern, 1).segmentCateg];
+      currentSequence(iPattern, 1).duration = 9.12;
+    else
+      currentSequence(iPattern, 1).trial_type  = ...
+          currentSequence(iPattern, 1).segmentCateg;
+      currentSequence(iPattern, 1).duration    = 2.28;
+    end
+
+    %     % adding compulsory BIDS structures
+    %     currentSequence(iPattern, 1).trial_type  = currentSequence(iPattern, 1).segmentCateg; %'dummy'
+    %     currentSequence(iPattern, 1).duration    = 2.28;
+
     % adding other interest
     currentSequence(iPattern, 1).sequenceNum = SeqNum;
     target(iPattern, 1) = currentSequence(iPattern, 1).isTask;
-    
-end
 
+  end
 
-saveEventsFile('save', cfg, currentSequence);
-
+  saveEventsFile('save', cfg, currentSequence);
 
 end

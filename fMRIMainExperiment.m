@@ -1,13 +1,12 @@
-
 %%
 
 % Clear all the previous stuff
 if ~ismac
-    close all;
-    clear Screen;
+  close all;
+  clear Screen;
 else
-    clc;
-    clear;
+  clc;
+  clear;
 end
 
 % make sure we got access to all the required functions and inputs
@@ -17,161 +16,154 @@ initEnv();
 % Get parameters by providing task name
 cfg = getParams('RhythmFT');
 
-
-
 %% Experiment
 
 % Safety loop: close the screen if code crashes
 try
-    
-    %% Init Experiment
-    % get time point at the beginning of the script (machine time)
-    cfg.timing.scriptStartTime = GetSecs();
 
-    % Init the experiment
-    [cfg] = initPTB(cfg);
+  %% Init Experiment
+  % get time point at the beginning of the script (machine time)
+  cfg.timing.scriptStartTime = GetSecs();
 
-    % create  logfile with extra columns to save - BIDS
-    logFile.extraColumns = cfg.extraColumns;
-    [logFile]  = saveEventsFile('open', cfg, logFile); %dummy initialise
+  % Init the experiment
+  [cfg] = initPTB(cfg);
 
-    % set the real length of columns
-    logFile(1).extraColumns.LHL24.length = 12;
-    logFile(1).extraColumns.PE4.length = 12;
+  % create  logfile with extra columns to save - BIDS
+  logFile.extraColumns = cfg.extraColumns;
+  [logFile]  = saveEventsFile('open', cfg, logFile); % dummy initialise
 
-    % actual inititalization
-    logFile = saveEventsFile('open', cfg, logFile);
-    
-    % create response file - used for counting button press
-    responseFile.extraColumns = cfg.responseExtraColumns;
-    responseFile  = saveEventsFile('open_stim', cfg, responseFile);
+  % set the real length of columns
+  logFile(1).extraColumns.LHL24.length = 12;
+  logFile(1).extraColumns.PE4.length = 12;
 
-    
-    % Show instructions for fMRI task & wait for space press
-    standByScreen(cfg);
+  % actual inititalization
+  logFile = saveEventsFile('open', cfg, logFile);
 
-    % prepare the KbQueue to collect responses
-    getResponse('init', cfg.keyboard.responseBox, cfg);
-    getResponse('start', cfg.keyboard.responseBox);
+  % create response file - used for counting button press
+  responseFile.extraColumns = cfg.responseExtraColumns;
+  responseFile  = saveEventsFile('open_stim', cfg, responseFile);
 
-    % wait for trigger from fMRI
-    cfg.experimentStart = waitForTrigger(cfg);
-    
-    %% Start Experiment
-    % show fixation cross + get timestamp
-    %cfg = getFixationCross(cfg);
-    drawFixation(cfg);
-    Screen('Flip', cfg.screen.win);
+  % Show instructions for fMRI task & wait for space press
+  standByScreen(cfg);
 
-    % take the runNb corresponding sequence
-    iSequence = cfg.subject.runNb;
+  % prepare the KbQueue to collect responses
+  getResponse('init', cfg.keyboard.responseBox, cfg);
+  getResponse('start', cfg.keyboard.responseBox);
 
-    % prep for BIDS saving structures
-    currSeq = struct();
-    responseEvents = struct();
+  % wait for trigger from fMRI
+  cfg.experimentStart = waitForTrigger(cfg);
 
-    % construct sequence
-    currSeq = makeSequence(cfg, iSequence);
-    
-    
-    %% play sequences
-    % fill the buffer % start sound presentation
-    PsychPortAudio('FillBuffer', cfg.audio.pahandle, ...
-        [currSeq.outAudio;currSeq.outAudio]);
-    
-    % wait for baseline delays and then start the audio
-    onset = PsychPortAudio('Start', cfg.audio.pahandle, [], ...
-        cfg.experimentStart + cfg.timing.onsetDelay,1);
-    
-    %% save timing and sequence info
-    % ===========================================
-    % log into matlab structure
-    % ===========================================
-    cfg.timing.sequenceNb = iSequence;
-    cfg.timing.sequenceStart = onset;
-    cfg.timing.experimentStart = cfg.experimentStart;
-    cfg.data(iSequence).sequenceStart = onset;
-    cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume', cfg.audio.pahandle);
-    cfg.data(iSequence).seq = currSeq;
-    
-    % ===========================================
-    % stimulus save for BIDS
-    % ===========================================
-    target = collectAndSaveEvents(cfg, logFile, currSeq,iSequence, onset);
-   
-    %% Wait for audio and delays to catch up
-    % stay here till audio stops & check esc key press
-    waitAndCheckEsc(cfg);
+  %% Start Experiment
+  % show fixation cross + get timestamp
+  % cfg = getFixationCross(cfg);
+  drawFixation(cfg);
+  Screen('Flip', cfg.screen.win);
 
-    %%
-    % record exp ending time
-    cfg.timing.fMRIDuration = GetSecs - cfg.experimentStart;
+  % take the runNb corresponding sequence
+  iSequence = cfg.subject.runNb;
 
-    %% Check button presses
-    % instructions to press
-    displayInstr(cfg.task.instructionPress, cfg);
+  % prep for BIDS saving structures
+  currSeq = struct();
+  responseEvents = struct();
 
-    % wait for participant to press button
-    WaitSecs(cfg.timing.endResponseDelay);
+  % construct sequence
+  currSeq = makeSequence(cfg, iSequence);
 
-    % save response & target
-    cfg.target = target;
-    responseEvents = collectAndSave(cfg, ...
-        responseFile, cfg.experimentStart);
-    
+  %% play sequences
+  % fill the buffer % start sound presentation
+  PsychPortAudio('FillBuffer', cfg.audio.pahandle, ...
+                 [currSeq.outAudio; currSeq.outAudio]);
 
-    %% wrapping up
-    % last screen
-    if cfg.debug.do || cfg.subject.runNb == cfg.pattern.numSequences
-        displayInstr(cfg.task.instructionEnd, cfg);
-    else
-        displayInstr(cfg.task.instructionCont, cfg);
-    end
+  % wait for baseline delays and then start the audio
+  onset = PsychPortAudio('Start', cfg.audio.pahandle, [], ...
+                         cfg.experimentStart + cfg.timing.onsetDelay, 1);
 
-    % wait for ending the screen/exp
-    WaitSecs(cfg.timing.endScreenDelay);
+  %% save timing and sequence info
+  % ===========================================
+  % log into matlab structure
+  % ===========================================
+  cfg.timing.sequenceNb = iSequence;
+  cfg.timing.sequenceStart = onset;
+  cfg.timing.experimentStart = cfg.experimentStart;
+  cfg.data(iSequence).sequenceStart = onset;
+  cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume', cfg.audio.pahandle);
+  cfg.data(iSequence).seq = currSeq;
 
-    % record script ending time
-    cfg.timing.scriptDuration = GetSecs - cfg.experimentStart;
+  % ===========================================
+  % stimulus save for BIDS
+  % ===========================================
+  target = collectAndSaveEvents(cfg, logFile, currSeq, iSequence, onset);
 
-    % clear the buffer & stop key checks
-    getResponse('stop', cfg.keyboard.responseBox);
-    getResponse('release', cfg.keyboard.responseBox);
+  %% Wait for audio and delays to catch up
+  % stay here till audio stops & check esc key press
+  waitAndCheckEsc(cfg);
 
+  %%
+  % record exp ending time
+  cfg.timing.fMRIDuration = GetSecs - cfg.experimentStart;
 
-    %% save
-    % Close the logfiles (tsv)   - BIDS
-    saveEventsFile('close', cfg, logFile);
-    saveEventsFile('close', cfg, responseFile);
+  %% Check button presses
+  % instructions to press
+  displayInstr(cfg.task.instructionPress, cfg);
 
-    % save the whole workspace
-    matFile = fullfile(cfg.dir.output, ...
-        strrep(cfg.fileName.events, 'tsv', 'mat'));
-    if IsOctave
-        save(matFile, '-mat7-binary');
-    else
-        save(matFile, '-v7.3');
-    end
+  % wait for participant to press button
+  WaitSecs(cfg.timing.endResponseDelay);
 
-    createJson(cfg, 'func');
-    %createJson(cfg, cfg);
-    
-    % clean the workspace
-    cleanUp;
+  % save response & target
+  cfg.target = target;
+  responseEvents = collectAndSave(cfg, ...
+                                  responseFile, cfg.experimentStart);
+
+  %% wrapping up
+  % last screen
+  if cfg.debug.do || cfg.subject.runNb == cfg.pattern.numSequences
+    displayInstr(cfg.task.instructionEnd, cfg);
+  else
+    displayInstr(cfg.task.instructionCont, cfg);
+  end
+
+  % wait for ending the screen/exp
+  WaitSecs(cfg.timing.endScreenDelay);
+
+  % record script ending time
+  cfg.timing.scriptDuration = GetSecs - cfg.experimentStart;
+
+  % clear the buffer & stop key checks
+  getResponse('stop', cfg.keyboard.responseBox);
+  getResponse('release', cfg.keyboard.responseBox);
+
+  %% save
+  % Close the logfiles (tsv)   - BIDS
+  saveEventsFile('close', cfg, logFile);
+  saveEventsFile('close', cfg, responseFile);
+
+  % save the whole workspace
+  matFile = fullfile(cfg.dir.output, ...
+                     strrep(cfg.fileName.events, 'tsv', 'mat'));
+  if IsOctave
+    save(matFile, '-mat7-binary');
+  else
+    save(matFile, '-v7.3');
+  end
+
+  createJson(cfg, 'func');
+  % createJson(cfg, cfg);
+
+  % clean the workspace
+  cleanUp;
 
 catch
 
-    % save everything into .mat file
-    matFile = fullfile(cfg.dir.output, ...
-        strrep(cfg.fileName.events, 'tsv', 'mat'));
-    if IsOctave
-        save(matFile, '-mat7-binary');
-    else
-        save(matFile, '-v7.3');
-    end
+  % save everything into .mat file
+  matFile = fullfile(cfg.dir.output, ...
+                     strrep(cfg.fileName.events, 'tsv', 'mat'));
+  if IsOctave
+    save(matFile, '-mat7-binary');
+  else
+    save(matFile, '-v7.3');
+  end
 
-
-    % clean the workspace
-    cleanUp;
-    psychrethrow(psychlasterror);
+  % clean the workspace
+  cleanUp;
+  psychrethrow(psychlasterror);
 end
