@@ -28,17 +28,6 @@ try
   % Init the experiment
   [cfg] = initPTB(cfg);
 
-  % create  logfile with extra columns to save - BIDS
-  logFile.extraColumns = cfg.extraColumns;
-  [logFile]  = saveEventsFile('open', cfg, logFile); % dummy initialise
-
-  % set the real length of columns
-  logFile(1).extraColumns.LHL24.length = 12;
-  logFile(1).extraColumns.PE4.length = 12;
-
-  % actual inititalization
-  logFile = saveEventsFile('open', cfg, logFile);
-
   % show instructions and do initial volume setting
   cfg = setVolume(cfg);
 
@@ -50,85 +39,112 @@ try
 
   %% play sequences in a loop
   for iSequence = 1:cfg.pattern.numSequences
+    
+    % set run to the current iSequence
+    cfg.subject.runNb = iSequence; 
 
-    currSeq = struct();
-    responseEvents = struct();
+    cfg = createFilename(cfg);
+
+    logFile = struct();
+
+    % create events with extra columns to save - BIDS
+    logFile(1).extraColumns = cfg.extraColumns;
+    
+    % dummy initialise
+    logFile = saveEventsFile('init', cfg, logFile); 
+    
+    % set the real length of columns
+    logFile(1).extraColumns.LHL24.length = 12;
+    logFile(1).extraColumns.PE4.length = 12;
+    
+    % actual inititalization
+    logFile = saveEventsFile('open', cfg, logFile);    
+    
+    % construct sequence
+    currSeq = makeSequence(cfg, iSequence);
 
     % change screen to "TAP" instruction
     displayInstr('TAP', cfg, 'instrAndQuitOption');
 
-    % construct sequence
-    currSeq = makeSequence(cfg, iSequence);
-
-    % ===========================================
-    % stimulus save for BIDS
-    % ===========================================
-    % we save sequence by sequence so we clear this variable every loop
-    currSeq(1).fileID = logFile.fileID;
-    currSeq(1).extraColumns = logFile(1).extraColumns;
-
-    % adding columns in currSeq for BIDS format
-    for iPattern = 1:length(currSeq)
-      currSeq(iPattern, 1).trial_type  = 'dummy';
-      currSeq(iPattern, 1).duration    = 0;
-      currSeq(iPattern, 1).sequenceNum = iSequence;
-    end
-
-    saveEventsFile('save', cfg, currSeq);
 
     %% present stimulus, record tapping
-
-    % response save in the same logfile we keep the trial/sequence info
-    responseEvents.fileID = logFile.fileID;
 
     % fill the buffer
     PsychPortAudio('FillBuffer', cfg.audio.pahandle, ...
                    [currSeq.outAudio; currSeq.outAudio]);
 
-    % start playing
-    sequenceOnset = PsychPortAudio('Start', cfg.audio.pahandle, ...
-                                   cfg.audio.repeat, ...
-                                   cfg.audio.startCue, ...
-                                   cfg.audio.waitForDevice);
-
-    % keep collecting tapping until sound stops (log as you go)
-    cfg.iSequence = iSequence;
-    cfg.sequenceOnset = sequenceOnset;
-
-    [tapOnsets, responseEvents] = mb_getResponse(cfg, ...
-                                                 responseEvents, ...
-                                                 currSeq);
-
-    % response save for BIDS (write)
-    if isfield(responseEvents, 'onset')
-      saveEventsFile('save', cfg, responseEvents);
-    end
-
+                               
+    % play sound
+    [tapData, sequenceOnset, trialTerminated] = playSound( ...
+                                                    currSeq.outAudio, ...
+                                                    cfg.audio.fs, ...
+                                                    cfg.audio.pahandle, ...
+                                                    cfg.audio.channels(1), ...
+                                                    cfg.audio.channels(2), ...
+                                                    cfg.audio.trigChanMapping(1), ...
+                                                    cfg.audio.initPushDur, ...
+                                                    cfg.audio.pushDur, ...
+                                                    cfg.keyboard.quit); 
+     
+    %% log data 
+                                                                        
     % ===========================================
-    % log everything into matlab structure
+    % BIDS
+    % ===========================================            
+    collectAndSaveEvents(cfg, logFile, currSeq, iSequence, sequenceOnset);
+    
+    % ---- SAVE tapping as stim file ---- 
+    
+    % downsample 
+    [P,Q] = rat(cfg.audio.fsDs/cfg.audio.fs); 
+    tapDataDs = num2cell(resample(tapData(1,:), P, Q)); 
+    soundDataDs = num2cell(resample(tapData(2,:), P, Q)); 
+            
+    stimFile = []; 
+    
+    % set columns for data
+    stimFile(1).extraColumns = {'tapForce', 'sound'};
+
+    stimFile(1).StartTime = 0; 
+    stimFile(1).SamplingFrequency = cfg.audio.fsDs; 
+
+    % init stim file
+    stimFile = saveEventsFile('init_stim', cfg, stimFile); 
+
+    % output directory (created automatically)
+    stimFile = saveEventsFile('open', cfg, stimFile); 
+    
+    % prepre data
+    [stimFile(1:length(tapDataDs),1).tapForce] = tapDataDs{:}; 
+    [stimFile(1:length(tapDataDs),1).sound] = soundDataDs{:}; 
+
+    % write
+    stimFile = saveEventsFile('save', cfg, stimFile);
+    
+    % Close the logfiles (tsv)   - BIDS
+    saveEventsFile('close', cfg, logFile);
+    saveEventsFile('close', cfg, stimFile);
+  
     % ===========================================
-    % save (machine) onset time for the current sequence
-    cfg.data(iSequence).currSeqStartTime = sequenceOnset;
+    % audiofile
+    % ===========================================
+    fileNameTap = [cfg.fileName.base, ...
+                   cfg.fileName.suffix.run, ...
+                   '_recording-tapping_physio', ...
+                   '_date-',  cfg.fileName.date, ...
+                   '.wav']; 
 
-    % save PTB volume
-    cfg.data(iSequence).ptbVolume = PsychPortAudio('Volume', ...
-                                                   cfg.audio.pahandle);
+    % save tapping with original sampling rate          
+    audiowrite(fullfile(cfg.dir.outputSubject, fileNameTap),...
+               tapData', ...
+               cfg.audio.fs); % 'BitsPerSample' -> only 8 bit resolution to save faster...
 
-    % save current sequence information (without the audio, which can
-    % be easily resynthesized)
-    currSeq(1).outAudio = [];
-    cfg.data(iSequence).seq = currSeq;
-
-    % save all the taps for this sequence
-    cfg.data(iSequence).taps = tapOnsets;
-
+    %% 
     % show pause screen in between sequences
     showPauseScreen(cfg);
 
   end
 
-  % Close the logfiles (tsv)   - BIDS
-  saveEventsFile('close', cfg, logFile);
 
   % save the whole workspace
   matFile = fullfile(cfg.dir.output, ...
@@ -152,9 +168,6 @@ catch
   else
     save(matFile, '-v7.3');
   end
-
-  % Close the logfiles - BIDS
-  saveEventsFile('close', cfg, logFile);
 
   % clean the workspace
   cleanUp();

@@ -1,8 +1,7 @@
 function target = collectAndSaveEvents(cfg, logFile, currentSequence, SeqNum, audioOnset)
 
-  experimentStart = cfg.experimentStart;
-
   % write into logfile
+  currentSequence(1).isStim = false; 
   currentSequence(1).fileID = logFile(1).fileID;
   currentSequence(1).extraColumns = logFile(1).extraColumns;
 
@@ -11,11 +10,11 @@ function target = collectAndSaveEvents(cfg, logFile, currentSequence, SeqNum, au
 
     % correcting onsets for fMRI trigger onset
     currentSequence(iPattern, 1).onset  = ...
-        currentSequence(iPattern, 1).onset + audioOnset - experimentStart;
+        currentSequence(iPattern, 1).onset - audioOnset;
     currentSequence(iPattern, 1).segmentOnset = ...
-        currentSequence(iPattern, 1).segmentOnset + audioOnset - experimentStart;
+        currentSequence(iPattern, 1).segmentOnset - audioOnset;
     currentSequence(iPattern, 1).stepOnset = ...
-        currentSequence(iPattern, 1).stepOnset + audioOnset - experimentStart;
+        currentSequence(iPattern, 1).stepOnset - audioOnset;
 
     % adding compulsory BIDS structures
     if mod(iPattern, 4) == 1

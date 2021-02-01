@@ -198,6 +198,8 @@ end
 
 function cfg = setKeyboards(cfg)
 
+  KbName('UnifyKeyNames') % copmatibility across OS
+
   cfg.keyboard.escapeKey = 'ESCAPE';
   cfg.keyboard.responseKey = {'d', 'a', 'c', 'b'};
   cfg.keyboard.keyboard = [];
@@ -296,12 +298,44 @@ function cfg = setAudio(cfg)
   cfg.audio.fs = 44100;
   % cfg.audio.initVolume = 1;
   % cfg.audio.requestedLatency = 2;
+  
+  
+  cfg.audio.useDevice = true; 
+  cfg.audio.deviceName = 'Fireface'; 
+  
+  % open only 8 channels in 8 out (max 18 on RME)
+  cfg.audio.channels = [8,8];
+  
+  % 1: playback, 2: capture, 3: simult playback+capture
+  cfg.audio.playbackMode = 3;
 
-  %  boolean for equating the dB across different tones for behavioral exp
+  % 3: most drastic setting
+  cfg.audio.requestedLatency = 3;
+
+  % downsampling frequency (to log tap force data)
+  cfg.audio.fsDs = 200;
+  
+  % mapping of trigger values onto audio output channels
+  cfg.audio.trigChanMapping = containers.Map({1, 2, 3}, ...
+                                             {[3], [4], [3,4]});
+  
+  % each small buffer push small duration only (e.g. 0.100 s)
+  cfg.audio.pushDur  = 0.200;
+  
+  % first push will be longer (e.g. 5 s)
+  cfg.audio.initPushDur = 5;
+  
+  % if we're doing capture, we need to initialize buffer with enough space to
+  % store enough data between pushes (when we also pull everything and
+  % reset the acquisition buffer) 
+  cfg.audio.tapBuffDur = 30; % 30s is fine
+
+  % boolean for equating the dB across different tones for behavioral exp
   cfg.equateSoundAmp = 1;
+  
   % sound levels
   cfg.audio.baseAmp = 0.5;
-  cfg.audio.initVolume = 0.3;
+  cfg.audio.initVolume = 0.1; % CAREFUL, safety first with in-ears
 
   if strcmpi(cfg.testingDevice, 'mri')
 
