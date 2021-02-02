@@ -37,7 +37,7 @@ function cfg = getParams(task)
   cfg.debug.do        = true;
   cfg.debug.transpWin = true;     % To test the script with trasparent full size screen
   cfg.debug.smallWin  = false;
-  cfg.verbose         = true;        % add here and there some explanations with if verbose is ON.
+  cfg.verbose         = false;        % add here and there some explanations with if verbose is ON.
 
   %% MRI settings
 
@@ -57,9 +57,6 @@ function cfg = getParams(task)
   % Keyboards
   cfg = setKeyboards(cfg);
 
-  % MRI settings
-  cfg = setMRI(cfg);
-
   cfg.pacedByTriggers.do = false;
 
   %% general configuration
@@ -74,8 +71,8 @@ function cfg = getParams(task)
   %% Timing
 
   % these are for behavioral exp delays
-  cfg.timing.startDelay = 1; % wait before starting exp
-  cfg.timing.breakDelay = 1; % give a pause of below seconds in between sequences
+  cfg.timing.startDelay = 2; % wait before starting exp
+  cfg.timing.breakDelay = 2; % give a pause of below seconds in between sequences
   cfg.timing.stopDelay = 1; % wait before ending the experiment
 
   % define ideal number of sequences to be made

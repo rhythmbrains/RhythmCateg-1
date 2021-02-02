@@ -8,35 +8,25 @@ function target = collectAndSaveEvents(cfg, logFile, currentSequence, SeqNum, au
   % adding columns in currSeq for BIDS format
   for iPattern = 1:numel(currentSequence)
 
-    % correcting onsets for fMRI trigger onset
-    currentSequence(iPattern, 1).onset  = ...
-        currentSequence(iPattern, 1).onset - audioOnset;
-    currentSequence(iPattern, 1).segmentOnset = ...
-        currentSequence(iPattern, 1).segmentOnset - audioOnset;
-    currentSequence(iPattern, 1).stepOnset = ...
-        currentSequence(iPattern, 1).stepOnset - audioOnset;
-
     % adding compulsory BIDS structures
-    if mod(iPattern, 4) == 1
-      currentSequence(iPattern, 1).trial_type  = ['block_', ...
-                                                  currentSequence(iPattern, 1).segmentCateg];
-      currentSequence(iPattern, 1).duration = 9.12;
-    else
-      currentSequence(iPattern, 1).trial_type  = ...
-          currentSequence(iPattern, 1).segmentCateg;
-      currentSequence(iPattern, 1).duration    = 2.28;
-    end
-
-    %     % adding compulsory BIDS structures
-    %     currentSequence(iPattern, 1).trial_type  = currentSequence(iPattern, 1).segmentCateg; %'dummy'
-    %     currentSequence(iPattern, 1).duration    = 2.28;
-
+    currentSequence(iPattern, 1).trial_type = currentSequence(iPattern, 1).segmentCateg;        
+    
+    currentSequence(iPattern, 1).duration = cfg.pattern.interPatternInterval;
+    
     % adding other interest
     currentSequence(iPattern, 1).sequenceNum = SeqNum;
     target(iPattern, 1) = currentSequence(iPattern, 1).isTask;
 
   end
 
-  saveEventsFile('save', cfg, currentSequence);
+  % add dummy event that marks the PTB onset time of the sequence
+  % this can be use to troubleshoot trigger order in biosemi recording to
+  % identify individual trials
+  nEvents = size(currentSequence,1); 
+  currentSequence(nEvents+1, 1).trial_type = 'sequence_onset'; 
+  currentSequence(nEvents+1, 1).onset = audioOnset; 
+  currentSequence(nEvents+1, 1).duration = cfg.pattern.SequenceDur; 
+  
+  saveEventsFile('save', cfg, currentSequence); 
 
 end

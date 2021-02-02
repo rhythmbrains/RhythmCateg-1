@@ -34,6 +34,9 @@ try
   % more instructions
   displayInstr(cfg.trialDurInstruction, cfg, 'setVolume');
 
+  % change screen to "GET READY" instruction
+  displayInstr('GET READY', cfg);
+  
   % if there's wait time,..wait
   WaitSecs(cfg.timing.startDelay);
 
@@ -42,6 +45,7 @@ try
     
     % set run to the current iSequence
     cfg.subject.runNb = iSequence; 
+    cfg.iSequence = iSequence; 
 
     cfg = createFilename(cfg);
 
@@ -68,24 +72,24 @@ try
 
 
     %% present stimulus, record tapping
-
-    % fill the buffer
-    PsychPortAudio('FillBuffer', cfg.audio.pahandle, ...
-                   [currSeq.outAudio; currSeq.outAudio]);
-
                                
     % play sound
-    [tapData, sequenceOnset, trialTerminated] = playSound( ...
-                                                    currSeq.outAudio, ...
-                                                    cfg.audio.fs, ...
-                                                    cfg.audio.pahandle, ...
-                                                    cfg.audio.channels(1), ...
-                                                    cfg.audio.channels(2), ...
-                                                    cfg.audio.trigChanMapping(1), ...
-                                                    cfg.audio.initPushDur, ...
-                                                    cfg.audio.pushDur, ...
-                                                    cfg.keyboard.quit); 
-     
+    [tapData, sequenceOnset, trialTerminated] = playSound(currSeq(1).outAudio, ...
+                                                        cfg.audio.fs, ...
+                                                        cfg.audio.pahandle, ...
+                                                        cfg.audio.channels(1), ...
+                                                        cfg.audio.channels(2), ...
+                                                        cfg.audio.trigChanMapping(1), ...
+                                                        cfg.audio.initPushDur, ...
+                                                        cfg.audio.pushDur, ...
+                                                        cfg.keyboard.quit); 
+       
+    % wait for playback end                                                
+    PsychPortAudio('Stop', cfg.audio.pahandle, 1);  
+    
+    % show quick message to the participant 
+    displayInstr('... saving data, please wait ...', cfg)
+    
     %% log data 
                                                                         
     % ===========================================
@@ -95,10 +99,13 @@ try
     
     % ---- SAVE tapping as stim file ---- 
     
-    % downsample 
+    % downsample tapping
     [P,Q] = rat(cfg.audio.fsDs/cfg.audio.fs); 
     tapDataDs = num2cell(resample(tapData(1,:), P, Q)); 
-    soundDataDs = num2cell(resample(tapData(2,:), P, Q)); 
+    
+    % get stimulus envelope and downsample 
+    env = abs(hilbert(tapData(2,:))); 
+    soundDataDs = num2cell(resample(env, P, Q)); 
             
     stimFile = []; 
     
