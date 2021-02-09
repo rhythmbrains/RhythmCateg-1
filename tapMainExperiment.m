@@ -15,7 +15,7 @@ initEnv();
 
 % Define the task = 'RhythmFT', 'RhythmBlock'
 % Get task specific parameters by providing task name
-cfg = getParams('RhythmFT');
+cfg = getParams('RhythmBlock');
 
 %% Experiment
 
@@ -40,8 +40,12 @@ try
   % if there's wait time,..wait
   WaitSecs(cfg.timing.startDelay);
 
+  % get a list of sequence indices to run (from user defined runNb to the
+  % end) 
+  seqToRun = [cfg.subject.runNb:cfg.pattern.numSequences]; 
+  
   %% play sequences in a loop
-  for iSequence = 1:cfg.pattern.numSequences
+  for iSequence = seqToRun
     
     % set run to the current iSequence
     cfg.subject.runNb = iSequence; 
@@ -154,6 +158,12 @@ try
 
 
   % save the whole workspace
+  currSeq = []; 
+  env = []; 
+  tapData = []; 
+  tapDataDs = []; 
+  soundDataDs = []; 
+  
   matFile = fullfile(cfg.dir.output, ...
                      strrep(cfg.fileName.events, 'tsv', 'mat'));
   if IsOctave

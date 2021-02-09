@@ -66,6 +66,8 @@ function cfg = getParams(task)
 
   % set and load all the subject input to run the experiment
   cfg = userInputs(cfg);
+  cfg.subject.runNb = 1; 
+  
   cfg = createFilename(cfg);
 
   %% Timing
