@@ -270,7 +270,7 @@ function cfg = getTrainingParameters(cfg)
   %% Instructions
   % !!! NOTE: use UTF-8 encoding, otherwise there will be problem with quotation marks
 
-  loadPathInstr = fullfile('lib', 'instr', 'tapTrainer');
+  loadPathInstr = fullfile('subfun', 'instr', 'tapTrainer');
 
   % -----------------------------------
   % general task instructions and intro

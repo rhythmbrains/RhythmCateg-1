@@ -1,55 +1,48 @@
-%
-% TO DO:
-%     - PTB latency test? (but audio capture device may be late anyway so no
-%       point in doing this...)
-%     - test on Windows/Linux
 
-% for complexity check please see following repo:
-% https://github.com/Remi-Gau/matlab_checkcode
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear;
-clc;
-PsychPortAudio('Close');
+% Clear all the previous stuff
+if ~ismac
+  close all;
+  clear Screen;
+else
+  clc;
+  clear;
+end
 
-tic;
-%%
-% paths
 % make sure we got access to all the required functions and inputs
-addpath(genpath(fullfile(pwd, 'lib')));
+initEnv();
 
-% Get parameters by providing task name, device and debugmode
-[cfg, expParam] = getParams('tapTraining', 'pc', 0);
+% Define the task = 'RhythmFT', 'RhythmBlock'
+% Get task specific parameters by providing task name
+cfg = getParams('tapTraining');
 
 % datalogging structure
 datalog = [];
 
+
 % get time point at the beginning of the experiment (machine time)
 datalog.experimentStartTime = GetSecs();
 
-% set and load all the subject input to run the experiment
-[datalog] = getSubjectID(cfg);
-expParam.subjectNb = datalog.subjectNb;
-expParam.runNb = datalog.runNb;
 
 try
   [cfg] = initPTB(cfg);
 
   % Prepare for the output logfiles
-  datalog = saveOutput(cfg, expParam, 'open');
+  datalog = saveOutput(cfg, 'open');
 
   % show instructions and do initial volume setting
   currInstrPage = 1;
-  nInstrPages = length(expParam.taskInstruction);
+  nInstrPages = length(cfg.taskInstruction);
   while 1
     % display instructions and wait for action
-    subAction = displayInstr(expParam.taskInstruction{currInstrPage}, cfg, 'setVolumePrevNext', ...
+    subAction = displayInstr(cfg.taskInstruction{currInstrPage}, cfg, 'setVolumePrevNext', ...
                              'currInstrPage', currInstrPage, ...
                              'nInstrPages', nInstrPages);
     % go one instruction page forward or backward (depending on subject's action)
     if strcmp(subAction, 'oneInstrPageForward')
-      currInstrPage = min(currInstrPage + 1, length(expParam.taskInstruction));
+      currInstrPage = min(currInstrPage + 1, length(cfg.taskInstruction));
     elseif strcmp(subAction, 'oneInstrPageBack')
       currInstrPage = max(currInstrPage - 1, 1);
     elseif strcmp(subAction, 'done')
@@ -129,15 +122,15 @@ try
 
     % show instructions before the sequence
     currInstrPage = 1;
-    nInstrPages = length(expParam.beforeSeqInstruction{currPatterni});
+    nInstrPages = length(cfg.beforeSeqInstruction{currPatterni});
     while 1
       % display instructions and wait for action
-      subAction = displayInstr(expParam.beforeSeqInstruction{currPatterni}{currInstrPage}, cfg, 'setVolumePrevNext', ...
+      subAction = displayInstr(cfg.beforeSeqInstruction{currPatterni}{currInstrPage}, cfg, 'setVolumePrevNext', ...
                                'currInstrPage', currInstrPage, ...
                                'nInstrPages', nInstrPages);
       % go one instruction page forward or backward (depending on subject's action)
       if strcmp(subAction, 'oneInstrPageForward')
-        currInstrPage = min(currInstrPage + 1, length(expParam.beforeSeqInstruction{currPatterni}));
+        currInstrPage = min(currInstrPage + 1, length(cfg.beforeSeqInstruction{currPatterni}));
       elseif strcmp(subAction, 'oneInstrPageBack')
         currInstrPage = max(currInstrPage - 1, 1);
       elseif strcmp(subAction, 'done')
@@ -149,7 +142,7 @@ try
     if currWini <= cfg.nWinNoCue(currPatterni)
       % if part 1 of the sequence
       % look for specific instructions and task
-      instr2disp = expParam.duringSeqInstruction_part1{currPatterni};
+      instr2disp = cfg.duringSeqInstruction_part1{currPatterni};
       currTask = cfg.taskPart1{currPatterni};
       % if not available, use default
       if isempty(instr2disp)
@@ -161,7 +154,7 @@ try
     else
       % if part 2 of the sequence
       % look for specific instructions and task
-      instr2disp = expParam.duringSeqInstruction_part2{currPatterni};
+      instr2disp = cfg.duringSeqInstruction_part2{currPatterni};
       currTask = cfg.taskPart2{currPatterni};
       % if not available, use default
       if isempty(instr2disp)
@@ -183,14 +176,14 @@ try
 
     % if case some stays too long in the while loop, we will need this
     % buffer to allocate
-    PsychPortAudio('FillBuffer', cfg.pahandle, zeros(2, 60 * cfg.fs));
+    PsychPortAudio('FillBuffer', cfg.audio.pahandle, zeros(2, 60 * cfg.fs));
 
     %% start playback
 
     % start playback (note: set repetitions=0, otherwise it will not allow you to seamlessly push more data into the buffer once the sound is playing)
     % starts to play whats in the buffer and play on whatever is in on
     % a seamlessly in the loop
-    currSeqStartTime = PsychPortAudio('Start', cfg.pahandle, 0, [], 1);
+    currSeqStartTime = PsychPortAudio('Start', cfg.audio.pahandle, 0, [], 1);
     % startTime = PsychPortAudio('Start', pahandle [, repetitions=1] [, when=0] [, waitForStart=0] [, stopTime=inf] [, resume=0]);
 
     % 1 sound input into 1 channels also works
@@ -198,11 +191,11 @@ try
 
     % silence is going, then we will upload to the buffer audio sequence after the
     % 1s of silent has started
-    [underflow] = PsychPortAudio('FillBuffer', cfg.pahandle, audio2push, 1, cfg.reqsampleoffset);
+    [underflow] = PsychPortAudio('FillBuffer', cfg.audio.pahandle, audio2push, 1, cfg.audio.requestSampleOffset);
 
     % and update start time (by offset)
     % start time = actual time of audio seq presented
-    currSeqStartTime = currSeqStartTime + cfg.requestoffsettime;
+    currSeqStartTime = currSeqStartTime + cfg.audio.requestTimeOffset;
     currWinStartTime = currSeqStartTime;
     nSamplesAudio2push = 0;
     idx2push = 1;
@@ -217,7 +210,7 @@ try
         [~, tapOnset, keyCode] = KbCheck(-1);
 
         % terminate if quit-button pressed
-        if find(keyCode) == cfg.keyquit
+        if find(keyCode) == cfg.keyboard.quit
           error('Experiment terminated by user...');
         end
 
@@ -231,7 +224,7 @@ try
           % now we have some time before they tap again so let's
           % write to the log file
           fprintf(datalog.fidTapTrainer, '%s\t%d\t%s\t%s\t%f\t%f\t%f\t%d\t%f\t%f\n', ...
-                  datalog.subjectNb, ...               % subject id
+                  cfg.subject.subjectNb, ...               % subject id
                   currPatterni, ...                   % pattern
                   currPatternStr, ...                 % name of the current pattern/track
                   currTask, ...                      % instruction
@@ -252,14 +245,14 @@ try
 
         % if there is any audio waiting to be pushed, push it to the buffer!
         if nSamplesAudio2push
-          if idx2push + cfg.audio.pushsize > nSamplesAudio2push
+          if idx2push + cfg.audio.pushSample > nSamplesAudio2push
             pushdata = audio2push(:, idx2push:end);
             nSamplesAudio2push = 0;
           else
-            pushdata = audio2push(:, idx2push:idx2push + cfg.audio.pushsize - 1);
-            idx2push = idx2push + cfg.audio.pushsize;
+            pushdata = audio2push(:, idx2push:idx2push + cfg.audio.pushSample - 1);
+            idx2push = idx2push + cfg.audio.pushSample;
           end
-          [curunderflow, ~, ~] = PsychPortAudio('FillBuffer', cfg.pahandle, pushdata, 1);
+          [curunderflow, ~, ~] = PsychPortAudio('FillBuffer', cfg.audio.pahandle, pushdata, 1);
         end
 
         % if there is overdue feedback on the screen, remove it
@@ -269,7 +262,7 @@ try
             if currWini <= cfg.nWinNoCue(currPatterni)
               % if part 1 of the sequence
               % look for specific instructions and task
-              instr2disp = expParam.duringSeqInstruction_part1{currPatterni};
+              instr2disp = cfg.duringSeqInstruction_part1{currPatterni};
               currTask = cfg.taskPart1{currPatterni};
               % if not available, use default
               if isempty(instr2disp)
@@ -281,7 +274,7 @@ try
             else
               % if part 2 of the sequence
               % look for specific instructions and task
-              instr2disp = expParam.duringSeqInstruction_part2{currPatterni};
+              instr2disp = cfg.duringSeqInstruction_part2{currPatterni};
               currTask = cfg.taskPart2{currPatterni};
               % if not available, use default
               if isempty(instr2disp)
@@ -375,7 +368,7 @@ try
       if isfield(seq, 'AUDIO_END') | (GetSecs - currSeqStartTime) > cfg.timeOut(currPatterni)
 
         % stop the audio
-        PsychPortAudio('Stop', cfg.pahandle, 1);
+        PsychPortAudio('Stop', cfg.audio.pahandle, 1);
 
         % end the loop over pattern windows (we will continue with
         % the following pattern after participant has a break)
@@ -387,7 +380,7 @@ try
         if currWini + 1 <= cfg.nWinNoCue(currPatterni)
           % if part 1 of the sequence
           % look for specific instructions and task
-          instr2disp = expParam.duringSeqInstruction_part1{currPatterni};
+          instr2disp = cfg.duringSeqInstruction_part1{currPatterni};
           currTask = cfg.taskPart1{currPatterni};
           % if not available, use default
           if isempty(instr2disp)
@@ -399,7 +392,7 @@ try
         else
           % if part 2 of the sequence
           % look for specific instructions and task
-          instr2disp = expParam.duringSeqInstruction_part2{currPatterni};
+          instr2disp = cfg.duringSeqInstruction_part2{currPatterni};
           currTask = cfg.taskPart2{currPatterni};
           % if not available, use default
           if isempty(instr2disp)
@@ -417,7 +410,7 @@ try
       elseif (cueDBleveli == cfg.nCueDB) && (performStatus == cfg.nWinUp_lastLevel)
 
         % stop the audio
-        PsychPortAudio('Stop', cfg.pahandle, 1);
+        PsychPortAudio('Stop', cfg.audio.pahandle, 1);
 
         % end the loop over pattern windows (we will continue with
         % the following pattern after participant has a break)
@@ -522,7 +515,7 @@ try
     datalog.data(currPatterni).taps = taps;
 
     % save PTB volume
-    datalog.data(currPatterni).ptbVolume = PsychPortAudio('Volume', cfg.pahandle);
+    datalog.data(currPatterni).ptbVolume = PsychPortAudio('Volume', cfg.audio.pahandle);
 
     % save other window-level variables
     datalog.data(currPatterni).wini             = winIdxs;
@@ -535,15 +528,15 @@ try
 
     % show instructions after the sequence
     currInstrPage = 1;
-    nInstrPages = length(expParam.afterSeqInstruction{currPatterni});
+    nInstrPages = length(cfg.afterSeqInstruction{currPatterni});
     while 1
       % display instructions and wait for action
-      subAction = displayInstr(expParam.afterSeqInstruction{currPatterni}{currInstrPage}, cfg, 'setVolumePrevNext', ...
+      subAction = displayInstr(cfg.afterSeqInstruction{currPatterni}{currInstrPage}, cfg, 'setVolumePrevNext', ...
                                'currInstrPage', currInstrPage, ...
                                'nInstrPages', nInstrPages);
       % go one instruction page forward or backward (depending on subject's action)
       if strcmp(subAction, 'oneInstrPageForward')
-        currInstrPage = min(currInstrPage + 1, length(expParam.afterSeqInstruction{currPatterni}));
+        currInstrPage = min(currInstrPage + 1, length(cfg.afterSeqInstruction{currPatterni}));
       elseif strcmp(subAction, 'oneInstrPageBack')
         currInstrPage = max(currInstrPage - 1, 1);
       elseif strcmp(subAction, 'done')
@@ -566,23 +559,17 @@ try
 
   end % end of loop over patterns
 
-  saveOutput(cfg, expParam, 'savemat');
-  saveOutput(cfg, expParam, 'close');
+  saveOutput(cfg, 'savemat');
+  saveOutput(cfg, 'close');
 
-  cleanUp(cfg);
-
+  cleanUp();
 catch
 
-  cleanUp(cfg);
+  cleanUp();
 
-  saveOutput(cfg, expParam, 'savemat');
-  saveOutput(cfg, expParam, 'close');
+  saveOutput(cfg, 'savemat');
+  saveOutput(cfg, 'close');
 
   psychrethrow(psychlasterror);
 end
 
-% take the last time
-expTime = toc;
-
-%% print the duration of the exp
-% fprintf('\nexp. duration was %f minutes\n\n', expTime/60);

@@ -44,8 +44,6 @@ function cfg = getParams(task)
   cfg.testingDevice = 'pc';
   cfg.eyeTracker.do = false;          % Set to 'true' if you are testing in MRI and want to record ET data
 
-  % PsychPortAudio('GetDevices')
-  %  cfg.audio.devIdx = 5;
   cfg.audio.do = true;
 
   % set visual
@@ -53,6 +51,11 @@ function cfg = getParams(task)
 
   % set audio
   cfg = setAudio(cfg);
+  
+  % set audio with device
+ if strcmpi(task, 'RhythmFT') || strcmpi(task, 'RhythmBlock')
+     cfg = setAudioExtend(cfg);
+ end
 
   % Keyboards
   cfg = setKeyboards(cfg);
@@ -66,8 +69,10 @@ function cfg = getParams(task)
 
   % set and load all the subject input to run the experiment
   cfg = userInputs(cfg);
-  cfg.subject.runNb = 1; 
-  
+  % set runNb  to 1 for debugging 
+  if cfg.debug.do == 1
+    cfg.subject.runNb = 1; 
+  end
   cfg = createFilename(cfg);
 
   %% Timing
@@ -145,26 +150,22 @@ function cfg = getParams(task)
   cfg = loadTargetTones(cfg);
 
   %% more parameters to get according to the type of experiment
-  % this part is solely for behavioral exp
+  
   % control fMRI script has its getxxx.m instead of in here (getParam.m)
+  % get main experiment parameters
+  cfg = getMainExpParameters(cfg);
+
+  % if main exp is pitchFT or Block:
+  if strcmp(cfg.task.name, 'RhythmBlock')
+    cfg = getBlockParameters(cfg);
+  elseif strcmp(cfg.task.name, 'PitchFT')
+    cfg = getPitchParameters(cfg);
+  end
+    % this part is solely for behavioral exp
   if strcmp(cfg.task.name, 'tapTraining')
 
     % get tapping training parameters
     cfg = getTrainingParameters(cfg);
-
-  elseif strcmp(cfg.task.name, 'tapMainExp') || strcmp(cfg.task.name, 'RhythmFT')
-
-    % get main experiment parameters
-    cfg = getMainExpParameters(cfg);
-
-  elseif strcmp(cfg.task.name, 'RhythmBlock')
-    % get main experiment parameters
-    cfg = getBlockParameters(cfg);
-
-  elseif strcmp(cfg.task.name, 'PitchFT')
-
-    cfg = getPitchParameters(cfg);
-
   end
 
   %% behavioral instructions
@@ -297,7 +298,34 @@ function cfg = setAudio(cfg)
   cfg.audio.fs = 44100;
   % cfg.audio.initVolume = 1;
   % cfg.audio.requestedLatency = 2;
+  cfg.audio.channels = [2];
   
+  cfg.audio.requestTimeOffset = 1;
+  cfg.audio.requestSampleOffset = cfg.audio.fs * cfg.audio.requestTimeOffset;
+  
+  cfg.audio.pushTime = 0.01;
+  cfg.audio.pushSample = cfg.audio.fs * cfg.audio.pushTime;
+  
+
+  % boolean for equating the dB across different tones for behavioral exp
+  cfg.equateSoundAmp = 1;
+  
+  % sound levels
+  cfg.audio.baseAmp = 0.5;
+  cfg.audio.initVolume = 0.1; % CAREFUL, safety first with in-ears
+
+  if strcmpi(cfg.testingDevice, 'mri')
+
+    cfg.audio.baseAmp = 0.99;
+    cfg.audio.initVolume = 1;
+
+    cfg.equateSoundAmp = 0;
+
+  end
+
+end
+
+function cfg = setAudioExtend(cfg)
   
   cfg.audio.useDevice = true; 
   cfg.audio.deviceName = 'Fireface'; 
@@ -329,21 +357,6 @@ function cfg = setAudio(cfg)
   % reset the acquisition buffer) 
   cfg.audio.tapBuffDur = 30; % 30s is fine
 
-  % boolean for equating the dB across different tones for behavioral exp
-  cfg.equateSoundAmp = 1;
-  
-  % sound levels
-  cfg.audio.baseAmp = 0.5;
-  cfg.audio.initVolume = 0.1; % CAREFUL, safety first with in-ears
-
-  if strcmpi(cfg.testingDevice, 'mri')
-
-    cfg.audio.baseAmp = 0.99;
-    cfg.audio.initVolume = 1;
-
-    cfg.equateSoundAmp = 0;
-
-  end
 
 end
 

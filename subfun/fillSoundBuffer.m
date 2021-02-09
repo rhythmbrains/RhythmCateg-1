@@ -1,4 +1,4 @@
-function fillSoundBuffer(s,fs,pahandle,nChannelsOut,nChannelsIn,trigChan)
+function fillSoundBuffer(s,fs,pahandle,nChannelsOut,trigChan)
 
 
 % make s 2xN
