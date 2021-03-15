@@ -134,7 +134,6 @@ try
     
     % Close the logfiles (tsv)   - BIDS
     saveEventsFile('close', cfg, logFile);
-    saveEventsFile('close', cfg, stimFile);
   
     % ===========================================
     % audiofile
