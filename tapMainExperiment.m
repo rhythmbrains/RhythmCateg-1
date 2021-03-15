@@ -1,21 +1,20 @@
+function tapMainExperiment(task, subjectNb, runNb)
 % TapMainExperiment script which runs the exp and present auditory sequence
 % and records the tapping
 
-% Clear all the previous stuff
-if ~ismac
-  close all;
-  clear Screen;
-else
-  clc;
-  clear;
-end
 
 % make sure we got access to all the required functions and inputs
 initEnv();
 
+cfg.subject.subjectGrp = '';
+cfg.subject.subjectNb = subjectNb;
+cfg.subject.sessionNb = 1;
+cfg.subject.runNb = runNb;
+    
+ 
 % Define the task = 'RhythmFT', 'RhythmBlock'
 % Get task specific parameters by providing task name
-cfg = getParams('RhythmBlock');
+cfg = getParams(task,cfg);
 
 %% Experiment
 
@@ -42,10 +41,10 @@ try
 
   % get a list of sequence indices to run (from user defined runNb to the
   % end) 
-  seqToRun = [cfg.subject.runNb:cfg.pattern.numSequences]; 
+ % seqToRun = [cfg.subject.runNb:cfg.pattern.numSequences]; 
   
   %% play sequences in a loop
-  for iSequence = seqToRun
+  for iSequence = cfg.subject.runNb %seqToRun
     
     % set run to the current iSequence
     cfg.subject.runNb = iSequence; 
