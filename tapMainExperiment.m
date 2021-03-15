@@ -15,7 +15,7 @@ initEnv();
 
 % Define the task = 'RhythmFT', 'RhythmBlock'
 % Get task specific parameters by providing task name
-cfg = getParams('RhythmFT');
+cfg = getParams('RhythmBlock');
 
 %% Experiment
 

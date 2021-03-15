@@ -34,8 +34,8 @@ function cfg = getParams(task)
                             'output');
 
   %% Debug mode settings
-  cfg.debug.do        = true;
-  cfg.debug.transpWin = true;     % To test the script with trasparent full size screen
+  cfg.debug.do        = false;
+  cfg.debug.transpWin = false;     % To test the script with trasparent full size screen
   cfg.debug.smallWin  = false;
   cfg.verbose         = false;        % add here and there some explanations with if verbose is ON.
 
