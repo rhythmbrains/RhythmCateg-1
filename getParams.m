@@ -150,13 +150,16 @@ function cfg = getParams(task,cfg)
   
   % control fMRI script has its getxxx.m instead of in here (getParam.m)
   % get main experiment parameters
-  cfg = getMainExpParameters(cfg);
-
+  if strcmp(cfg.task.name, 'RhythmFT')
+    cfg = getMainExpParameters(cfg);
+    
   % if main exp is pitchFT or Block:
-  if strcmp(cfg.task.name, 'RhythmBlock')
+  elseif strcmp(cfg.task.name, 'RhythmBlock')
     cfg = getBlockParameters(cfg);
+    
   elseif strcmp(cfg.task.name, 'PitchFT')
     cfg = getPitchParameters(cfg);
+    
   end
     % this part is solely for behavioral exp
   if strcmp(cfg.task.name, 'tapTraining')
