@@ -28,10 +28,10 @@ function cfg = getParams(task)
     cfg.stimComp = 'linux';
   end
 
-%   % logfile folder - behav exp
-%   cfg.dir.output = fullfile( ...
-%                             fileparts(mfilename('fullpath')), ...
-%                             'output');
+  % logfile folder - behav exp
+  cfg.dir.output = fullfile( ...
+                            fileparts(mfilename('fullpath')), '..', ...
+                            'output');
 
   %% Debug mode settings
   cfg.debug.do        = false;
