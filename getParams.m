@@ -34,7 +34,7 @@ function cfg = getParams(task)
                             'output');
 
   %% Debug mode settings
-  cfg.debug.do        = true;
+  cfg.debug.do        = false;
   cfg.debug.transpWin = true;     % To test the script with trasparent full size screen
   cfg.debug.smallWin  = false;
   cfg.verbose         = false;        % add here and there some explanations with if verbose is ON.
@@ -53,7 +53,7 @@ function cfg = getParams(task)
   cfg = setAudio(cfg);
   
   % set audio with device
- if strcmpi(task, 'RhythmFT') || strcmpi(task, 'RhythmBlock')
+ if strcmpi(cfg.testingDevice, 'pc')
      cfg = setAudioExtend(cfg);
  end
 
