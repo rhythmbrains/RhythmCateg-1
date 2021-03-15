@@ -1,4 +1,4 @@
-function cfg = getParams(task)
+function cfg = getParams(task,cfg)
   % NOTE: in order to use behav + fMRI with 1 getParams, we are using
   % getParam with 3 aguments so it won't interfere with behav script
   % CB edit 0n 09/07/2020
@@ -15,9 +15,6 @@ function cfg = getParams(task)
   % =======
   %     cfg:
   %     expParameters:
-
-  %% Init parameter structures
-  cfg = struct();
 
   %% set the type of your computer
   if IsWin
@@ -70,7 +67,7 @@ function cfg = getParams(task)
   cfg.subject.askGrpSess = [0 0]; % it won't ask you about group or session
 
   % set and load all the subject input to run the experiment
-  cfg = userInputs(cfg);
+ % cfg = userInputs(cfg);
   % set runNb  to 1 for debugging 
   if cfg.debug.do == 1
     cfg.subject.runNb = 1; 
