@@ -160,52 +160,52 @@ function     cfg = getMainExpParameters(cfg)
   % assign in the patternInfo structure
   [cfg.pattern.patternA.segmentLabel]  = deal('A');
   [cfg.pattern.patternB.segmentLabel]  = deal('B');
-  %% generate sequence
-  % for exp like fmri that we will present 1 sequence per run, we are
-  % creating full exp design in the first run and saving it for the other
-  % runs to call .mat file
+  
+    %% generate sequence
 
-  %%%%%%%%%%%%
-  % ! important, the order of arguments matters ! -> getAllSeqDesign(categA, categB, ...)
-  %%%%%%%%%%%%
-  [seqDesignFullExp, seqDesignSegment, ~] = getAllSeqDesign( ...
-                                                            cfg.pattern.patternA, ...
-                                                            cfg.pattern.patternB, ...
-                                                            cfg);
-  % assing these to cfg struct
-  cfg.pattern.seqDesignFullExp = seqDesignFullExp;
-  cfg.pattern.seqDesignSegment = seqDesignSegment;
-
-  % generate example audio for volume setting
-  % added F0s-amplitude because the relative dB set in volume adjustment in
-  % PychPortAudio will be used in the mainExp
-  % if there no if-loop here, during mri exp, it goes to makeStimMainExp and
-  % crashes.!
-  if strcmp(cfg.testingDevice, 'pc')
-    cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1, 16), cfg, ...
+    % create randomized sequence for cfg.pattern.numSequences when run = 1
+    cfg = makefMRISeqDesign(cfg);
+    
+    if strcmp(cfg.testingDevice, 'pc')
+        
+        %remove the fmri task
+        %cfg.pattern = rmfield(cfg.pattern, 'taskIdxMatrix'); 
+        cfg.pattern.taskIdxMatrix =  zeros( cfg.pattern.numSequences, ...
+                                            cfg.pattern.nStepsPerSequence, ...
+                                            cfg.pattern.nSegmPerStep, ...
+                                            cfg.pattern.nPatternPerSegment);
+        
+        % create a test sound for the loudness
+        cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1, 16), cfg, ...
                                                     cfg.pattern.gridIOIs(end), ...
                                                     cfg.pattern.F0s(end), ...
                                                     cfg.pattern.F0sAmps(end)), ...
-                                    2, 1);
-  end
+                                                    2, 1);
+    end
+    
+%   [seqDesignFullExp, seqDesignSegment, ~] = getAllSeqDesign( ...
+%                                                             cfg.pattern.patternA, ...
+%                                                             cfg.pattern.patternB, ...
+%                                                             cfg);
+
+%   % assing these to cfg struct
+%   cfg.pattern.seqDesignFullExp = seqDesignFullExp;
+%   cfg.pattern.seqDesignSegment = seqDesignSegment;
 
   if strcmp(cfg.testingDevice, 'mri')
-    % create randomized sequence for 9 runs when run =1
-    % overwrites cfg.pattern.seqDesignFullExp
-    cfg = makefMRISeqDesign(cfg);
+      
     % overwrite the base amp
     cfg = normaliseEvent(cfg);
+
     cfg.pattern.F0sAmps = cfg.audio.baseAmp * cfg.pattern.F0sAmpGain * ...
         cfg.isTask.rmsRatio;
-    % provide an error'warning if it amp above 1 !
-    % % %
-
-    % % %
-    % can I normalise the target sound to make the max [-1 1]
-    % to increase the amplitude of whole sounds?
-    % % %
   end
 
+  
+  
+  
+  
+  
 end
 
 function [patternA, patternB] = readPatternText(cfg)
