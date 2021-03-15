@@ -163,27 +163,37 @@ function     cfg = getBlockParameters(cfg)
 
   %% generate sequence
 
-  [seqDesignFullExp, seqDesignSegment, ~] = getAllSeqDesign( ...
-                                                            cfg.pattern.patternA, ...
-                                                            cfg.pattern.patternB, ...
-                                                            cfg);
-  % assing these to cfg struct
-  cfg.pattern.seqDesignFullExp = seqDesignFullExp;
-  cfg.pattern.seqDesignSegment = seqDesignSegment;
-
-  if strcmp(cfg.testingDevice, 'pc')
-    cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1, 16), cfg, ...
+    % create randomized sequence for cfg.pattern.numSequences when run = 1
+    cfg = makefMRISeqDesign(cfg);
+    
+    if strcmp(cfg.testingDevice, 'pc')
+        
+        %remove the fmri task
+        %cfg.pattern = rmfield(cfg.pattern, 'taskIdxMatrix'); 
+        cfg.pattern.taskIdxMatrix =  zeros( cfg.pattern.numSequences, ...
+                                            cfg.pattern.nStepsPerSequence, ...
+                                            cfg.pattern.nSegmPerStep, ...
+                                            cfg.pattern.nPatternPerSegment);
+        
+        % create a test sound for the loudness
+        cfg.volumeSettingSound = repmat(makeStimMainExp(ones(1, 16), cfg, ...
                                                     cfg.pattern.gridIOIs(end), ...
                                                     cfg.pattern.F0s(end), ...
                                                     cfg.pattern.F0sAmps(end)), ...
-                                    2, 1);
-  end
+                                                    2, 1);
+    end
+    
+%   [seqDesignFullExp, seqDesignSegment, ~] = getAllSeqDesign( ...
+%                                                             cfg.pattern.patternA, ...
+%                                                             cfg.pattern.patternB, ...
+%                                                             cfg);
+
+%   % assing these to cfg struct
+%   cfg.pattern.seqDesignFullExp = seqDesignFullExp;
+%   cfg.pattern.seqDesignSegment = seqDesignSegment;
 
   if strcmp(cfg.testingDevice, 'mri')
-    % create randomized sequence for 9 runs when run =1
-    % overwrites cfg.pattern.seqDesignFullExp
-    cfg = makefMRISeqDesign(cfg);
-
+      
     % overwrite the base amp
     cfg = normaliseEvent(cfg);
 
