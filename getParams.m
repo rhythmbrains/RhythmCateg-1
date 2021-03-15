@@ -62,6 +62,8 @@ function cfg = getParams(task)
 
   cfg.pacedByTriggers.do = false;
 
+  % task - set default for no-task
+  cfg.isTask.Idx = 0;
   %% general configuration
   % for BIDS format:
   cfg.task.name = task;                % should be calling behav or fmri
@@ -133,8 +135,6 @@ function cfg = getParams(task)
                                ':)\n\n\n Soon we will take you out!'];
     cfg.task.instructionCont = ['This run is over. We will shortly start'...
                                 ' the following ! \n\n\n'];
-    % set default for no-task
-    cfg.isTask.Idx = 0;
 
     % how many targets within 1 pattern
     cfg.isTask.numEvent = 1;
