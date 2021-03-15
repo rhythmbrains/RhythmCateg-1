@@ -1,4 +1,4 @@
-function tapMainExperiment(task, subjectNb, runNb)
+function [whereIsData] = tapMainExperiment(task, subjectNb, runNb)
 % TapMainExperiment script which runs the exp and present auditory sequence
 % and records the tapping
 
@@ -166,6 +166,10 @@ try
 
   end
 
+  % bids files were saved in
+  whereIsData = fullfile( cfg.dir.outputSubject, ...
+            cfg.fileName.modality, ...
+            logFile.filename);
 
   % save the whole workspace
   currSeq = []; 
