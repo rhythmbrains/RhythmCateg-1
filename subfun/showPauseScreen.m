@@ -32,8 +32,8 @@ function showPauseScreen(cfg)
 %       % change screen to "GET READY" instruction
 %       displayInstr('GET READY', cfg);
 %       
-%       % pause for N secs before starting next sequence
-%       WaitSecs(cfg.timing.breakDelay);
+      % pause for N secs before starting next sequence
+      WaitSecs(cfg.timing.breakDelay);
     end
 
   else
