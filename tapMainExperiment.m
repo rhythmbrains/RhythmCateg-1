@@ -27,12 +27,24 @@ try
   % Init the experiment
   [cfg] = initPTB(cfg);
 
-  % show instructions and do initial volume setting
-  cfg = setVolume(cfg);
+  % instructions
+  if cfg.subject.runNb == 1 
+    % show instructions and do initial volume setting
+    cfg = setVolume(cfg);
 
-  % more instructions
-  displayInstr(cfg.trialDurInstruction, cfg, 'setVolume');
-
+    % more instructions
+    displayInstr(cfg.trialDurInstruction, cfg, 'setVolume');
+    
+  else
+      fbkToDisp = sprintf(cfg.generalDelayInstruction, ...
+                          (cfg.subject.runNb-1), ...
+                          cfg.pattern.numSequences);
+      
+      displayInstr(fbkToDisp, cfg, ...
+                   'setVolumeToggleGeneralInstr', ...
+                   'generalInstrTxt', cfg.generalInstruction);
+  end
+  
   % change screen to "GET READY" instruction
   displayInstr('GET READY', cfg);
   
