@@ -50,7 +50,7 @@ function cfg = getParams(task,cfg)
   cfg = setAudio(cfg);
   
   % set audio with device
- if strcmpi(cfg.testingDevice, 'pc')
+ if strcmpi(cfg.testingDevice, 'pc') && ~strcmpi(task, 'tapTraining')
      cfg = setAudioExtend(cfg);
  end
 
@@ -65,9 +65,12 @@ function cfg = getParams(task,cfg)
   % for BIDS format:
   cfg.task.name = task;                % should be calling behav or fmri
   cfg.subject.askGrpSess = [0 0]; % it won't ask you about group or session
-
-  % set and load all the subject input to run the experiment
- % cfg = userInputs(cfg);
+  
+  % ask user input if it is tapTraining exp/session
+  if strcmpi(task, 'tapTraining') 
+    cfg = userInputs(cfg);
+  end
+      
   % set runNb  to 1 for debugging 
   if cfg.debug.do == 1
     cfg.subject.runNb = 1; 
@@ -151,25 +154,36 @@ function cfg = getParams(task,cfg)
   % control fMRI script has its getxxx.m instead of in here (getParam.m)
   % get main experiment parameters
   if strcmp(cfg.task.name, 'RhythmFT')
-    cfg = getMainExpParameters(cfg);
+    
+      cfg = getMainExpParameters(cfg);
+    
+    % load instructions
+    [cfg] = makeBehavInstruction(cfg);
     
   % if main exp is pitchFT or Block:
   elseif strcmp(cfg.task.name, 'RhythmBlock')
-    cfg = getBlockParameters(cfg);
+    
+      cfg = getBlockParameters(cfg);
+    
+    % load instructions
+    [cfg] = makeBehavInstruction(cfg);
     
   elseif strcmp(cfg.task.name, 'PitchFT')
     cfg = getPitchParameters(cfg);
     
-  end
-    % this part is solely for behavioral exp
-  if strcmp(cfg.task.name, 'tapTraining')
-
+    % load instructions
+    [cfg] = makeBehavInstruction(cfg);
+    
+  elseif strcmp(cfg.task.name, 'tapTraining')
+      
     % get tapping training parameters
     cfg = getTrainingParameters(cfg);
+      
   end
 
+
   %% behavioral instructions
-  [cfg] = makeBehavInstruction(cfg);
+ 
 
   %% differentiating response button (subject) from keyboard(experimenter)
   % cfg.responseBox would be the testingDevice used by the participant to give his/her response:

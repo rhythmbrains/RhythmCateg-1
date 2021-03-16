@@ -14,9 +14,11 @@ end
 % make sure we got access to all the required functions and inputs
 initEnv();
 
+
 % Define the task = 'RhythmFT', 'RhythmBlock'
 % Get task specific parameters by providing task name
-cfg = getParams('tapTraining');
+cfg = struct();
+cfg = getParams('tapTraining',cfg);
 
 % datalogging structure
 datalog = [];
