@@ -44,7 +44,7 @@ function [tapData, startTime, trialTerminated] = playSound(s, ...
 % 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-fprintf('\n-> PLAYBACK STARTED <- \n\n(if you need to stop the sound immediately, hold down DELETE)\n\n'); 
+fprintf('\n-> PLAYBACK STARTED <- \n\n(if you need to stop the sound immediately, hold down ESCAPE)\n\n'); 
 
 %  PsychPortAudio('Stop', pahandle);
 

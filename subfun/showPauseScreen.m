@@ -29,9 +29,9 @@ function showPauseScreen(cfg)
                    'setVolumeToggleGeneralInstr', ...
                    'generalInstrTxt', cfg.generalInstruction);
 
-      % change screen to "GET READY" instruction
-      displayInstr('GET READY', cfg);
-      
+%       % change screen to "GET READY" instruction
+%       displayInstr('GET READY', cfg);
+%       
       % pause for N secs before starting next sequence
       WaitSecs(cfg.timing.breakDelay);
     end

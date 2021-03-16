@@ -1,21 +1,20 @@
+function [whereIsData] = tapMainExperiment(task, subjectNb, runNb)
 % TapMainExperiment script which runs the exp and present auditory sequence
 % and records the tapping
 
-% Clear all the previous stuff
-if ~ismac
-  close all;
-  clear Screen;
-else
-  clc;
-  clear;
-end
 
 % make sure we got access to all the required functions and inputs
 initEnv();
 
+cfg.subject.subjectGrp = '';
+cfg.subject.subjectNb = subjectNb;
+cfg.subject.sessionNb = 1;
+cfg.subject.runNb = runNb;
+    
+ 
 % Define the task = 'RhythmFT', 'RhythmBlock'
 % Get task specific parameters by providing task name
-cfg = getParams('RhythmBlock');
+cfg = getParams(task,cfg);
 
 %% Experiment
 
@@ -28,12 +27,24 @@ try
   % Init the experiment
   [cfg] = initPTB(cfg);
 
-  % show instructions and do initial volume setting
-  cfg = setVolume(cfg);
+  % instructions
+  if cfg.subject.runNb == 1 
+    % show instructions and do initial volume setting
+    cfg = setVolume(cfg);
 
-  % more instructions
-  displayInstr(cfg.trialDurInstruction, cfg, 'setVolume');
-
+    % more instructions
+    displayInstr(cfg.trialDurInstruction, cfg, 'setVolume');
+    
+  else
+      fbkToDisp = sprintf(cfg.generalDelayInstruction, ...
+                          (cfg.subject.runNb-1), ...
+                          cfg.pattern.numSequences);
+      
+      displayInstr(fbkToDisp, cfg, ...
+                   'setVolumeToggleGeneralInstr', ...
+                   'generalInstrTxt', cfg.generalInstruction);
+  end
+  
   % change screen to "GET READY" instruction
   displayInstr('GET READY', cfg);
   
@@ -42,10 +53,10 @@ try
 
   % get a list of sequence indices to run (from user defined runNb to the
   % end) 
-  seqToRun = [cfg.subject.runNb:cfg.pattern.numSequences]; 
+ % seqToRun = [cfg.subject.runNb:cfg.pattern.numSequences]; 
   
   %% play sequences in a loop
-  for iSequence = seqToRun
+  for iSequence = cfg.subject.runNb %seqToRun
     
     % set run to the current iSequence
     cfg.subject.runNb = iSequence; 
@@ -155,6 +166,10 @@ try
 
   end
 
+  % bids files were saved in
+  whereIsData = fullfile( cfg.dir.outputSubject, ...
+            cfg.fileName.modality, ...
+            logFile.filename);
 
   % save the whole workspace
   currSeq = []; 
