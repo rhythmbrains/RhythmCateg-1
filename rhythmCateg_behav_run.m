@@ -13,7 +13,7 @@ end
 % make sure we got access to all the required functions and inputs
 initEnv();
 
-subject = 77;
+subject = 11;
 
 tasks = {'RhythmFT','RhythmBlock'};
 

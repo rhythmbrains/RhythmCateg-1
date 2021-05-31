@@ -57,7 +57,7 @@ try
 
   % index (counter) of current pattern that is used in the stimulus
   % sequence
-  currPatterni = 4;
+  currPatterni = 1;
 
   %% loop over patterns (atm, n pattern = $)
   while 1
